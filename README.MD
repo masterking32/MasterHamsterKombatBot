@@ -4,7 +4,7 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 
 ❌ This project is intended for testing purposes only. Please refrain from abusing it. ❌
 
-This bot is designed for professional use, not for amateurs. Please refrain from sending me direct messages on social media regarding this project. If you encounter any issues or errors, kindly create a GitHub issue. Use this bot at your own risk.
+This bot is designed for **professional** use, not for **amateurs**. Please refrain from sending me direct messages on social media regarding this project. If you encounter any issues or errors, kindly create a GitHub issue. Use this bot at your own risk.
 
 Tested and confirmed to work as of `6/10/2024`.
 
