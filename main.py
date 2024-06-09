@@ -1,3 +1,7 @@
+# Developed by: MasterkinG32
+# Date: 2024
+# Github: https://github.com/masterking32
+
 import datetime
 import json
 import time
