@@ -3,19 +3,27 @@
 [![GitHub stars](https://img.shields.io/github/stars/masterking32/MasterHamsterKombatBot.svg)](https://github.com/masterking32/MasterHamsterKombatBot/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/masterking32/MasterHamsterKombatBot.svg)](https://github.com/masterking32/MasterHamsterKombatBot/issues)
 
+<hr>
+
 The Master Hamster Kombat Bot is a testing bot designed to find the best card for you based on price and profit per hour. It also has the capability to purchase cards on your behalf.
 
 ❌ This project is intended for testing purposes only. Please refrain from abusing it. ❌
 
 ⚠️ This bot is designed for **professional** use, not for **amateurs**. Please refrain from sending me direct messages on social media regarding this project. If you encounter any issues or errors, kindly create a GitHub issue. Use this bot at your own risk. ⚠️
 
+<hr>
+
 ✅ Tested and confirmed to work as of `6/10/2024`. ✅
 
 ⭐ If you find this project useful, please consider giving it a star! ⭐
 
+<hr>
+
 ## 🗒️ Changelogs
 
 - Fixed some issues and added the ability to perform all of your taps. (6/10/2024)
+
+<hr>
 
 ## 💻 Installation
 
@@ -26,11 +34,28 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 5. Run the command `py main.py`.
 6. Enjoy!
 
+<hr>
+
 ## 📽️ Tutorial and Test
 
 <a href="https://www.youtube.com/watch?v=cjWE7DmMFgw">
   <img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/thumbnail.png" alt="Youtube Video" />
 </a>
+
+<hr>
+
+💵 If you're a fan of our project and want to support us, consider donating crypto. Your support will help us improve and expand, providing even more value to our users. Thank you for your generosity! 💵
+
+TRON (TRX/USDT/...)
+`TLApdY8APWkFHHoxebxGY8JhMeChiETqFH`
+
+BNB (BEP2):
+`bnb1vlyu4rllf752n02m4hgvce744ud90mwkn9rvvq`
+
+RONIN:
+`masterking.ron`
+
+<hr>
 
 # Encountered an Issue or Problem?
 
@@ -39,3 +64,5 @@ Feel free to [open a new issue](https://github.com/masterking32/MasterHamsterKom
 ---
 
 Developed By [MasterkinG32](https://github.com/masterking32)
+
+<hr>
