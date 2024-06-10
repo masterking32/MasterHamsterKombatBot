@@ -10,7 +10,7 @@ import requests
 Authorization = "Bearer TOKEN_HERE" # GET from web browser console!
 Upgrades_Start = 2000000 # Start upgrades at 2m
 Upgrades_Min = 100000 # Upgrades until budget is 100k
-UserAgent = "A user agent string here..."
+UserAgent = "Mozilla/5.0 (Linux; Android 14; SAMSUNG SM-A057F) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/21.0 Chrome/110.0.5481.154 Mobile Safari/537.36"
 
 # Sort upgrades by best profit per hour
 def SortUpgrades(upgrades, max_budget):
