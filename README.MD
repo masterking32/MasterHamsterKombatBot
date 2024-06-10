@@ -1,5 +1,9 @@
 # Master Hamster Kombat Bot!
 
+[![GitHub stars](https://img.shields.io/github/stars/masterking32/MasterHamsterKombatBot.svg)](https://github.com/masterking32/MasterHamsterKombatBot/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/masterking32/MasterHamsterKombatBot.svg)](https://github.com/masterking32/MasterHamsterKombatBot/issues)
+[![Views](https://gpvc.arturio.dev/masterking32MasterHamsterKombatBot)](https://masterking32.com)
+
 The Master Hamster Kombat Bot is a testing bot designed to find the best card for you based on price and profit per hour. It also has the capability to purchase cards on your behalf.
 
 ❌ This project is intended for testing purposes only. Please refrain from abusing it. ❌
@@ -10,7 +14,7 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 
 ⭐ If you find this project useful, please consider giving it a star! ⭐
 
-# Installation
+## 💻 Installation
 
 1. Install Python 3.
 2. Install the required packages, `requests`
@@ -19,15 +23,11 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 5. Run the command `py main.py`.
 6. Enjoy!
 
-# How to Find Your Bearer Token?
+## 📽️ Tutorial and Test
 
-⚠️ Please note that I cannot guarantee the safety of this method. Use it at your own risk. ⚠️
-
-You can watch the following video to learn how to open the game in the Chrome browser:
-
-[Tutorial](https://youtu.be/cjWE7DmMFgw)
-
-Afterwards, you can find the `Authorization Bearer token` in your request headers.
+<a href="https://www.youtube.com/watch?v=cjWE7DmMFgw">
+  <img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/thumbnail.png" alt="Youtube Video" />
+</a>
 
 # Encountered an Issue or Problem?
 
