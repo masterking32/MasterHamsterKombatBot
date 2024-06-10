@@ -193,6 +193,63 @@ def Tap(count):
     TapRequest(count)
     return True
 
+def BoostsToBuyListOptionsRequest():
+    url = "https://api.hamsterkombat.io/clicker/boosts-for-buy"
+    headers = {
+        "Access-Control-Request-Headers": "authorization",
+        "Access-Control-Request-Method": "POST",
+    }
+
+    HttpRequest(url, headers, "OPTIONS", 204)
+    return True
+
+def BoostsToBuyListRequest():
+    url = "https://api.hamsterkombat.io/clicker/boosts-for-buy"
+    headers = {
+        "Authorization": Authorization,
+    }
+
+    return HttpRequest(url, headers, "POST", 200)
+
+def GetBoostsToBuyList():
+    BoostsToBuyListOptionsRequest()
+    response = BoostsToBuyListRequest()
+
+    if response is None:
+        return None
+
+    return response
+
+def BuyBoostOptionRequest():
+    url = "https://api.hamsterkombat.io/clicker/buy-boost"
+    headers = {
+        "Access-Control-Request-Headers": "authorization,content-type",
+        "Access-Control-Request-Method": "POST",
+    }
+
+    HttpRequest(url, headers, "OPTIONS", 204)
+    return True
+
+
+def BuyBoostRequest(boost_id):
+    url = "https://api.hamsterkombat.io/clicker/buy-boost"
+    headers = {
+        "Accept": "application/json",
+        "Authorization": Authorization,
+        "Content-Type": "application/json",
+    }
+
+    payload = json.dumps({
+        "boostId": boost_id,
+        "timestamp": int(datetime.datetime.now().timestamp() * 1000)
+    })
+
+    return HttpRequest(url, headers, "POST", 200, payload)
+
+def SendBuyBoostRequest(boost_id):
+    BuyBoostOptionRequest()
+    BuyBoostRequest(boost_id)
+
 def main():
     # Get account data
     account_data = SyncData()
@@ -206,8 +263,46 @@ def main():
 
     print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
     print("Starting to tap...")
+    time.sleep(2)
     Tap(availableTaps)
     print("Tapping completed successfully.")
+    print("Checking for free boosts...")
+    while True:
+        BoostList = GetBoostsToBuyList()
+
+        if BoostList is None or len(BoostList["boostsForBuy"]) == 0 or "boostsForBuy" not in BoostList:
+            print("Failed to get boost list")
+            break
+
+        BoostForTapList = None
+        for boost in BoostList["boostsForBuy"]:
+            if boost["price"] == 0 and boost["id"] == "BoostFullAvailableTaps":
+                BoostForTapList = boost
+                break
+
+        if BoostForTapList is None or "price" not in BoostForTapList or "cooldownSeconds" not in BoostForTapList or BoostForTapList["price"] != 0 or BoostForTapList["cooldownSeconds"] > 0:
+            print("No free boosts available")
+            break
+
+        print("Free boost found, attempting to buy...")
+        time.sleep(5)
+        SendBuyBoostRequest(BoostForTapList["id"])
+        print("Free boost bought successfully")
+        time.sleep(1)
+
+        account_data = SyncData()
+        if account_data is None:
+            return
+        balanceCoins = account_data["clickerUser"]["balanceCoins"]
+        availableTaps = account_data["clickerUser"]["availableTaps"]
+        maxTaps = account_data["clickerUser"]["maxTaps"]
+
+        print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
+        print("Starting to tap...")
+        time.sleep(3)
+        Tap(availableTaps)
+        print("Tapping completed successfully.")
+
 
     account_data = SyncData()
     if account_data is None:

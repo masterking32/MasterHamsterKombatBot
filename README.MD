@@ -22,6 +22,7 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 ## 🗒️ Changelogs
 
 - Fixed some issues and added the ability to perform all of your taps. (6/10/2024)
+- Added a new feature that allows tapping all available taps, purchasing free boosts if available, and then tapping all the new taps again. (6/10/2024)
 
 <hr>
 
