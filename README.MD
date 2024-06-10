@@ -2,7 +2,6 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/masterking32/MasterHamsterKombatBot.svg)](https://github.com/masterking32/MasterHamsterKombatBot/stargazers)
 [![GitHub issues](https://img.shields.io/github/issues/masterking32/MasterHamsterKombatBot.svg)](https://github.com/masterking32/MasterHamsterKombatBot/issues)
-[![Views](https://gpvc.arturio.dev/masterking32MasterHamsterKombatBot)](https://masterking32.com)
 
 The Master Hamster Kombat Bot is a testing bot designed to find the best card for you based on price and profit per hour. It also has the capability to purchase cards on your behalf.
 
