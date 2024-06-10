@@ -25,7 +25,7 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 
 You can watch the following video to learn how to open the game in the Chrome browser:
 
-[Tutorial: How to Open Game in Chrome Browser](https://www.youtube.com/watch?v=nJ9wndPoHvk)
+[Tutorial](https://youtu.be/cjWE7DmMFgw)
 
 Afterwards, you can find the `Authorization Bearer token` in your request headers.
 
