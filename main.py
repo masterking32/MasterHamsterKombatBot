@@ -8,7 +8,7 @@ import time
 import requests
 
 Authorization = "Bearer TOKEN_HERE" # GET from web browser console!
-Upgrades_Start = 1000000 # Start upgrades at 3m
+Upgrades_Start = 2000000 # Start upgrades at 2m
 Upgrades_Min = 100000 # Upgrades until budget is 100k
 UserAgent = "A user agent string here..."
 
@@ -171,6 +171,8 @@ def main():
     balanceCoins = account_data["clickerUser"]["balanceCoins"]
     print("Account Balance Coins: ", number_to_string(balanceCoins))
 
+    NewProfitPerHour = 0
+    SpendTokens = 0
     # Start buying upgrades if balance is more than Upgrades_Start
     if balanceCoins >= Upgrades_Start:
         print("Starting to buy upgrades...")
@@ -192,11 +194,17 @@ def main():
                 if not item["isExpired"] and item["isAvailable"] and item["profitPerHourDelta"] > 0 and ("cooldownSeconds" not in item or item["cooldownSeconds"] == 0)
             ]
 
+            if len(upgrades) == 0 or 0 not in upgrades:
+                print("No upgrades available, Please try again later...")
+                return
+
             balanceCoins = int(balanceCoins)
             print("Searching for the best upgrades...")
             selected_upgrades = SortUpgrades(upgrades, balanceCoins)
             print(f"Best upgrade is {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}")
             balanceCoins -= selected_upgrades[0]["price"]
+            NewProfitPerHour += selected_upgrades[0]["profitPerHourDelta"]
+            SpendTokens += selected_upgrades[0]["price"]
             print("Attempting to buy an upgrade...")
             upgradesResponse = SendBuyRequest(selected_upgrades[0]["id"])
             print("Upgrade bought, New balance: ", number_to_string(balanceCoins))
@@ -209,7 +217,7 @@ def main():
             return
 
         balanceCoins = account_data["clickerUser"]["balanceCoins"]
-        print(f"Final account balance: {number_to_string(balanceCoins)} coins.")
+        print(f"Final account balance: {number_to_string(balanceCoins)} coins, Your profit per hour increased by {number_to_string(NewProfitPerHour)} coins, Spend tokens: {number_to_string(SpendTokens)}")
     else:
         print("Balance is too low to start buying upgrades...")
 
