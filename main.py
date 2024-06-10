@@ -194,13 +194,18 @@ def main():
                 if not item["isExpired"] and item["isAvailable"] and item["profitPerHourDelta"] > 0 and ("cooldownSeconds" not in item or item["cooldownSeconds"] == 0)
             ]
 
-            if len(upgrades) == 0 or 0 not in upgrades:
+            if len(upgrades) == 0:
                 print("No upgrades available, Please try again later...")
                 return
 
             balanceCoins = int(balanceCoins)
             print("Searching for the best upgrades...")
+
             selected_upgrades = SortUpgrades(upgrades, balanceCoins)
+            if len(selected_upgrades) == 0:
+                print("No upgrades available, Please try again later...")
+                return
+
             print(f"Best upgrade is {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}")
             balanceCoins -= selected_upgrades[0]["price"]
             NewProfitPerHour += selected_upgrades[0]["profitPerHourDelta"]
