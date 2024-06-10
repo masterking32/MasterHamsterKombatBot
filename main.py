@@ -103,7 +103,7 @@ def SyncData():
 def upgradesForBuyOptionsRequest():
     url = "https://api.hamsterkombat.io/clicker/upgrades-for-buy"
     headers = {
-        "Access-Control-Request-Headers": "authorization",
+        "Access-Control-Request-Headers": "authorization,content-type",
         "Access-Control-Request-Method": "POST",
     }
 
@@ -144,7 +144,7 @@ def buyUpgradeRequest(UpgradeId):
         "timestamp": int(datetime.datetime.now().timestamp() * 1000)
     })
 
-    return requests.post(url, headers=headers, data=payload)
+    return HttpRequest(url, headers, "POST", 200, payload)
 
 # Send upgrade request
 def SendBuyRequest(upgrade_id):
@@ -161,6 +161,38 @@ def GetUpgradeList():
 
     return response
 
+def TapOptionRequest():
+    url = "https://api.hamsterkombat.io/clicker/upgrades-for-buy"
+    headers = {
+        "Access-Control-Request-Headers": "authorization,content-type",
+        "Access-Control-Request-Method": "POST",
+    }
+
+    HttpRequest(url, headers, "OPTIONS", 204)
+    return True
+
+def TapRequest(tap_count):
+    url = "https://api.hamsterkombat.io/clicker/tap"
+
+    headers = {
+        "Accept": "application/json",
+        "Authorization": Authorization,
+        "Content-Type": "application/json",
+    }
+
+    payload = json.dumps({
+        "timestamp": int(datetime.datetime.now().timestamp() * 1000),
+        "availableTaps": 0,
+        "count": int(tap_count)
+    })
+
+    return HttpRequest(url, headers, "POST", 200, payload)
+
+def Tap(count):
+    TapOptionRequest()
+    TapRequest(count)
+    return True
+
 def main():
     # Get account data
     account_data = SyncData()
@@ -169,7 +201,22 @@ def main():
 
     # Get balance coins
     balanceCoins = account_data["clickerUser"]["balanceCoins"]
-    print("Account Balance Coins: ", number_to_string(balanceCoins))
+    availableTaps = account_data["clickerUser"]["availableTaps"]
+    maxTaps = account_data["clickerUser"]["maxTaps"]
+
+    print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
+    print("Starting to tap...")
+    Tap(availableTaps)
+    print("Tapping completed successfully.")
+
+    account_data = SyncData()
+    if account_data is None:
+        return
+    balanceCoins = account_data["clickerUser"]["balanceCoins"]
+    availableTaps = account_data["clickerUser"]["availableTaps"]
+    maxTaps = account_data["clickerUser"]["maxTaps"]
+
+    print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
 
     NewProfitPerHour = 0
     SpendTokens = 0

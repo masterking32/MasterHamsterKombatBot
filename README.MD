@@ -14,6 +14,10 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 
 ⭐ If you find this project useful, please consider giving it a star! ⭐
 
+## 🗒️ Changelogs
+
+- Fixed some issues and added the ability to perform all of your taps. (6/10/2024)
+
 ## 💻 Installation
 
 1. Install Python 3.
