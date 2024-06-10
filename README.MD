@@ -21,6 +21,7 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 
 ## 🗒️ Changelogs
 
+- Get list of cards and automatically buy best cards based on return value (This feature allows you to retrieve a list of available cards and automatically purchase the best cards based on their return value. The return value is determined by comparing the price of the card with its profit per hour. By automating this process, you can optimize your card selection and maximize your earnings, 6/10/2024)
 - Fixed some issues and added the ability to perform all of your taps. (6/10/2024)
 - Added a new feature that allows tapping all available taps, purchasing free boosts if available, and then tapping all the new taps again. (6/10/2024)
 
