@@ -196,7 +196,7 @@ def main():
 
             if len(upgrades) == 0:
                 print("No upgrades available, Please try again later...")
-                return
+                break
 
             balanceCoins = int(balanceCoins)
             print("Searching for the best upgrades...")
@@ -204,7 +204,7 @@ def main():
             selected_upgrades = SortUpgrades(upgrades, balanceCoins)
             if len(selected_upgrades) == 0:
                 print("No upgrades available, Please try again later...")
-                return
+                break
 
             print(f"Best upgrade is {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}")
             balanceCoins -= selected_upgrades[0]["price"]
