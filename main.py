@@ -3,6 +3,7 @@
 # Github: https://github.com/masterking32
 
 import datetime
+import requests
 import json
 import time
 import logging
@@ -49,39 +50,76 @@ log.setLevel(LOG_LEVEL)
 log.addHandler(stream)
 
 
-# Send sync request [Options]
-def syncOptionsRequest():
-    url = "https://api.hamsterkombat.io/clicker/sync"
-    headers = {
-        "Access-Control-Request-Headers": "authorization",
-        "Access-Control-Request-Method": "POST",
-    }
+class HamsterKombatAccount:
+    def __init__(self, account_name, Authorization, UserAgent, Proxy, config):
+        self.account_name = account_name
+        self.Authorization = Authorization
+        self.UserAgent = UserAgent
+        self.Proxy = Proxy
+        self.config = config
 
-    HttpRequest(url, headers, "OPTIONS", 204)
-    return True
+    # Send HTTP requests
+    def HttpRequest(
+        self,
+        url,
+        headers,
+        method="POST",
+        validStatusCodes=200,
+        payload=None,
+    ):
+        # Default headers
+        defaultHeaders = {
+            "Accept": "*/*",
+            "Connection": "keep-alive",
+            "Host": "api.hamsterkombat.io",
+            "Origin": "https://hamsterkombat.io",
+            "Referer": "https://hamsterkombat.io/",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "same-site",
+            "User-Agent": self.UserAgent,
+        }
 
+        # Add and replace new headers to default headers
+        for key, value in headers.items():
+            defaultHeaders[key] = value
 
-# Getting sync data
-def syncRequest():
-    url = "https://api.hamsterkombat.io/clicker/sync"
-    headers = {
-        "Authorization": Authorization,
-    }
-    return HttpRequest(url, headers, "POST", 200)
+        if method == "POST":
+            response = requests.post(
+                url, headers=headers, data=payload, proxies=self.Proxy
+            )
+        elif method == "OPTIONS":
+            response = requests.options(url, headers=headers, proxies=self.Proxy)
+        else:
+            print("Invalid method: ", method)
+            return False
 
+        if response.status_code != validStatusCodes:
+            print("Request failed: ", response.status_code)
+            return False
 
-# Sync data and get account data
-def SyncData():
-    syncOptionsRequest()
-    response = syncRequest()
+        if method == "OPTIONS":
+            return True
 
-    if response is None:
-        return None
+        return response.json()
 
-    if "clickerUser" not in response:
-        return None
+    # Sending sync request
+    def syncOptionsRequest(self):
+        url = "https://api.hamsterkombat.io/clicker/sync"
+        headers = {
+            "Access-Control-Request-Headers": self.Authorization,
+            "Access-Control-Request-Method": "POST",
+        }
 
-    return response
+        # Send OPTIONS request
+        HttpRequest(url, headers, "OPTIONS", 204, None, self.Proxy, self.UserAgent)
+
+        headers = {
+            "Authorization": self.Authorization,
+        }
+
+        # Send POST request
+        return HttpRequest(url, headers, "POST", 200, None, self.Proxy, self.UserAgent)
 
 
 #  Get list of upgrades [Options]
