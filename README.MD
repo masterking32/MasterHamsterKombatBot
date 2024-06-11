@@ -9,33 +9,44 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 
 ❌ This project is intended for testing purposes only. Please refrain from abusing it. ❌
 
-⚠️ This bot is designed for **professional** use, not for **amateurs**. Please refrain from sending me direct messages on social media regarding this project. If you encounter any issues or errors, kindly create a GitHub issue. Use this bot at your own risk. ⚠️
+⚠️ Please use GitHub [Discussions](https://github.com/masterking32/MasterHamsterKombatBot/discussions) and [Issues](https://github.com/masterking32/MasterHamsterKombatBot/issues) to report problems and engage in discussions with others about the project. Don't forget to star and watch the project to receive notifications for new updates. ⚠️
 
 <hr>
 
-✅ Tested and confirmed to work as of `6/10/2024`. ✅
+✅ Tested and confirmed to work as of `12 Jun 2024`. ✅
 
-⭐ If you find this project useful, please consider giving it a star! ⭐
+#### ⭐ If you find this project useful, please consider giving it a star! ⭐
 
 <hr>
 
 ## 🗒️ Changelogs
 
-- Get list of cards and automatically buy best cards based on return value (This feature allows you to retrieve a list of available cards and automatically purchase the best cards based on their return value. The return value is determined by comparing the price of the card with its profit per hour. By automating this process, you can optimize your card selection and maximize your earnings, 6/10/2024)
-- Fixed some issues and added the ability to perform all of your taps. (6/10/2024)
-- Added a new feature that allows tapping all available taps, purchasing free boosts if available, and then tapping all the new taps again. (6/10/2024)
+- Get list of cards and automatically buy best cards based on return value (This feature allows you to retrieve a list of available cards and automatically purchase the best cards based on their return value. The return value is determined by comparing the price of the card with its profit per hour. By automating this process, you can optimize your card selection and maximize your earnings, 10 Jun 2024)
+- Fixed some issues and added the ability to perform all of your taps. (10 Jun 2024)
+
+- **Added support for multi-accounts**. (June 12, 2024)
+- Implemented a timer to periodically check the accounts. (June 12, 2024)
+- Support setting a specific **proxy** for each account. - (June 12, 2024)
 
 <hr>
 
 ## 💻 Installation
 
 1. Install Python 3.
-2. Install the required packages, `requests`
-3. Locate your `Authorization Bearer token` and place it in the `main.py` file. [How to Obtain a Token and Set Up the Bot?](https://www.youtube.com/watch?v=cjWE7DmMFgw)
-4. [Find your device's UserAgent](https://github.com/masterking32/MasterHamsterKombatBot/blob/main/useful_files/user-agents.md) and place it in the `main.py` file.
-5. Make any necessary modifications.
-6. Execute the command `py main.py`.
-7. Have fun!
+2. Install the required packages,
+
+```bash
+pip install requests colorlog
+```
+
+3. Add your accounts
+
+- Locate your `Authorization Bearer token` and place it in the `main.py` file. [How to Obtain a Token and Set Up the Bot?](https://www.youtube.com/watch?v=cjWE7DmMFgw)
+- [Find your device's UserAgent](https://github.com/masterking32/MasterHamsterKombatBot/blob/main/useful_files/user-agents.md) and place it in the `main.py` file.
+- Configure accounts
+
+4. Execute the command `py main.py`.
+5. Have fun!
 
 <hr>
 
@@ -65,7 +76,7 @@ RONIN Chain:
 
 # Encountered an Issue or Problem?
 
-Feel free to [open a new issue](https://github.com/masterking32/MasterHamsterKombatBot/issues) if you encounter any problems.
+Feel free to [open a new issue](https://github.com/masterking32/MasterHamsterKombatBot/issues) if you encounter any problems or start a new discussion in the [discussions](https://github.com/masterking32/MasterHamsterKombatBot/discussions) section.
 
 ---
 
