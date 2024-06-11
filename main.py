@@ -58,6 +58,10 @@ class HamsterKombatAccount:
         self.Proxy = Proxy
         self.config = config
 
+    # Check if the device is an Android device
+    def isAndroidDevice(self):
+        return "Android" in self.UserAgent
+
     # Send HTTP requests
     def HttpRequest(
         self,
@@ -79,6 +83,15 @@ class HamsterKombatAccount:
             "Sec-Fetch-Site": "same-site",
             "User-Agent": self.UserAgent,
         }
+
+        # Add default headers for Android devices to avoid detection, Not needed for iOS devices
+        if self.isAndroidDevice():
+            defaultHeaders["HTTP_SEC_CH_UA_PLATFORM"] = '"Android"'
+            defaultHeaders["HTTP_SEC_CH_UA_MOBILE"] = "?1"
+            defaultHeaders["HTTP_SEC_CH_UA"] = (
+                '"Android WebView";v="125", "Chromium";v="125", "Not.A/Brand";v="24"'
+            )
+            defaultHeaders["HTTP_X_REQUESTED_WITH"] = "org.telegram.messenger.web"
 
         # Add and replace new headers to default headers
         for key, value in headers.items():
