@@ -30,12 +30,20 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 ## 💻 Installation
 
 1. Install Python 3.
-2. Install the required packages, `requests`
-3. Locate your `Authorization Bearer token` and place it in the `main.py` file. [How to Obtain a Token and Set Up the Bot?](https://www.youtube.com/watch?v=cjWE7DmMFgw)
-4. [Find your device's UserAgent](https://github.com/masterking32/MasterHamsterKombatBot/blob/main/useful_files/user-agents.md) and place it in the `main.py` file.
-5. Make any necessary modifications.
-6. Execute the command `py main.py`.
-7. Have fun!
+2. Install the required packages,
+
+```bash
+pip install requests colorlog
+```
+
+3. Add your accounts
+
+- Locate your `Authorization Bearer token` and place it in the `main.py` file. [How to Obtain a Token and Set Up the Bot?](https://www.youtube.com/watch?v=cjWE7DmMFgw)
+- [Find your device's UserAgent](https://github.com/masterking32/MasterHamsterKombatBot/blob/main/useful_files/user-agents.md) and place it in the `main.py` file.
+- Configure accounts
+
+4. Execute the command `py main.py`.
+5. Have fun!
 
 <hr>
 
