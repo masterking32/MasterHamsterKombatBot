@@ -251,6 +251,10 @@ def SendBuyBoostRequest(boost_id):
     BuyBoostRequest(boost_id)
 
 def main():
+
+    # Prompt the user to decide if they want to use AutoTap.
+    use_auto_tap: str = input("Do you want to use auto tap? (yes/no): ").strip().lower()
+
     # Get account data
     account_data = SyncData()
     if account_data is None:
@@ -260,58 +264,57 @@ def main():
     balanceCoins = account_data["clickerUser"]["balanceCoins"]
     availableTaps = account_data["clickerUser"]["availableTaps"]
     maxTaps = account_data["clickerUser"]["maxTaps"]
-
     print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
-    print("Starting to tap...")
-    time.sleep(2)
-    Tap(availableTaps)
-    print("Tapping completed successfully.")
-    print("Checking for free boosts...")
-    while True:
-        BoostList = GetBoostsToBuyList()
-
-        if BoostList is None or len(BoostList["boostsForBuy"]) == 0 or "boostsForBuy" not in BoostList:
-            print("Failed to get boost list")
-            break
-
-        BoostForTapList = None
-        for boost in BoostList["boostsForBuy"]:
-            if boost["price"] == 0 and boost["id"] == "BoostFullAvailableTaps":
-                BoostForTapList = boost
-                break
-
-        if BoostForTapList is None or "price" not in BoostForTapList or "cooldownSeconds" not in BoostForTapList or BoostForTapList["price"] != 0 or BoostForTapList["cooldownSeconds"] > 0:
-            print("No free boosts available")
-            break
-
-        print("Free boost found, attempting to buy...")
-        time.sleep(5)
-        SendBuyBoostRequest(BoostForTapList["id"])
-        print("Free boost bought successfully")
-        time.sleep(1)
-
-        account_data = SyncData()
-        if account_data is None:
-            return
-        balanceCoins = account_data["clickerUser"]["balanceCoins"]
-        availableTaps = account_data["clickerUser"]["availableTaps"]
-        maxTaps = account_data["clickerUser"]["maxTaps"]
-
-        print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
+    
+    if use_auto_tap == 'yes':
         print("Starting to tap...")
-        time.sleep(3)
+        time.sleep(2)
         Tap(availableTaps)
         print("Tapping completed successfully.")
+        print("Checking for free boosts...")
+        while True:
+            BoostList = GetBoostsToBuyList()
 
+            if BoostList is None or len(BoostList["boostsForBuy"]) == 0 or "boostsForBuy" not in BoostList:
+                print("Failed to get boost list")
+                break
 
-    account_data = SyncData()
-    if account_data is None:
-        return
-    balanceCoins = account_data["clickerUser"]["balanceCoins"]
-    availableTaps = account_data["clickerUser"]["availableTaps"]
-    maxTaps = account_data["clickerUser"]["maxTaps"]
+            BoostForTapList = None
+            for boost in BoostList["boostsForBuy"]:
+                if boost["price"] == 0 and boost["id"] == "BoostFullAvailableTaps":
+                    BoostForTapList = boost
+                    break
 
-    print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
+            if BoostForTapList is None or "price" not in BoostForTapList or "cooldownSeconds" not in BoostForTapList or BoostForTapList["price"] != 0 or BoostForTapList["cooldownSeconds"] > 0:
+                print("No free boosts available")
+                break
+
+            print("Free boost found, attempting to buy...")
+            time.sleep(5)
+            SendBuyBoostRequest(BoostForTapList["id"])
+            print("Free boost bought successfully")
+            time.sleep(1)
+
+            account_data = SyncData()
+            if account_data is None:
+                return
+            balanceCoins = account_data["clickerUser"]["balanceCoins"]
+            availableTaps = account_data["clickerUser"]["availableTaps"]
+            maxTaps = account_data["clickerUser"]["maxTaps"]
+
+            print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
+            print("Starting to tap...")
+            time.sleep(3)
+            Tap(availableTaps)
+            print("Tapping completed successfully.")
+            account_data = SyncData()
+            if account_data is None:
+                return
+            balanceCoins = account_data["clickerUser"]["balanceCoins"]
+            availableTaps = account_data["clickerUser"]["availableTaps"]
+            maxTaps = account_data["clickerUser"]["maxTaps"]
+            print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
+
 
     NewProfitPerHour = 0
     SpendTokens = 0
