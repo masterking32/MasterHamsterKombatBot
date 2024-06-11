@@ -264,9 +264,9 @@ def main():
     balanceCoins = account_data["clickerUser"]["balanceCoins"]
     availableTaps = account_data["clickerUser"]["availableTaps"]
     maxTaps = account_data["clickerUser"]["maxTaps"]
-
+    print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
+    
     if use_auto_tap == 'yes':
-        print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
         print("Starting to tap...")
         time.sleep(2)
         Tap(availableTaps)
@@ -307,16 +307,14 @@ def main():
             time.sleep(3)
             Tap(availableTaps)
             print("Tapping completed successfully.")
+            account_data = SyncData()
+            if account_data is None:
+                return
+            balanceCoins = account_data["clickerUser"]["balanceCoins"]
+            availableTaps = account_data["clickerUser"]["availableTaps"]
+            maxTaps = account_data["clickerUser"]["maxTaps"]
+            print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
 
-
-    account_data = SyncData()
-    if account_data is None:
-        return
-    balanceCoins = account_data["clickerUser"]["balanceCoins"]
-    availableTaps = account_data["clickerUser"]["availableTaps"]
-    maxTaps = account_data["clickerUser"]["maxTaps"]
-
-    print("Account Balance Coins: ", number_to_string(balanceCoins), "Available Taps: ", availableTaps, "Max Taps: ", maxTaps)
 
     NewProfitPerHour = 0
     SpendTokens = 0
