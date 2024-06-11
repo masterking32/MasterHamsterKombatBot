@@ -252,7 +252,7 @@ def SendBuyBoostRequest(boost_id):
 
 def main():
 
-    # Prompt the user to decide if they want to use AutoTap.
+    # Prompt sthe user to decide if they want to use AutoTap.
     use_auto_tap: str = input("Do you want to use auto tap? (yes/no): ").strip().lower()
 
     # Get account data
