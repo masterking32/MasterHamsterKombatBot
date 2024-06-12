@@ -8,10 +8,12 @@ import json
 import time
 import logging
 import asyncio
+import random
 from colorlog import ColoredFormatter
 from utilities import SortUpgrades, number_to_string
 
 AccountsRecheckTime = 300  # Recheck time in seconds to check all accounts again (60 seconds = 1 minute and 0 means no recheck)
+MaxRandomDelay = 120 # Random delay in seconds, There will be a random delay between 1 seconds to desired number every time to reduce detection.
 # Accounts will be checked in the order they are listed
 AccountList = [
     {
@@ -429,9 +431,10 @@ def RunAccounts():
         for account in accounts:
             account.Start()
 
-        if AccountsRecheckTime > 0:
-            log.error(f"Rechecking all accounts in {AccountsRecheckTime} seconds...")
-            time.sleep(AccountsRecheckTime)
+        if AccountsRecheckTime > 0 and MaxRandomDelay > 0:
+            randomDelay = random.randint(1,MaxRandomDelay)
+            log.error(f"Rechecking all accounts in {AccountsRecheckTime}(+{randomDelay} random delay) seconds...")
+            time.sleep(AccountsRecheckTime + randomDelay)
         else:
             break
 
