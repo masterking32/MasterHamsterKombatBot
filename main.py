@@ -431,7 +431,7 @@ def RunAccounts():
         for account in accounts:
             account.Start()
 
-        if AccountsRecheckTime > 0 and MaxRandomDelay > 0:
+        if AccountsRecheckTime > 0 or MaxRandomDelay > 0:
             randomDelay = random.randint(1,MaxRandomDelay)
             log.error(f"Rechecking all accounts in {AccountsRecheckTime}(+{randomDelay} random delay) seconds...")
             time.sleep(AccountsRecheckTime + randomDelay)
