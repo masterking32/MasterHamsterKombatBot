@@ -10,7 +10,7 @@ import logging
 import asyncio
 import random
 from colorlog import ColoredFormatter
-from utilities import SortUpgrades, number_to_string
+from utilities import SortUpgrades, number_to_string, DailyCipherDecode, TextToMorseCode
 
 # Recheck time in seconds to check all accounts again (60 seconds = 1 minute and 0 means no recheck)
 AccountsRecheckTime = 300
@@ -35,6 +35,7 @@ AccountList = [
         "config": {
             "auto_tap": True,  # Enable auto tap by setting it to True, or set it to False to disable
             "auto_free_tap_boost": True,  # Enable auto free tap boost by setting it to True, or set it to False to disable
+            "auto_get_daily_cipher": True,  # Enable auto get daily cipher by setting it to True, or set it to False to disable
             "auto_upgrade": True,  # Enable auto upgrade by setting it to True, or set it to False to disable
             "auto_upgrade_start": 2000000,  # Start buying upgrades when the balance is greater than this amount
             "auto_upgrade_min": 100000,  # Stop buying upgrades when the balance is less than this amount
@@ -321,7 +322,7 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Free boost bought successfully")
             return True
         else:
-            log.warning(f"[{self.account_name}] No free boosts available")
+            log.info(f"\033[1;34m[{self.account_name}] No free boosts available\033[0m")
 
         return False
 
@@ -376,6 +377,48 @@ class HamsterKombatAccount:
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200)
 
+    def GetAccountConfigRequest(self):
+        url = "https://api.hamsterkombat.io/clicker/config"
+        headers = {
+            "Access-Control-Request-Headers": "authorization",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Authorization": self.Authorization,
+        }
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200)
+
+    def ClaimDailyCipherRequest(self, DailyCipher):
+        url = "https://api.hamsterkombat.io/clicker/claim-daily-cipher"
+        headers = {
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": self.Authorization,
+            "Content-Type": "application/json",
+        }
+
+        payload = json.dumps(
+            {
+                "cipher": DailyCipher,
+            }
+        )
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200, payload)
+
     def Start(self):
         log.info(f"[{self.account_name}] Starting account...")
 
@@ -391,9 +434,32 @@ class HamsterKombatAccount:
             log.error(f"[{self.account_name}] Unable to get account basic data.")
             return
 
-        log.debug(
-            f"[{self.account_name}] Account ID: {AccountBasicData['telegramUser']['id']}, Account detected as bot: {AccountBasicData['telegramUser']['isBot']}"
+        log.info(
+            f"\033[1;35m[{self.account_name}] Account ID: {AccountBasicData['telegramUser']['id']}, Account detected as bot: {AccountBasicData['telegramUser']['isBot']}\033[0m"
         )
+
+        log.info(f"[{self.account_name}] Getting account config data...")
+        AccountConfigData = self.GetAccountConfigRequest()
+        if (
+            AccountConfigData is None
+            or AccountConfigData is False
+            or "clickerConfig" not in AccountConfigData
+        ):
+            log.error(f"[{self.account_name}] Unable to get account config data.")
+            return
+
+        DailyCipher = ""
+        if (
+            self.config["auto_get_daily_cipher"]
+            and "dailyCipher" in AccountConfigData
+            and "cipher" in AccountConfigData["dailyCipher"]
+        ):
+            log.info(f"[{self.account_name}] Decoding daily cipher...")
+            DailyCipher = DailyCipherDecode(AccountConfigData["dailyCipher"]["cipher"])
+            MorseCode = TextToMorseCode(DailyCipher)
+            log.info(
+                f"\033[1;34m[{self.account_name}] Daily cipher: {DailyCipher} and Morse code: {MorseCode}\033[0m"
+            )
 
         log.info(f"[{self.account_name}] Getting account data...")
         getAccountDataStatus = self.getAccountData()
@@ -431,6 +497,17 @@ class HamsterKombatAccount:
             time.sleep(2)
             self.TapRequest(self.availableTaps)
             log.info(f"[{self.account_name}] Tapping completed successfully.")
+
+        if self.config["auto_get_daily_cipher"] and DailyCipher != "":
+            if AccountConfigData["dailyCipher"]["isClaimed"] == True:
+                log.info(
+                    f"\033[1;34m[{self.account_name}] Daily cipher already claimed.\033[0m"
+                )
+            else:
+                log.info(f"[{self.account_name}] Attempting to claim daily cipher...")
+                time.sleep(2)
+                self.ClaimDailyCipherRequest(DailyCipher)
+                log.info(f"[{self.account_name}] Daily cipher claimed successfully.")
 
         # Start buying free tap boost
         if (
@@ -524,7 +601,7 @@ def RunAccounts():
         accounts.append(HamsterKombatAccount(account))
 
     while True:
-        log.warning("Starting all accounts...")
+        log.info("\033[1;33mStarting all accounts...\033[0m")
         for account in accounts:
             account.Start()
 
@@ -552,7 +629,7 @@ def main():
         "\033[1;34mProject Github: https://github.com/masterking32/MasterHamsterKombatBot\033[0m"
     )
     log.info("\033[1;33mDeveloped by: MasterkinG32\033[0m")
-    log.info("\033[1;35mVersion: 1.5\033[0m")
+    log.info("\033[1;35mVersion: 1.7\033[0m")
     log.info("\033[1;36mTo stop the bot, press Ctrl + C\033[0m")
     log.info("------------------------------------------------------------------------")
     log.info("------------------------------------------------------------------------")

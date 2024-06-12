@@ -19,14 +19,15 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 
 <hr>
 
-## 🗒️ Changelogs
+## 🗒️ Features
 
-- Get list of cards and automatically buy best cards based on return value (This feature allows you to retrieve a list of available cards and automatically purchase the best cards based on their return value. The return value is determined by comparing the price of the card with its profit per hour. By automating this process, you can optimize your card selection and maximize your earnings, 10 Jun 2024)
+- Get list of cards and automatically buy best cards based on return value (This feature allows you to retrieve a list of available cards and automatically purchase the best cards based on their return value. The return value is determined by comparing the price of the card with its profit per hour. By automating this process, you can optimize your card selection and maximize your earnings), (10 Jun 2024)
 - Fixed some issues and added the ability to perform all of your taps. (10 Jun 2024)
 
 - **Added support for multi-accounts**. (June 12, 2024)
 - Implemented a timer to periodically check the accounts. (June 12, 2024)
 - Support setting a specific **proxy** for each account. - (June 12, 2024)
+- Added auto decoding and claiming of daily ciphers. (June 12, 2024)
 
 <hr>
 
