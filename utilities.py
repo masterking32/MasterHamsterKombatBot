@@ -1,13 +1,10 @@
 # Developed by: MasterkinG32
 # Date: 2024
 # Github: https://github.com/masterking32
-
+import base64
 
 # Sort upgrades by best profit per hour (profitPerHourDelta / price)
 # You can change this to sort by price, profitPerHourDelta, level, etc.
-import base64
-
-
 def SortUpgrades(upgrades, max_budget):
     upgrades = [item for item in upgrades if item["price"] <= max_budget]
     upgrades.sort(key=lambda x: x["price"] / x["profitPerHourDelta"])
