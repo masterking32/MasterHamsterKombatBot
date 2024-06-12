@@ -36,6 +36,7 @@ AccountList = [
             "auto_tap": True,  # Enable auto tap by setting it to True, or set it to False to disable
             "auto_free_tap_boost": True,  # Enable auto free tap boost by setting it to True, or set it to False to disable
             "auto_get_daily_cipher": True,  # Enable auto get daily cipher by setting it to True, or set it to False to disable
+            "auto_get_daily_task": True,  # Enable auto get daily task by setting it to True, or set it to False to disable
             "auto_upgrade": True,  # Enable auto upgrade by setting it to True, or set it to False to disable
             "auto_upgrade_start": 2000000,  # Start buying upgrades when the balance is greater than this amount
             "auto_upgrade_min": 100000,  # Stop buying upgrades when the balance is less than this amount
@@ -419,6 +420,31 @@ class HamsterKombatAccount:
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200, payload)
 
+    def CheckTaskRequest(self, task_id):
+        url = "https://api.hamsterkombat.io/clicker/check-task"
+        headers = {
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": self.Authorization,
+            "Content-Type": "application/json",
+        }
+
+        payload = json.dumps(
+            {
+                "taskId": task_id,
+            }
+        )
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200, payload)
+
     def Start(self):
         log.info(f"[{self.account_name}] Starting account...")
 
@@ -508,6 +534,32 @@ class HamsterKombatAccount:
                 time.sleep(2)
                 self.ClaimDailyCipherRequest(DailyCipher)
                 log.info(f"[{self.account_name}] Daily cipher claimed successfully.")
+
+        if self.config["auto_get_daily_task"]:
+            log.info(f"[{self.account_name}] Checking for daily task...")
+            streak_days = None
+            for task in tasksResponse["tasks"]:
+                if task["id"] == "streak_days":
+                    streak_days = task
+                    break
+
+            if streak_days is None:
+                log.error(f"[{self.account_name}] Failed to get daily task.")
+                return
+
+            if streak_days["isCompleted"] == True:
+                log.info(
+                    f"\033[1;34m[{self.account_name}] Daily task already completed.\033[0m"
+                )
+            else:
+                log.info(f"[{self.account_name}] Attempting to complete daily task...")
+                day = streak_days["days"]
+                rewardCoins = streak_days["rewardCoins"]
+                time.sleep(2)
+                self.CheckTaskRequest("streak_days")
+                log.info(
+                    f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}"
+                )
 
         # Start buying free tap boost
         if (
@@ -629,7 +681,7 @@ def main():
         "\033[1;34mProject Github: https://github.com/masterking32/MasterHamsterKombatBot\033[0m"
     )
     log.info("\033[1;33mDeveloped by: MasterkinG32\033[0m")
-    log.info("\033[1;35mVersion: 1.7\033[0m")
+    log.info("\033[1;35mVersion: 2.0\033[0m")
     log.info("\033[1;36mTo stop the bot, press Ctrl + C\033[0m")
     log.info("------------------------------------------------------------------------")
     log.info("------------------------------------------------------------------------")

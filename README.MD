@@ -26,8 +26,9 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 
 - **Added support for multi-accounts**. (June 12, 2024)
 - Implemented a timer to periodically check the accounts. (June 12, 2024)
-- Support setting a specific **proxy** for each account. - (June 12, 2024)
+- Support setting a specific **proxy** for each account. (June 12, 2024)
 - Added auto decoding and claiming of daily ciphers. (June 12, 2024)
+- Auto claiming daily tasks added, **Version 2 released**. (June 12, 2024)
 
 <hr>
 
