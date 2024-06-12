@@ -40,6 +40,11 @@ AccountList = [
             "auto_upgrade": True,  # Enable auto upgrade by setting it to True, or set it to False to disable
             "auto_upgrade_start": 2000000,  # Start buying upgrades when the balance is greater than this amount
             "auto_upgrade_min": 100000,  # Stop buying upgrades when the balance is less than this amount
+            # This feature will ignore the auto_upgrade_start and auto_upgrade_min.
+            # By changing it to True, the bot will first find the overall best card and then wait for the best card to be available (based on cooldown or price).
+            # When the best card is available, the bot will buy it and then wait for the next best card to be available.
+            # This feature will stop buying upgrades when the balance is less than the price of the best card.
+            "wait_for_best_card": False,  # Recommended to keep it True for high level accounts
         },
     },
     # Add more accounts if you want to use multiple accounts
@@ -445,6 +450,78 @@ class HamsterKombatAccount:
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200, payload)
 
+    def BuyBestCard(self):
+        log.info(f"[{self.account_name}] Checking for best card...")
+        time.sleep(2)
+        upgradesResponse = self.UpgradesForBuyRequest()
+        if upgradesResponse is None:
+            log.error(f"[{self.account_name}] Failed to get upgrades list.")
+            return False
+
+        upgrades = [
+            item
+            for item in upgradesResponse["upgradesForBuy"]
+            if not item["isExpired"]
+            and item["isAvailable"]
+            and item["profitPerHourDelta"] > 0
+        ]
+
+        if len(upgrades) == 0:
+            log.warning(f"[{self.account_name}] No upgrades available.")
+            return False
+
+        balanceCoins = int(self.balanceCoins)
+        log.info(f"[{self.account_name}] Searching for the best upgrades...")
+
+        selected_upgrades = SortUpgrades(
+            upgrades, 999999999999
+        )  # Set max budget to a high number
+        if len(selected_upgrades) == 0:
+            log.warning(f"[{self.account_name}] No upgrades available.")
+            return False
+
+        log.info(
+            f"[{self.account_name}] Best upgrade is {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}"
+        )
+
+        if balanceCoins < selected_upgrades[0]["price"]:
+            log.warning(
+                f"[{self.account_name}] Balance is too low to buy the best card."
+            )
+            return False
+
+        if (
+            "cooldownSeconds" in selected_upgrades[0]
+            and selected_upgrades[0]["cooldownSeconds"] > 0
+        ):
+            log.warning(f"[{self.account_name}] Best card is on cooldown...")
+            if selected_upgrades[0]["cooldownSeconds"] > 300:
+                return False
+            log.info(
+                f"[{self.account_name}] Waiting for {selected_upgrades[0]['cooldownSeconds']} seconds, Cooldown will be completed in {selected_upgrades[0]['cooldownSeconds']} seconds..."
+            )
+            time.sleep(selected_upgrades[0]["cooldownSeconds"] + 1)
+
+        log.info(f"[{self.account_name}] Attempting to buy the best card...")
+        time.sleep(2)
+        upgradesResponse = self.BuyUpgradeRequest(selected_upgrades[0]["id"])
+        if upgradesResponse is None:
+            log.error(f"[{self.account_name}] Failed to buy the best card.")
+            return False
+
+        log.info(f"[{self.account_name}] Best card bought successfully")
+        time.sleep(5)
+        balanceCoins -= selected_upgrades[0]["price"]
+        self.balanceCoins = balanceCoins
+        self.ProfitPerHour += selected_upgrades[0]["profitPerHourDelta"]
+        self.SpendTokens += selected_upgrades[0]["price"]
+
+        log.info(
+            f"[{self.account_name}] Best card purchase completed successfully, Your profit per hour increased by {number_to_string(self.ProfitPerHour)} coins, Spend tokens: {number_to_string(self.SpendTokens)}"
+        )
+
+        return True
+
     def Start(self):
         log.info(f"[{self.account_name}] Starting account...")
 
@@ -584,6 +661,20 @@ class HamsterKombatAccount:
         # Start buying upgrades
         if not self.config["auto_upgrade"]:
             log.error(f"[{self.account_name}] Auto upgrade is disabled.")
+            return
+
+        self.ProfitPerHour = 0
+        self.SpendTokens = 0
+
+        if self.config["wait_for_best_card"]:
+            while True:
+                if not self.BuyBestCard():
+                    break
+
+            self.getAccountData()
+            log.info(
+                f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour increased by {number_to_string(self.ProfitPerHour)} coins, Spend tokens: {number_to_string(self.SpendTokens)}"
+            )
             return
 
         if self.balanceCoins < self.config["auto_upgrade_start"]:
