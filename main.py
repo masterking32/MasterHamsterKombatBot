@@ -317,7 +317,77 @@ class HamsterKombatAccount:
 
         return False
 
+    def MeTelegramRequest(self):
+        url = "https://api.hamsterkombat.io/auth/me-telegram"
+        headers = {
+            "Access-Control-Request-Headers": "authorization",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Authorization": self.Authorization,
+        }
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200)
+
+    def ListTasksRequest(self):
+        url = "https://api.hamsterkombat.io/clicker/list-tasks"
+        headers = {
+            "Access-Control-Request-Headers": "authorization",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Authorization": self.Authorization,
+        }
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200)
+
+    def GetListAirDropTasksRequest(self):
+        url = "https://api.hamsterkombat.io/clicker/list-airdrop-tasks"
+        headers = {
+            "Access-Control-Request-Headers": "authorization",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Authorization": self.Authorization,
+        }
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200)
+
     def Start(self):
+        log.info(f"[{self.account_name}] Starting account...")
+
+        log.info(f"[{self.account_name}] Getting basic account data...")
+        AccountBasicData = self.MeTelegramRequest()
+
+        if (
+            AccountBasicData is None
+            or AccountBasicData is False
+            or "telegramUser" not in AccountBasicData
+            or "id" not in AccountBasicData["telegramUser"]
+        ):
+            log.error(f"[{self.account_name}] Unable to get account basic data.")
+            return
+
+        log.debug(
+            f"[{self.account_name}] Account ID: {AccountBasicData['telegramUser']['id']}, Account detected as bot: {AccountBasicData['telegramUser']['isBot']}"
+        )
+
+        log.info(f"[{self.account_name}] Getting account data...")
         getAccountDataStatus = self.getAccountData()
         if getAccountDataStatus is False:
             return
@@ -325,6 +395,27 @@ class HamsterKombatAccount:
         log.info(
             f"[{self.account_name}] Account Balance Coins: {number_to_string(self.balanceCoins)}, Available Taps: {self.availableTaps}, Max Taps: {self.maxTaps}"
         )
+
+        log.info(f"[{self.account_name}] Getting account upgrades...")
+        upgradesResponse = self.UpgradesForBuyRequest()
+
+        if upgradesResponse is None:
+            log.error(f"[{self.account_name}] Failed to get upgrades list.")
+            return
+
+        log.info(f"[{self.account_name}] Getting account tasks...")
+        tasksResponse = self.ListTasksRequest()
+
+        if tasksResponse is None:
+            log.error(f"[{self.account_name}] Failed to get tasks list.")
+            return
+
+        log.info(f"[{self.account_name}] Getting account airdrop tasks...")
+        airdropTasksResponse = self.GetListAirDropTasksRequest()
+
+        if airdropTasksResponse is None:
+            log.error(f"[{self.account_name}] Failed to get airdrop tasks list.")
+            return
 
         # Start tapping
         if self.config["auto_tap"]:
