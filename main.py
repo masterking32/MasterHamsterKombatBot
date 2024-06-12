@@ -432,13 +432,19 @@ def RunAccounts():
         log.warning("Starting all accounts...")
         for account in accounts:
             account.Start()
+        
+        if AccountsRecheckTime < 1 and MaxRandomDelay < 1:
+            log.error(f"AccountsRecheckTime and MaxRandomDelay values are set to 0, bot will close now.")
+            return
 
-        if AccountsRecheckTime > 0 or MaxRandomDelay > 0:
+        if MaxRandomDelay > 0:
             randomDelay = random.randint(1, MaxRandomDelay)
-            log.error(f"Rechecking all accounts in {AccountsRecheckTime}(+{randomDelay} random delay) seconds...")
-            time.sleep(AccountsRecheckTime + randomDelay)
-        else:
-            break
+            log.error(f"Sleeping for {randomDelay} seconds because of random delay...")
+            time.sleep(randomDelay)
+        
+        if AccountsRecheckTime > 0:
+            log.error(f"Rechecking all accounts in {AccountsRecheckTime} seconds...")
+            time.sleep(AccountsRecheckTime)
 
 
 def main():
