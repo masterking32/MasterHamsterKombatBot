@@ -45,7 +45,7 @@ AccountList = [
             # When the best card is available, the bot will buy it and then wait for the next best card to be available.
             # This feature will stop buying upgrades when the balance is less than the price of the best card.
             "wait_for_best_card": False,  # Recommended to keep it True for high level accounts
-            "auto_get_task": True,  # Enable auto upgrade by setting it to True, or set it to False to disable
+            "auto_get_task": True,  # Enable auto get task to True, or set it to False to disable
 
         },
     },
@@ -641,7 +641,7 @@ class HamsterKombatAccount:
                 )
 
         if self.config["auto_get_task"]:
-            log.info(f"[{self.account_name}] Checking for availebe task...")
+            log.info(f"[{self.account_name}] Checking for available task...")
             selected_task = None
             for task in tasksResponse["tasks"]:
                 link = task.get("link", "")
@@ -656,8 +656,7 @@ class HamsterKombatAccount:
                         f"[{self.account_name}] Task completed - id: {selected_task}, Reward coins: {number_to_string(rewardCoins)}"
                     )
             if selected_task is None:
-                log.info(f"[{self.account_name}] Tasks already")
-                return
+                log.info(f"\033[1;34m[{self.account_name}] Tasks already done\033[0m")
 
         # Start buying free tap boost
         if (
