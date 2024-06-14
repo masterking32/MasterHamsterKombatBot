@@ -645,8 +645,7 @@ class HamsterKombatAccount:
             selected_task = None
             for task in tasksResponse["tasks"]:
                 link = task.get("link", "")
-                if task["isCompleted"] == False and\
-                        ('https://youtu' in link or 'https://twitter.com' in link or 'https://t.me/' in link):
+                if task["isCompleted"] == False and ('https://' in link):
                     log.info(f"[{self.account_name}] Attempting to complete Youtube Or Twitter task...")
                     selected_task = task["id"]
                     rewardCoins = task["rewardCoins"]
