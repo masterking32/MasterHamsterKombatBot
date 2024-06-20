@@ -10,7 +10,7 @@ import logging
 import asyncio
 import random
 from colorlog import ColoredFormatter
-from utilities import SortUpgrades, number_to_string, DailyCipherDecode, TextToMorseCode
+from utilities import SortUpgrades, number_to_string, DailyCipherDecode, TextToMorseCode, sendTg
 
 # Recheck time in seconds to check all accounts again (60 seconds = 1 minute and 0 means no recheck)
 AccountsRecheckTime = 300
@@ -66,6 +66,13 @@ stream.setFormatter(formatter)
 log = logging.getLogger("pythonConfig")
 log.setLevel(LOG_LEVEL)
 log.addHandler(stream)
+# Telegram Logging
+# Note: All logs are not being sent to the telegram, only important ones. Feel free to include more logs as you like.
+telegramLogging = {
+    "is_active": False, # Set it to True if you want to use it, and make sure to fill out the below fields
+    "bot_token": "TOKEN_HERE", # HTTP API access token from https://t.me/BotFather ~ Start your bot after creating it
+    "uid": "12345678" # String - you can get it from https://t.me/chatIDrobot
+}
 
 
 class HamsterKombatAccount:
@@ -80,6 +87,7 @@ class HamsterKombatAccount:
         self.availableTaps = 0
         self.maxTaps = 0
         self.ProfitPerHour = 0
+        self.earnPassivePerHour = 0
         self.SpendTokens = 0
         self.account_data = None
 
@@ -127,6 +135,12 @@ class HamsterKombatAccount:
                 response = requests.options(url, headers=headers, proxies=self.Proxy)
             else:
                 log.error(f"[{self.account_name}] Invalid method: {method}")
+                if telegramLogging['is_active']:
+                    sendTg(
+                        telegramLogging['bot_token'],
+                        telegramLogging['uid'],
+                        f"[{self.account_name}] Invalid method: {method}"
+                    )
                 return False
 
             if response.status_code != validStatusCodes:
@@ -134,6 +148,13 @@ class HamsterKombatAccount:
                     f"[{self.account_name}] Status code is not {validStatusCodes}"
                 )
                 log.error(f"[{self.account_name}] Response: {response.text}")
+                if telegramLogging['is_active']:
+                    sendTg(
+                        telegramLogging['bot_token'],
+                        telegramLogging['uid'],
+                        f"[{self.account_name}] Status code is not {validStatusCodes}\n"+
+                        f"[{self.account_name}] Response: {response.text}"
+                    )
                 return False
 
             if method == "OPTIONS":
@@ -142,6 +163,12 @@ class HamsterKombatAccount:
             return response.json()
         except Exception as e:
             log.error(f"[{self.account_name}] Error: {e}")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Error: {e}"
+                )
             return False
 
     # Sending sync request
@@ -284,20 +311,39 @@ class HamsterKombatAccount:
         account_data = self.syncRequest()
         if account_data is None or account_data is False:
             log.error(f"[{self.account_name}] Unable to get account data.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Unable to get account data."
+                )
             return False
 
         if "clickerUser" not in account_data:
             log.error(f"[{self.account_name}] Invalid account data.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Invalid account data."
+                )
             return False
 
         if "balanceCoins" not in account_data["clickerUser"]:
             log.error(f"[{self.account_name}] Invalid balance coins.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Invalid balance coins."
+                )
             return False
 
         self.account_data = account_data
         self.balanceCoins = account_data["clickerUser"]["balanceCoins"]
         self.availableTaps = account_data["clickerUser"]["availableTaps"]
         self.maxTaps = account_data["clickerUser"]["maxTaps"]
+        self.earnPassivePerHour = account_data["clickerUser"]["earnPassivePerHour"]
 
         return account_data
 
@@ -307,6 +353,12 @@ class HamsterKombatAccount:
         BoostList = self.BoostsToBuyListRequest()
         if BoostList is None:
             log.error(f"[{self.account_name}] Failed to get boosts list.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Failed to get boosts list."
+                )
             return None
 
         BoostForTapList = None
@@ -456,6 +508,12 @@ class HamsterKombatAccount:
         upgradesResponse = self.UpgradesForBuyRequest()
         if upgradesResponse is None:
             log.error(f"[{self.account_name}] Failed to get upgrades list.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Failed to get upgrades list."
+                )
             return False
 
         upgrades = [
@@ -507,6 +565,12 @@ class HamsterKombatAccount:
         upgradesResponse = self.BuyUpgradeRequest(selected_upgrades[0]["id"])
         if upgradesResponse is None:
             log.error(f"[{self.account_name}] Failed to buy the best card.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Failed to buy the best card."
+                )
             return False
 
         log.info(f"[{self.account_name}] Best card bought successfully")
@@ -515,10 +579,17 @@ class HamsterKombatAccount:
         self.balanceCoins = balanceCoins
         self.ProfitPerHour += selected_upgrades[0]["profitPerHourDelta"]
         self.SpendTokens += selected_upgrades[0]["price"]
+        self.earnPassivePerHour += selected_upgrades[0]["profitPerHourDelta"]
 
         log.info(
             f"[{self.account_name}] Best card purchase completed successfully, Your profit per hour increased by {number_to_string(self.ProfitPerHour)} coins, Spend tokens: {number_to_string(self.SpendTokens)}"
         )
+        if telegramLogging['is_active']:
+            sendTg(
+                telegramLogging['bot_token'],
+                telegramLogging['uid'],
+                f"[{self.account_name}] Bought {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}"
+            )
 
         return True
 
@@ -535,6 +606,12 @@ class HamsterKombatAccount:
             or "id" not in AccountBasicData["telegramUser"]
         ):
             log.error(f"[{self.account_name}] Unable to get account basic data.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Unable to get account basic data."
+                )
             return
 
         log.info(
@@ -549,6 +626,12 @@ class HamsterKombatAccount:
             or "clickerConfig" not in AccountConfigData
         ):
             log.error(f"[{self.account_name}] Unable to get account config data.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Unable to get account config data."
+                )
             return
 
         DailyCipher = ""
@@ -578,6 +661,12 @@ class HamsterKombatAccount:
 
         if upgradesResponse is None:
             log.error(f"[{self.account_name}] Failed to get upgrades list.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Failed to get upgrades list."
+                )
             return
 
         log.info(f"[{self.account_name}] Getting account tasks...")
@@ -585,6 +674,12 @@ class HamsterKombatAccount:
 
         if tasksResponse is None:
             log.error(f"[{self.account_name}] Failed to get tasks list.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Failed to get tasks list."
+                )
             return
 
         log.info(f"[{self.account_name}] Getting account airdrop tasks...")
@@ -592,6 +687,12 @@ class HamsterKombatAccount:
 
         if airdropTasksResponse is None:
             log.error(f"[{self.account_name}] Failed to get airdrop tasks list.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Failed to get airdrop tasks list."
+                )
             return
 
         # Start tapping
@@ -611,6 +712,12 @@ class HamsterKombatAccount:
                 time.sleep(2)
                 self.ClaimDailyCipherRequest(DailyCipher)
                 log.info(f"[{self.account_name}] Daily cipher claimed successfully.")
+                if telegramLogging['is_active']:
+                    sendTg(
+                        telegramLogging['bot_token'],
+                        telegramLogging['uid'],
+                        f"[{self.account_name}] Daily cipher claimed successfully. Morse code was: {MorseCode}"
+                    )
 
         if self.config["auto_get_daily_task"]:
             log.info(f"[{self.account_name}] Checking for daily task...")
@@ -637,6 +744,12 @@ class HamsterKombatAccount:
                 log.info(
                     f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}"
                 )
+                if telegramLogging['is_active']:
+                    sendTg(
+                        telegramLogging['bot_token'],
+                        telegramLogging['uid'],
+                        f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}"
+                    )
 
         # Start buying free tap boost
         if (
@@ -661,6 +774,12 @@ class HamsterKombatAccount:
         # Start buying upgrades
         if not self.config["auto_upgrade"]:
             log.error(f"[{self.account_name}] Auto upgrade is disabled.")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Auto upgrade is disabled."
+                )
             return
 
         self.ProfitPerHour = 0
@@ -673,8 +792,14 @@ class HamsterKombatAccount:
 
             self.getAccountData()
             log.info(
-                f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour increased by {number_to_string(self.ProfitPerHour)} coins, Spend tokens: {number_to_string(self.SpendTokens)}"
+                f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}"
             )
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (Increased by {number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}"
+                )
             return
 
         if self.balanceCoins < self.config["auto_upgrade_start"]:
@@ -689,6 +814,12 @@ class HamsterKombatAccount:
             upgradesResponse = self.UpgradesForBuyRequest()
             if upgradesResponse is None:
                 log.warning(f"[{self.account_name}] Failed to get upgrades list.")
+                if telegramLogging['is_active']:
+                    sendTg(
+                        telegramLogging['bot_token'],
+                        telegramLogging['uid'],
+                        f"[{self.account_name}] Failed to get upgrades list."
+                    )
                 return
 
             upgrades = [
@@ -726,16 +857,29 @@ class HamsterKombatAccount:
                 return
 
             log.info(f"[{self.account_name}] Upgrade bought successfully")
+            if telegramLogging['is_active']:
+                sendTg(
+                    telegramLogging['bot_token'],
+                    telegramLogging['uid'],
+                    f"[{self.account_name}] Bought {selected_upgrades[0]['name']} with profit {selected_upgrades[0]['profitPerHourDelta']} and price {number_to_string(selected_upgrades[0]['price'])}, Level: {selected_upgrades[0]['level']}"
+                )
             time.sleep(5)
             self.balanceCoins = balanceCoins
             self.ProfitPerHour += selected_upgrades[0]["profitPerHourDelta"]
             self.SpendTokens += selected_upgrades[0]["price"]
+            self.earnPassivePerHour += selected_upgrades[0]["profitPerHourDelta"];
 
         log.info(f"[{self.account_name}] Upgrades purchase completed successfully.")
         self.getAccountData()
         log.info(
-            f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour increased by {number_to_string(self.ProfitPerHour)} coins, Spend tokens: {number_to_string(self.SpendTokens)}"
+            f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (+{number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}"
         )
+        if telegramLogging['is_active']:
+            sendTg(
+                telegramLogging['bot_token'],
+                telegramLogging['uid'],
+                f"[{self.account_name}] Final account balance: {number_to_string(self.balanceCoins)} coins, Your profit per hour is {number_to_string(self.earnPassivePerHour)} (Increased by {number_to_string(self.ProfitPerHour)}), Spent: {number_to_string(self.SpendTokens)}"
+            )
 
 
 def RunAccounts():
@@ -776,11 +920,23 @@ def main():
     log.info("\033[1;36mTo stop the bot, press Ctrl + C\033[0m")
     log.info("------------------------------------------------------------------------")
     log.info("------------------------------------------------------------------------")
+    if telegramLogging['is_active']:
+        sendTg(
+            telegramLogging['bot_token'],
+            telegramLogging['uid'],
+            f"Starting Master Hamster Kombat Auto farming bot..."
+        )
     time.sleep(2)
     try:
         asyncio.run(RunAccounts())
     except KeyboardInterrupt:
         log.error("Stopping Master Hamster Kombat Auto farming bot...")
+        if telegramLogging['is_active']:
+            sendTg(
+                telegramLogging['bot_token'],
+                telegramLogging['uid'],
+                f"Stopping Master Hamster Kombat Auto farming bot..."
+            )
 
 
 if __name__ == "__main__":
