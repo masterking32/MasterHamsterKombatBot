@@ -5,7 +5,7 @@
 
 <hr>
 
-The Master Hamster Kombat Bot is a testing bot designed to find the best card for you based on price and profit per hour. It also has the capability to purchase cards on your behalf.
+Master Hamster Kombat Bot is a Python-based automation tool specifically designed for the game Hamster Kombat. This bot can perform all in-game tasks, such as auto-tapping, cipher tasks, and purchasing the best cards on your behalf. It's a free and fully automated farming bot that enhances your Hamster Kombat gaming experience. Additionally, it supports multi-accounts and is 100% open-source and free. If you find it useful, you can consider donating to support us.
 
 ❌ This project is intended for testing purposes only. Please refrain from abusing it. ❌
 
@@ -13,7 +13,7 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 
 <hr>
 
-✅ Tested and confirmed to work as of `12 Jun 2024`. ✅
+✅ Tested and confirmed to work as of `20 Jun 2024`. ✅
 
 #### ⭐ If you find this project useful, please consider giving it a star! ⭐
 
@@ -29,6 +29,8 @@ The Master Hamster Kombat Bot is a testing bot designed to find the best card fo
 - Support setting a specific **proxy** for each account. (June 12, 2024)
 - Added auto decoding and claiming of daily ciphers. (June 12, 2024)
 - Auto claiming daily tasks added, **Version 2 released**. (June 12, 2024)
+- Auto complete other tasks (Youtube/Twitter and etc). (June 20, 2024)
+- You can add Telegram Bot to receive logs inside telegram. (June 20, 2024)
 
 <hr>
 
