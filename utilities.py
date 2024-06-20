@@ -4,6 +4,7 @@
 import base64
 import requests
 
+
 # Sort upgrades by best profit per hour (profitPerHourDelta / price)
 # You can change this to sort by price, profitPerHourDelta, level, etc.
 def SortUpgrades(upgrades, max_budget):
@@ -98,6 +99,3 @@ def TextToMorseCode(text):
         if char in morse_code:
             morse += morse_code[char] + " "
     return morse
-
-def sendTg(token, chat_id, text):
-   requests.get(f"https://api.telegram.org/bot{token}/sendMessage?chat_id={chat_id}&text={text}")
