@@ -10,8 +10,8 @@
 
   function replaceScriptUrl() {
     const urlsToReplace = [
-      "https://hamsterkombat.io/js/telegram-web-app.js",
-      "https://app.hamsterkombat.io/js/telegram-web-app.js",
+      "https://hamsterkombatgame.io/js/telegram-web-app.js",
+      "https://app.hamsterkombatgame.io/js/telegram-web-app.js",
     ];
 
     const newUrl =
