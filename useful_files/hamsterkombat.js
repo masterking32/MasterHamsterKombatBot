@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Hamster Kombat
 // @namespace    http://tampermonkey.net/
-// @match        *://*.hamsterkombat.io/*
+// @match        *://*.hamsterkombatgame.io/*
 // @grant        none
 // ==/UserScript==
 
