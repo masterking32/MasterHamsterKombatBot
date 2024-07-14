@@ -13,7 +13,7 @@ header('Content-Type: application/javascript');
 // Set cache for 1 hour
 header('Cache-Control: max-age=3600');
 
-// Get content from "https://hamsterkombat.io/js/telegram-web-app.js"
+// Get content from "https://hamsterkombatgame.io/js/telegram-web-app.js"
 $telegram_web_app = file_get_contents('https://hamsterkombatgame.io/js/telegram-web-app.js');
 
 $telegram_web_app = str_replace("return webAppPlatform;", 'return "ios";', $telegram_web_app);
