@@ -9,23 +9,15 @@
   "use strict";
 
   function replaceScriptUrl() {
-    const urlsToReplace = [
-      "https://hamsterkombatgame.io/js/telegram-web-app.js",
-      "https://app.hamsterkombatgame.io/js/telegram-web-app.js",
-      "https://hamsterkombat.io/js/telegram-web-app.js",
-      "https://app.hamsterkombat.io/js/telegram-web-app.js",
-    ];
-
     const newUrl =
       "https://api.masterking32.com/hamsterkombat.io-telegram-web-app.php"; // Change this to your own URL
 
     const scripts = document.getElementsByTagName("script");
     for (let script of scripts) {
-      if (urlsToReplace.includes(script.src)) {
+      if (script.src.includes("telegram-web-app.js")) {
         const newScript = document.createElement("script");
         newScript.src = newUrl;
         newScript.type = "text/javascript";
-
         script.parentNode.replaceChild(newScript, script);
         console.log("Script URL replaced:", newScript.src);
       }
