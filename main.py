@@ -183,7 +183,9 @@ class HamsterKombatAccount:
             defaultHeaders[key] = value
 
         try:
-            if method == "POST":
+            if method == "GET":
+                response = requests.get(url, headers=defaultHeaders, proxies=self.Proxy)
+            elif method == "POST":
                 response = requests.post(
                     url, headers=headers, data=payload, proxies=self.Proxy
                 )
@@ -416,6 +418,23 @@ class HamsterKombatAccount:
             log.info(f"\033[1;34m[{self.account_name}] No free boosts available\033[0m")
 
         return False
+
+    def IPRequest(self):
+        url = "https://api.hamsterkombatgame.io/ip"
+        headers = {
+            "Access-Control-Request-Headers": "authorization",
+            "Access-Control-Request-Method": "GET",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 200)
+
+        headers = {
+            "Authorization": self.Authorization,
+        }
+
+        # Send GET request
+        return self.HttpRequest(url, headers, "GET", 200)
 
     def MeTelegramRequest(self):
         url = "https://api.hamsterkombatgame.io/auth/me-telegram"
@@ -721,6 +740,15 @@ class HamsterKombatAccount:
                 "other_errors",
             )
             return
+
+        log.info(f"[{self.account_name}] Getting account IP...")
+        ipResponse = self.IPRequest()
+        if ipResponse is None:
+            log.error(f"[{self.account_name}] Failed to get IP.")
+            self.SendTelegramLog(f"[{self.account_name}] Failed to get IP.", "other_errors")
+            return
+
+        log.info(f"[{self.account_name}] IP: {ipResponse['ip']} Company: {ipResponse['asn_org']} Country: {ipResponse['country_code']}")
 
         # Start tapping
         if self.config["auto_tap"]:
