@@ -129,7 +129,6 @@ class HamsterKombatAccount:
         self.telegram_chat_id = AccountData["telegram_chat_id"]
 
     def SendTelegramLog(self, message, level):
-        print(message)
         if (
             not telegramBotLogging["is_active"]
             or self.telegram_chat_id == ""
