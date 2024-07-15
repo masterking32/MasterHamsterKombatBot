@@ -19,7 +19,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 #### ⭐ If you find this project useful, please consider giving it a star! ⭐
 
-<img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/github_star.png" alt="github_star" />
+<a href="https://github.com/masterking32/MasterHamsterKombatBot/stargazers"><img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/github_star.png" alt="github_star" /></a>
 
 <hr>
 
