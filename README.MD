@@ -15,7 +15,11 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 ✅ Tested and confirmed to work as of `15 July 2024`. ✅
 
+<img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/screenshot.png" alt="Screenshot" />
+
 #### ⭐ If you find this project useful, please consider giving it a star! ⭐
+
+<img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/github_star.png" alt="github_star" />
 
 <hr>
 
@@ -54,6 +58,11 @@ pip install requests colorlog
 
 <hr>
 
+### <a href="https://github.com/masterking32/MasterHamsterKombatBot/discussions/12#discussioncomment-9852919" target="_blank">🐧 Linux Installation Guide</a>
+
+
+<hr>
+
 💵 If you're a fan of our project and want to support us, consider donating crypto. Your support will help us improve and expand, providing even more value to our users. Thank you for your generosity! 💵
 
 TON:
@@ -72,7 +81,7 @@ RONIN Chain:
 
 ## 📽️ Tutorial and Test
 
-<a href="https://www.youtube.com/watch?v=cjWE7DmMFgw">
+<a href="https://www.youtube.com/watch?v=cjWE7DmMFgw"  target="_blank">
   <img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/thumbnail.png" alt="Youtube Video" />
 </a>
 
