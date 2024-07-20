@@ -777,8 +777,6 @@ class HamsterKombatAccount:
             )
             return
 
-        print(response)
-
         log.info(f"[{self.account_name}] Mini game claimed successfully.")
 
     def Start(self):
