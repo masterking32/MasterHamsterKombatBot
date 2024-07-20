@@ -9,6 +9,7 @@ import time
 import logging
 import asyncio
 import random
+import base64
 from colorlog import ColoredFormatter
 from utilities import (
     SortUpgrades,
@@ -42,6 +43,7 @@ AccountList = [
         # },
         "config": {
             "auto_tap": True,  # Enable auto tap by setting it to True, or set it to False to disable
+            "auto_finish_mini_game": True,  # Enable auto finish mini game by setting it to True, or set it to False to disable
             "auto_free_tap_boost": True,  # Enable auto free tap boost by setting it to True, or set it to False to disable
             "auto_get_daily_cipher": True,  # Enable auto get daily cipher by setting it to True, or set it to False to disable
             "auto_get_daily_task": True,  # Enable auto get daily task by setting it to True, or set it to False to disable
@@ -127,6 +129,8 @@ class HamsterKombatAccount:
         self.SpendTokens = 0
         self.account_data = None
         self.telegram_chat_id = AccountData["telegram_chat_id"]
+        self.totalKeys = 0
+        self.balanceKeys = 0
 
     def SendTelegramLog(self, message, level):
         if (
@@ -381,6 +385,15 @@ class HamsterKombatAccount:
         self.availableTaps = account_data["clickerUser"]["availableTaps"]
         self.maxTaps = account_data["clickerUser"]["maxTaps"]
         self.earnPassivePerHour = account_data["clickerUser"]["earnPassivePerHour"]
+        if "balanceKeys" in account_data["clickerUser"]:
+            self.balanceKeys = account_data["clickerUser"]["balanceKeys"]
+        else:
+            self.balanceKeys = 0
+
+        if "totalKeys" in account_data["clickerUser"]:
+            self.totalKeys = account_data["clickerUser"]["totalKeys"]
+        else:
+            self.totalKeys = 0
 
         return account_data
 
@@ -646,6 +659,128 @@ class HamsterKombatAccount:
 
         return True
 
+    def StartMiniGame(self, AccountConfigData, AccountID):
+        if "dailyKeysMiniGame" not in AccountConfigData:
+            log.error(f"[{self.account_name}] Unable to get daily keys mini game.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get daily keys mini game.",
+                "other_errors",
+            )
+            return
+
+        if AccountConfigData["dailyKeysMiniGame"]["isClaimed"] == True:
+            log.info(f"[{self.account_name}] Daily keys mini game already claimed.")
+            return
+
+        if AccountConfigData["dailyKeysMiniGame"]["remainSecondsToNextAttempt"] > 0:
+            log.info(f"[{self.account_name}] Daily keys mini game is on cooldown...")
+            return
+
+        ## check timer.
+        url = "https://api.hamsterkombatgame.io/clicker/start-keys-minigame"
+
+        headers = {
+            "Access-Control-Request-Headers": "authorization",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Authorization": self.Authorization,
+        }
+
+        # Send POST request
+        response = self.HttpRequest(url, headers, "POST", 200)
+
+        if response is None:
+            log.error(f"[{self.account_name}] Unable to start mini game.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to start mini game.", "other_errors"
+            )
+            return
+
+        if "dailyKeysMiniGame" not in response:
+            log.error(f"[{self.account_name}] Unable to get daily keys mini game.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get daily keys mini game.",
+                "other_errors",
+            )
+            return
+
+        if response["dailyKeysMiniGame"]["isClaimed"] == True:
+            log.info(f"[{self.account_name}] Daily keys mini game already claimed.")
+            return
+
+        if "remainSecondsToGuess" not in response["dailyKeysMiniGame"]:
+            log.error(f"[{self.account_name}] Unable to get daily keys mini game.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get daily keys mini game.",
+                "other_errors",
+            )
+            return
+
+        waitTime = int(
+            response["dailyKeysMiniGame"]["remainSecondsToGuess"]
+            - random.randint(8, 15)
+        )
+
+        if waitTime < 0:
+            log.error(f"[{self.account_name}] Unable to claim mini game.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to claim mini game.", "other_errors"
+            )
+            return
+
+        log.info(
+            f"[{self.account_name}] Waiting for {waitTime} seconds, Mini-game will be completed in {waitTime} seconds..."
+        )
+        time.sleep(waitTime)
+
+        url = "https://api.hamsterkombatgame.io/clicker/claim-daily-keys-minigame"
+
+        headers = {
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": self.Authorization,
+            "Content-Type": "application/json",
+        }
+
+        cipher = (
+            ("0" + str(waitTime) + str(random.randint(10000000000, 99999999999)))[:10]
+            + "|"
+            + str(AccountID)
+        )
+        cipher_base64 = base64.b64encode(cipher.encode()).decode()
+
+        payload = json.dumps(
+            {
+                "cipher": cipher_base64,
+            }
+        )
+
+        # Send POST request
+        response = self.HttpRequest(url, headers, "POST", 200, payload)
+
+        if response is None:
+            log.error(f"[{self.account_name}] Unable to claim mini game.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to claim mini game.", "other_errors"
+            )
+            return
+
+        print(response)
+
+        log.info(f"[{self.account_name}] Mini game claimed successfully.")
+
     def Start(self):
         log.info(f"[{self.account_name}] Starting account...")
 
@@ -706,7 +841,7 @@ class HamsterKombatAccount:
             return
 
         log.info(
-            f"[{self.account_name}] Account Balance Coins: {number_to_string(self.balanceCoins)}, Available Taps: {self.availableTaps}, Max Taps: {self.maxTaps}"
+            f"[{self.account_name}] Account Balance Coins: {number_to_string(self.balanceCoins)}, Available Taps: {self.availableTaps}, Max Taps: {self.maxTaps}, Total Keys: {self.totalKeys}, Balance Keys: {self.balanceKeys}"
         )
 
         log.info(f"[{self.account_name}] Getting account upgrades...")
@@ -744,10 +879,21 @@ class HamsterKombatAccount:
         ipResponse = self.IPRequest()
         if ipResponse is None:
             log.error(f"[{self.account_name}] Failed to get IP.")
-            self.SendTelegramLog(f"[{self.account_name}] Failed to get IP.", "other_errors")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Failed to get IP.", "other_errors"
+            )
             return
 
-        log.info(f"[{self.account_name}] IP: {ipResponse['ip']} Company: {ipResponse['asn_org']} Country: {ipResponse['country_code']}")
+        log.info(
+            f"[{self.account_name}] IP: {ipResponse['ip']} Company: {ipResponse['asn_org']} Country: {ipResponse['country_code']}"
+        )
+
+        if self.config["auto_finish_mini_game"]:
+            log.info(f"[{self.account_name}] Attempting to finish mini game...")
+            time.sleep(1)
+            self.StartMiniGame(
+                AccountConfigData, AccountBasicData["telegramUser"]["id"]
+            )
 
         # Start tapping
         if self.config["auto_tap"]:
@@ -841,7 +987,7 @@ class HamsterKombatAccount:
         if self.config["auto_tap"]:
             self.getAccountData()
             log.info(
-                f"[{self.account_name}] Account Balance Coins: {number_to_string(self.balanceCoins)}, Available Taps: {self.availableTaps}, Max Taps: {self.maxTaps}"
+                f"[{self.account_name}] Account Balance Coins: {number_to_string(self.balanceCoins)}, Available Taps: {self.availableTaps}, Max Taps: {self.maxTaps}, Total Keys: {self.totalKeys}, Balance Keys: {self.balanceKeys}"
             )
 
         # Start buying upgrades

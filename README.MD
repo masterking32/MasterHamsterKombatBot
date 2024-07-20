@@ -26,7 +26,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 ## 🗒️ Features
 
 - Get the list of cards and automatically buy the best cards based on return value (This feature allows you to retrieve a list of available cards and automatically purchase the best cards based on their return value. The return value is determined by comparing the card's price with its profit per hour. By automating this process, you can optimize your card selection and maximize your earnings), (10 Jun 2024)
-- Fixed some issues and added the ability to perform all of your taps. (10 Jun 2024)
+- Fixed some issues and added the ability to perform all of your taps. (21 July 2024)
 
 - **Added support for multi-accounts**. (June 12, 2024)
 - Implemented a timer to periodically check the accounts. (June 12, 2024)
@@ -35,6 +35,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Auto claiming daily tasks added, **Version 2 released**. (June 12, 2024)
 - Autocomplete other tasks (Youtube/Twitter and etc). (June 20, 2024)
 - You can add a Telegram Bot to receive logs inside Telegram. (June 20, 2024)
+- Automatically complete Hamster Kombat **Mini-Games** to earn keys. (July 21, 2024)
 
 <hr>
 
