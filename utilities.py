@@ -2,7 +2,6 @@
 # Date: 2024
 # Github: https://github.com/masterking32
 import base64
-import requests
 
 
 # Sort upgrades by best profit per hour (profitPerHourDelta / price)
@@ -11,6 +10,19 @@ def SortUpgrades(upgrades, max_budget):
     upgrades = [item for item in upgrades if item["price"] <= max_budget]
     upgrades.sort(key=lambda x: x["price"] / x["profitPerHourDelta"])
     return upgrades
+
+
+def CalculateCardProfitCoefficient(card):
+    return card["price"] / card["profitPerHourDelta"]
+
+
+def FindBestCardWithLowerCoefficient(upgrades, max_coefficient):
+    cards = SortUpgrades(upgrades, 999_999_999_999_999)
+    for card in cards:
+        card_coeff = CalculateCardProfitCoefficient(card)
+        if card_coeff <= max_coefficient and "cooldownSeconds" in card and card["cooldownSeconds"] == 0:
+            return card
+    return None
 
 
 # Convert number to string with k, m, b, t to make it more readable
