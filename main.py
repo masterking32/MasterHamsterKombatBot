@@ -9,6 +9,7 @@ import logging
 import random
 import time
 
+import requests
 from colorlog import ColoredFormatter
 
 from utilities import *
