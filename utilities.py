@@ -26,7 +26,7 @@ def FindBestCardWithLowerCoefficient(upgrades, max_coefficient):
             and card["cooldownSeconds"] == 0
         ):
             upgrades.remove(card)
-            return card, card_coeff
+            return card, upgrades
     return None
 
 
