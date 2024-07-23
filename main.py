@@ -44,15 +44,15 @@ AccountList = [
             "auto_get_daily_cipher": True,  # Enable auto get daily cipher by setting it to True, or set it to False to disable
             "auto_get_daily_task": True,  # Enable auto get daily task by setting it to True, or set it to False to disable
             "auto_upgrade": True,  # Enable auto upgrade by setting it to True, or set it to False to disable
-            "auto_upgrade_start": 2000000,  # Start buying upgrades when the balance is greater than this amount
-            "auto_upgrade_min": 100000,  # Stop buying upgrades when the balance is less than this amount
+            "auto_upgrade_start": 2_000_000,  # Start buying upgrades when the balance is greater than this amount
+            "auto_upgrade_min": 100_000,  # Stop buying upgrades when the balance is less than this amount
             # This feature will ignore the auto_upgrade_start and auto_upgrade_min.
             # By changing it to True, the bot will first find the overall best card and then wait for the best card to be available (based on cooldown or price).
             # When the best card is available, the bot will buy it and then wait for the next best card to be available.
             # This feature will stop buying upgrades when the balance is less than the price of the best card.
             "wait_for_best_card": False,  # Recommended to keep it True for high level accounts
             "auto_get_task": True,  # Enable auto get (Youtube/Twitter and ...) task to True, or set it to False to disable
-            "enable_parallel_upgrades": True,  # Enable parallel card upgrades. This will buy cards in parallel if best card is on cooldown. Should speed up the profit
+            "enable_parallel_upgrades": False,  # Enable parallel card upgrades. This will buy cards in parallel if the best card is on cooldown. It should speed up the profit.
             "parallel_upgrades_max_price_per_hour": 6_000_000,  # Cards with less than X coins per 1k will be bought
         },
         # If you have enabled Telegram bot logging,
@@ -610,7 +610,7 @@ class HamsterKombatAccount:
         log.info(f"[{self.account_name}] Searching for the best upgrades...")
 
         selected_upgrades = SortUpgrades(
-            upgrades, 999999999999
+            upgrades, 999_999_999_999
         )  # Set max budget to a high number
         if len(selected_upgrades) == 0:
             log.warning(f"[{self.account_name}] No upgrades available.")
