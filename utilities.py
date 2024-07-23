@@ -20,8 +20,13 @@ def FindBestCardWithLowerCoefficient(upgrades, max_coefficient):
     cards = SortUpgrades(upgrades, 999_999_999_999_999)
     for card in cards:
         card_coeff = CalculateCardProfitCoefficient(card)
-        if card_coeff <= max_coefficient and "cooldownSeconds" in card and card["cooldownSeconds"] == 0:
-            return card
+        if (
+            card_coeff <= max_coefficient
+            and "cooldownSeconds" in card
+            and card["cooldownSeconds"] == 0
+        ):
+            upgrades.remove(card)
+            return card, card_coeff
     return None
 
 

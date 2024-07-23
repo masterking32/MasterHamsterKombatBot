@@ -52,7 +52,7 @@ AccountList = [
             # This feature will stop buying upgrades when the balance is less than the price of the best card.
             "wait_for_best_card": False,  # Recommended to keep it True for high level accounts
             "auto_get_task": True,  # Enable auto get (Youtube/Twitter and ...) task to True, or set it to False to disable
-            "enable_parallel_upgrades": True, # Enable parallel card upgrades. This will buy cards in parallel if best card is on cooldown. Should speed up the profit
+            "enable_parallel_upgrades": True,  # Enable parallel card upgrades. This will buy cards in parallel if best card is on cooldown. Should speed up the profit
             "parallel_upgrades_max_price_per_hour": 6_000_000,  # Cards with less than X coins per 1k will be bought
         },
         # If you have enabled Telegram bot logging,
@@ -642,23 +642,37 @@ class HamsterKombatAccount:
                     f"[{self.account_name}] Best card is on cooldown for more than 5 minutes, Best card: {current_selected_card['name']} with profit {current_selected_card['profitPerHourDelta']} and price {number_to_string(current_selected_card['price'])}, Level: {current_selected_card['level']}",
                     "upgrades",
                 )
-                if self.config['enable_parallel_upgrades']:
-                    offset = 1
+                if self.config["enable_parallel_upgrades"]:
                     while True:
-                        log.info(f"[{self.account_name}] Trying to find a card for parallel buy")
+                        log.info(
+                            f"[{self.account_name}] Trying to find a card for parallel buy"
+                        )
 
-                        best_next_card = FindBestCardWithLowerCoefficient(upgrades[offset:], self.config['parallel_upgrades_max_price_per_hour'])
+                        best_next_card, NewUpgradeList = (
+                            FindBestCardWithLowerCoefficient(
+                                upgrades,
+                                self.config["parallel_upgrades_max_price_per_hour"],
+                            )
+                        )
 
-                        if best_next_card is not None and self.balanceCoins > best_next_card["price"]:
-                            log.info(f"[{self.account_name}] Found next card with lower coefficient: {best_next_card['name']} with profit {best_next_card['profitPerHourDelta']} and price {number_to_string(best_next_card['price'])}, Level: {best_next_card['level']}")
-                            log.info(f"[{self.account_name}] Attempting to buy the card...")
+                        if (
+                            best_next_card is not None
+                            and self.balanceCoins > best_next_card["price"]
+                        ):
+                            log.info(
+                                f"[{self.account_name}] Found next card with lower coefficient: {best_next_card['name']} with profit {best_next_card['profitPerHourDelta']} and price {number_to_string(best_next_card['price'])}, Level: {best_next_card['level']}"
+                            )
+                            log.info(
+                                f"[{self.account_name}] Attempting to buy the card..."
+                            )
 
                             self.BuyCard(best_next_card)
+                            upgrades = NewUpgradeList
                             time.sleep(3)
-
-                            offset += 1
                         else:
-                            log.warning(f"[{self.account_name}] No more cards for parallel buy")
+                            log.warning(
+                                f"[{self.account_name}] No more cards for parallel buy"
+                            )
                             break
 
                 return False
