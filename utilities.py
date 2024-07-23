@@ -27,7 +27,7 @@ def FindBestCardWithLowerCoefficient(upgrades, max_coefficient):
         ):
             upgrades.remove(card)
             return card, upgrades
-    return None
+    return None, None
 
 
 # Convert number to string with k, m, b, t to make it more readable
