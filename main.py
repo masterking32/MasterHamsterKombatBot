@@ -8,7 +8,6 @@ import json
 import logging
 import random
 import time
-
 import requests
 from colorlog import ColoredFormatter
 
@@ -39,10 +38,11 @@ AccountList = [
         # },
         "config": {
             "auto_tap": True,  # Enable auto tap by setting it to True, or set it to False to disable
-            "auto_finish_mini_game": True,  # Enable auto finish mini game by setting it to True, or set it to False to disable
             "auto_free_tap_boost": True,  # Enable auto free tap boost by setting it to True, or set it to False to disable
             "auto_get_daily_cipher": True,  # Enable auto get daily cipher by setting it to True, or set it to False to disable
             "auto_get_daily_task": True,  # Enable auto get daily task by setting it to True, or set it to False to disable
+            "auto_get_task": True,  # Enable auto get (Youtube/Twitter and ...) task to True, or set it to False to disable
+            "auto_finish_mini_game": True,  # Enable auto finish mini game by setting it to True, or set it to False to disable
             "auto_upgrade": True,  # Enable auto upgrade by setting it to True, or set it to False to disable
             "auto_upgrade_start": 2_000_000,  # Start buying upgrades when the balance is greater than this amount
             "auto_upgrade_min": 100_000,  # Stop buying upgrades when the balance is less than this amount
@@ -51,8 +51,7 @@ AccountList = [
             # When the best card is available, the bot will buy it and then wait for the next best card to be available.
             # This feature will stop buying upgrades when the balance is less than the price of the best card.
             "wait_for_best_card": False,  # Recommended to keep it True for high level accounts
-            "auto_get_task": True,  # Enable auto get (Youtube/Twitter and ...) task to True, or set it to False to disable
-            "enable_parallel_upgrades": False,  # Enable parallel card upgrades. This will buy cards in parallel if the best card is on cooldown. It should speed up the profit.
+            "enable_parallel_upgrades": True,  # Enable parallel card upgrades. This will buy cards in parallel if the best card is on cooldown. It should speed up the profit.
             "parallel_upgrades_max_price_per_hour": 6_000_000,  # Cards with less than X coins per 1k will be bought
         },
         # If you have enabled Telegram bot logging,
@@ -617,6 +616,39 @@ class HamsterKombatAccount:
             return False
 
         current_selected_card = selected_upgrades[0]
+        for selected_card in selected_upgrades:
+            if (
+                "cooldownSeconds" in selected_card
+                and selected_card["cooldownSeconds"] > 0
+                and not self.config["enable_parallel_upgrades"]
+            ):
+                log.warning(
+                    f"[{self.account_name}] {selected_card['name']} is on cooldown..."
+                )
+                return False
+
+            if (
+                "cooldownSeconds" in selected_card
+                and selected_card["cooldownSeconds"] > 0
+            ):
+                log.warning(
+                    f"[{self.account_name}] {selected_card['name']} is on cooldown, Checking for next card..."
+                )
+                continue
+
+            if (
+                CalculateCardProfitCoefficient(selected_card)
+                > self.config["parallel_upgrades_max_price_per_hour"]
+                and self.config["enable_parallel_upgrades"]
+            ):
+                log.warning(
+                    f"[{self.account_name}] {selected_card['name']} is too expensive to buy in parallel..."
+                )
+                return False
+
+            current_selected_card = selected_card
+            break
+
         log.info(
             f"[{self.account_name}] Best upgrade is {current_selected_card['name']} with profit {current_selected_card['profitPerHourDelta']} and price {number_to_string(current_selected_card['price'])}, Level: {current_selected_card['level']}"
         )
@@ -632,57 +664,7 @@ class HamsterKombatAccount:
             )
             return False
 
-        if (
-            "cooldownSeconds" in current_selected_card
-            and current_selected_card["cooldownSeconds"] > 0
-        ):
-            log.warning(f"[{self.account_name}] Best card is on cooldown...")
-            if current_selected_card["cooldownSeconds"] > 300:
-                self.SendTelegramLog(
-                    f"[{self.account_name}] Best card is on cooldown for more than 5 minutes, Best card: {current_selected_card['name']} with profit {current_selected_card['profitPerHourDelta']} and price {number_to_string(current_selected_card['price'])}, Level: {current_selected_card['level']}",
-                    "upgrades",
-                )
-                if self.config["enable_parallel_upgrades"]:
-                    while True:
-                        log.info(
-                            f"[{self.account_name}] Trying to find a card for parallel buy"
-                        )
-
-                        best_next_card, NewUpgradeList = (
-                            FindBestCardWithLowerCoefficient(
-                                upgrades,
-                                self.config["parallel_upgrades_max_price_per_hour"],
-                            )
-                        )
-
-                        if (
-                            best_next_card is not None
-                            and self.balanceCoins > best_next_card["price"]
-                        ):
-                            log.info(
-                                f"[{self.account_name}] Found next card with lower coefficient: {best_next_card['name']} with profit {best_next_card['profitPerHourDelta']} and price {number_to_string(best_next_card['price'])}, Level: {best_next_card['level']}"
-                            )
-                            log.info(
-                                f"[{self.account_name}] Attempting to buy the card..."
-                            )
-
-                            self.BuyCard(best_next_card)
-                            upgrades = NewUpgradeList
-                            time.sleep(3)
-                        else:
-                            log.warning(
-                                f"[{self.account_name}] No more cards for parallel buy"
-                            )
-                            break
-
-                return False
-            log.info(
-                f"[{self.account_name}] Waiting for {current_selected_card['cooldownSeconds']} seconds, Cooldown will be completed in {current_selected_card['cooldownSeconds']} seconds..."
-            )
-            time.sleep(current_selected_card["cooldownSeconds"] + 1)
-
         log.info(f"[{self.account_name}] Attempting to buy the best card...")
-
         buy_result = self.BuyCard(current_selected_card)
 
         if buy_result:

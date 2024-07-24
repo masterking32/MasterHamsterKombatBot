@@ -16,20 +16,6 @@ def CalculateCardProfitCoefficient(card):
     return card["price"] / card["profitPerHourDelta"]
 
 
-def FindBestCardWithLowerCoefficient(upgrades, max_coefficient):
-    cards = SortUpgrades(upgrades, 999_999_999_999_999)
-    for card in cards:
-        card_coeff = CalculateCardProfitCoefficient(card)
-        if (
-            card_coeff <= max_coefficient
-            and "cooldownSeconds" in card
-            and card["cooldownSeconds"] == 0
-        ):
-            upgrades.remove(card)
-            return card, upgrades
-    return None, None
-
-
 # Convert number to string with k, m, b, t to make it more readable
 def number_to_string(num):
     if num < 1000:
