@@ -13,7 +13,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 <hr>
 
-✅ Tested and confirmed to work as of `15 July 2024`. ✅
+✅ Tested and confirmed to work as of `29 July 2024`. ✅
 
 <img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/screenshot.png" alt="Screenshot" />
 
@@ -36,6 +36,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Autocomplete other tasks (Youtube/Twitter and etc). (June 20, 2024)
 - You can add a Telegram Bot to receive logs inside Telegram. (June 20, 2024)
 - Automatically complete Hamster Kombat **Mini-Games** to earn keys. (July 21, 2024)
+- Playground "Bike Ride 3D" added. (July 29, 2024)
 
 <hr>
 

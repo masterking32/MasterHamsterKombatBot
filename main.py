@@ -10,7 +10,7 @@ import random
 import time
 import requests
 from colorlog import ColoredFormatter
-
+import uuid
 from utilities import *
 
 # ---------------------------------------------#
@@ -43,6 +43,8 @@ AccountList = [
             "auto_get_daily_task": True,  # Enable auto get daily task by setting it to True, or set it to False to disable
             "auto_get_task": True,  # Enable auto get (Youtube/Twitter and ...) task to True, or set it to False to disable
             "auto_finish_mini_game": True,  # Enable auto finish mini game by setting it to True, or set it to False to disable
+            "auto_playground_games": False,  # Enable auto playground games by setting it to True, or set it to False to disable
+            # If you have more than 5 accounts, you need to disable the auto_playground_games feature or use a proxy for each account.
             "auto_upgrade": True,  # Enable auto upgrade by setting it to True, or set it to False to disable
             "auto_upgrade_start": 2_000_000,  # Start buying upgrades when the balance is greater than this amount
             "auto_upgrade_min": 100_000,  # Stop buying upgrades when the balance is less than this amount
@@ -70,6 +72,10 @@ AccountList = [
     #     other configurations like the first account
     # },
 ]
+
+SupportedPromoGames = {
+    "43e35910-c168-4634-ad4f-52fd764a843f": "Bike Ride 3D in Hamster FAM",
+}
 
 # ---------------------------------------------#
 # Telegram Logging
@@ -155,6 +161,7 @@ class HamsterKombatAccount:
         method="POST",
         validStatusCodes=200,
         payload=None,
+        ignore_errors=False,
     ):
         # Default headers
         defaultHeaders = {
@@ -199,6 +206,9 @@ class HamsterKombatAccount:
                 return False
 
             if response.status_code != validStatusCodes:
+                if ignore_errors:
+                    return False
+
                 log.error(
                     f"[{self.account_name}] Status code is not {validStatusCodes}"
                 )
@@ -214,9 +224,11 @@ class HamsterKombatAccount:
 
             return response.json()
         except Exception as e:
+            if ignore_errors:
+                return None
             log.error(f"[{self.account_name}] Error: {e}")
             self.SendTelegramLog(f"[{self.account_name}] Error: {e}", "http_errors")
-            return False
+            return None
 
     # Sending sync request
     def syncRequest(self):
@@ -799,6 +811,240 @@ class HamsterKombatAccount:
 
         log.info(f"[{self.account_name}] Mini game claimed successfully.")
 
+    def StartPlaygroundGame(self):
+        if not self.config["auto_playground_games"]:
+            log.info(f"[{self.account_name}] Playground games are disabled.")
+            return
+
+        log.info(f"[{self.account_name}] Starting gettting playground games...")
+
+        url = "https://api.hamsterkombatgame.io/clicker/get-promos"
+        headers = {
+            "Access-Control-Request-Headers": "authorization",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Authorization": self.Authorization,
+        }
+
+        # Send POST request
+        response = self.HttpRequest(url, headers, "POST", 200)
+
+        if response is None:
+            log.error(f"[{self.account_name}] Unable to get playground games.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get playground games.", "other_errors"
+            )
+            return
+
+        if "promos" not in response:
+            log.error(f"[{self.account_name}] Unable to get playground games.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get playground games.", "other_errors"
+            )
+            return
+
+        for promo in response["promos"]:
+            if promo[
+                "promoId"
+            ] in SupportedPromoGames and self.CheckPlayGroundGameState(promo, response):
+                if promo["promoId"] == "43e35910-c168-4634-ad4f-52fd764a843f":
+                    log.info(
+                        f"[{self.account_name}] Starting Bike Ride 3D in Hamster FAM..."
+                    )
+                    time.sleep(2)
+                    promoCode = self.GetPlayGroundBikeRideKey(promo["promoId"])
+                    if promoCode is not None:
+                        log.info(
+                            f"[{self.account_name}] Bike Ride 3D in Hamster FAM key: {promoCode}"
+                        )
+                        time.sleep(2)
+                        log.info(
+                            f"[{self.account_name}] Claiming Bike Ride 3D in Hamster FAM..."
+                        )
+
+                        self.ClaimPlayGroundGame(promoCode)
+                        log.info(
+                            f"[{self.account_name}] Playground game claimed successfully."
+                        )
+
+    def ClaimPlayGroundGame(self, promoCode):
+        url = "https://api.hamsterkombatgame.io/clicker/apply-promo"
+
+        headers = {
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": self.Authorization,
+            "Content-Type": "application/json",
+        }
+
+        payload = json.dumps(
+            {
+                "promoCode": promoCode,
+            }
+        )
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200, payload)
+
+    def GetPlayGroundBikeRideKey(self, promoID):
+        appToken = "d28721be-fd2d-4b45-869e-9f253b554e50"
+        clientId = f"{int(time.time() * 1000)}-{''.join(str(random.randint(0, 9)) for _ in range(19))}"
+
+        log.info(f"[{self.account_name}] Getting Bike Ride 3D in Hamster FAM key...")
+        url = "https://api.gamepromo.io/promo/login-client"
+
+        headers = {
+            "Content-Type": "application/json; charset=utf-8",
+            "Host": "api.gamepromo.io",
+            "Origin": "",
+            "Referer": "",
+        }
+
+        payload = json.dumps(
+            {
+                "appToken": appToken,
+                "clientId": clientId,
+                "clientOrigin": "deviceid",
+            }
+        )
+
+        response = self.HttpRequest(url, headers, "POST", 200, payload)
+        if response is None:
+            log.error(
+                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key."
+            )
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key.",
+                "other_errors",
+            )
+            return None
+
+        if "clientToken" not in response:
+            log.error(
+                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key."
+            )
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key.",
+                "other_errors",
+            )
+            return None
+
+        clientToken = response["clientToken"]
+
+        url = "https://api.gamepromo.io/promo/register-event"
+
+        headers = {
+            "Authorization": f"Bearer {clientToken}",
+            "Host": "api.gamepromo.io",
+            "Content-Type": "application/json; charset=utf-8",
+            "Origin": "",
+            "Referer": "",
+        }
+
+        response = None
+
+        while True:
+            eventID = str(uuid.uuid4())
+
+            payload = json.dumps(
+                {
+                    "promoId": promoID,
+                    "eventId": eventID,
+                    "eventOrigin": "undefined",
+                }
+            )
+
+            response = self.HttpRequest(url, headers, "POST", 200, payload, True)
+
+            if response is None or not isinstance(response, dict):
+                time.sleep(5)
+                continue
+
+            if not response.get("hasCode", False):
+                time.sleep(5)
+                continue
+
+            break
+
+        url = "https://api.gamepromo.io/promo/create-code"
+
+        headers = {
+            "Authorization": f"Bearer {clientToken}",
+            "Content-Type": "application/json; charset=utf-8",
+            "Host": "api.gamepromo.io",
+            "Origin": "",
+            "Referer": "",
+        }
+
+        payload = json.dumps(
+            {
+                "promoId": promoID,
+            }
+        )
+
+        response = self.HttpRequest(url, headers, "POST", 200, payload)
+        if response is None:
+            log.error(
+                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key."
+            )
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key.",
+                "other_errors",
+            )
+            return None
+
+        if (
+            "promoCode" not in response
+            or response.get("promoCode") is None
+            or response.get("promoCode") == ""
+        ):
+            log.error(
+                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key."
+            )
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key.",
+                "other_errors",
+            )
+            return None
+
+        promoCode = response["promoCode"]
+        return promoCode
+
+    def CheckPlayGroundGameState(self, promo, promos):
+        if not self.config["auto_playground_games"]:
+            log.info(f"[{self.account_name}] Playground games are disabled.")
+            return False
+
+        if promo["promoId"] not in SupportedPromoGames:
+            return False
+
+        if "states" not in promos:
+            return True
+
+        for state in promos["states"]:
+            if (
+                state["promoId"] == promo["promoId"]
+                and state["receiveKeysToday"] >= promo["keysPerDay"]
+            ):
+                log.info(
+                    f"[{self.account_name}] Playground game {SupportedPromoGames[promo['promoId']]} already claimed."
+                )
+                return False
+
+        return True
+
     def Start(self):
         log.info(f"[{self.account_name}] Starting account...")
 
@@ -840,6 +1086,7 @@ class HamsterKombatAccount:
             )
             return
 
+        self.StartPlaygroundGame()
         DailyCipher = ""
         if (
             self.config["auto_get_daily_cipher"]
@@ -1144,7 +1391,7 @@ def main():
         "\033[1;34mProject Github: https://github.com/masterking32/MasterHamsterKombatBot\033[0m"
     )
     log.info("\033[1;33mDeveloped by: MasterkinG32\033[0m")
-    log.info("\033[1;35mVersion: 2.0\033[0m")
+    log.info("\033[1;35mVersion: 2.2\033[0m")
     log.info("\033[1;36mTo stop the bot, press Ctrl + C\033[0m")
     log.info("------------------------------------------------------------------------")
     log.info("------------------------------------------------------------------------")
