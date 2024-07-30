@@ -203,11 +203,11 @@ class HamsterKombatAccount:
                 self.SendTelegramLog(
                     f"[{self.account_name}] Invalid method: {method}", "http_errors"
                 )
-                return False
+                return None
 
             if response.status_code != validStatusCodes:
                 if ignore_errors:
-                    return False
+                    return None
 
                 log.error(
                     f"[{self.account_name}] Status code is not {validStatusCodes}"
@@ -217,7 +217,7 @@ class HamsterKombatAccount:
                     f"[{self.account_name}] Status code is not {validStatusCodes}",
                     "http_errors",
                 )
-                return False
+                return None
 
             if method == "OPTIONS":
                 return True
@@ -1086,7 +1086,6 @@ class HamsterKombatAccount:
             )
             return
 
-        self.StartPlaygroundGame()
         DailyCipher = ""
         if (
             self.config["auto_get_daily_cipher"]
@@ -1127,18 +1126,12 @@ class HamsterKombatAccount:
             self.SendTelegramLog(
                 f"[{self.account_name}] Failed to get tasks list.", "other_errors"
             )
-            return
 
         log.info(f"[{self.account_name}] Getting account airdrop tasks...")
         airdropTasksResponse = self.GetListAirDropTasksRequest()
 
         if airdropTasksResponse is None:
             log.error(f"[{self.account_name}] Failed to get airdrop tasks list.")
-            self.SendTelegramLog(
-                f"[{self.account_name}] Failed to get airdrop tasks list.",
-                "other_errors",
-            )
-            return
 
         log.info(f"[{self.account_name}] Getting account IP...")
         ipResponse = self.IPRequest()
@@ -1182,7 +1175,12 @@ class HamsterKombatAccount:
                     "daily_cipher",
                 )
 
-        if self.config["auto_get_daily_task"]:
+        if (
+            self.config["auto_get_daily_task"]
+            and tasksResponse is not None
+            and "tasks" in tasksResponse
+            and isinstance(tasksResponse["tasks"], list)
+        ):
             log.info(f"[{self.account_name}] Checking for daily task...")
             streak_days = None
             for task in tasksResponse["tasks"]:
@@ -1212,7 +1210,12 @@ class HamsterKombatAccount:
                     "daily_task",
                 )
 
-        if self.config["auto_get_task"]:
+        if (
+            self.config["auto_get_task"]
+            and tasksResponse is not None
+            and "tasks" in tasksResponse
+            and isinstance(tasksResponse["tasks"], list)
+        ):
             log.info(f"[{self.account_name}] Checking for available task...")
             selected_task = None
             for task in tasksResponse["tasks"]:
@@ -1254,6 +1257,8 @@ class HamsterKombatAccount:
             log.info(
                 f"[{self.account_name}] Account Balance Coins: {number_to_string(self.balanceCoins)}, Available Taps: {self.availableTaps}, Max Taps: {self.maxTaps}, Total Keys: {self.totalKeys}, Balance Keys: {self.balanceKeys}"
             )
+
+        self.StartPlaygroundGame()
 
         # Start buying upgrades
         if not self.config["auto_upgrade"]:
