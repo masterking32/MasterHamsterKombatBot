@@ -54,7 +54,7 @@ AccountList = [
             # This feature will stop buying upgrades when the balance is less than the price of the best card.
             "wait_for_best_card": True,  # Recommended to keep it True for high-level accounts
             "enable_parallel_upgrades": True,  # Enable parallel card upgrades. This will buy cards in parallel if the best card is on cooldown. It should speed up the profit.
-            "parallel_upgrades_max_price_per_hour": 700,  # Cards with less than X coins per 1k will be bought
+            "parallel_upgrades_max_price_per_hour": 1000,  # Cards with less than X coins per 1k will be bought
         },
         # If you have enabled Telegram bot logging,
         # you can add your chat ID below to receive logs in your Telegram account.
