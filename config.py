@@ -28,7 +28,7 @@ AccountList = [
             "auto_get_daily_task": True,  # Enable auto get daily tasks by setting it to True, or set it to False to disable
             "auto_get_task": True,  # Enable auto get (Youtube/Twitter and ...) task to True, or set it to False to disable
             "auto_finish_mini_game": True,  # Enable auto finish mini game by setting it to True, or set it to False to disable
-            "auto_playground_games": False,  # Enable auto playground games by setting it to True, or set it to False to disable
+            "auto_playground_games": True,  # Enable auto playground games by setting it to True, or set it to False to disable
             # If you have over 5 accounts, disable the auto_playground_games feature or use a proxy for each account.
             "auto_upgrade": True,  # Enable auto-upgrade by setting it to True, or set it to False to disable
             "auto_upgrade_start": 2_000_000,  # Start buying upgrades when the balance is greater than this amount
@@ -66,7 +66,7 @@ AccountList = [
     #         "auto_get_daily_task": True,  # Enable auto get daily tasks by setting it to True, or set it to False to disable
     #         "auto_get_task": True,  # Enable auto get (Youtube/Twitter and ...) task to True, or set it to False to disable
     #         "auto_finish_mini_game": True,  # Enable auto finish mini game by setting it to True, or set it to False to disable
-    #         "auto_playground_games": False,  # Enable auto playground games by setting it to True, or set it to False to disable
+    #         "auto_playground_games": True,  # Enable auto playground games by setting it to True, or set it to False to disable
     #         # If you have over 5 accounts, disable the auto_playground_games feature or use a proxy for each account.
     #         "auto_upgrade": True,  # Enable auto-upgrade by setting it to True, or set it to False to disable
     #         "auto_upgrade_start": 2_000_000,  # Start buying upgrades when the balance is greater than this amount
