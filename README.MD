@@ -26,7 +26,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 ## 🗒️ Features
 
 - Get the list of cards and automatically buy the best cards based on return value (This feature allows you to retrieve a list of available cards and automatically purchase the best cards based on their return value. The return value is determined by comparing the card's price with its profit per hour. By automating this process, you can optimize your card selection and maximize your earnings), (10 Jun 2024)
-- Fixed some issues and added the ability to perform all of your taps. (21 July 2024)
+- Fixed some issues and added the ability to perform all of your taps. (06 August 2024)
 
 - **Added support for multi-accounts**. (June 12, 2024)
 - Implemented a timer to periodically check the accounts. (June 12, 2024)
@@ -36,7 +36,8 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Autocomplete other tasks (Youtube/Twitter and etc). (June 20, 2024)
 - You can add a Telegram Bot to receive logs inside Telegram. (June 20, 2024)
 - Automatically complete Hamster Kombat **Mini-Games** to earn keys. (July 21, 2024)
-- Playground "Bike Ride 3D" added. (July 29, 2024)
+- Playground `Bike Ride 3D` added. (July 29, 2024)
+- Playground `My Clone Army`, `Chain Cube 2024`, `Train Miner` added. (August 06, 2024)
 
 <hr>
 
@@ -51,8 +52,8 @@ pip install requests colorlog
 
 3. Add your accounts
 
-- Locate your `Authorization Bearer token` and place it in the `main.py` file. [How to Obtain a Token and Set Up the Bot?](https://www.youtube.com/watch?v=cjWE7DmMFgw)
-- [Find your device's UserAgent](https://github.com/masterking32/MasterHamsterKombatBot/blob/main/useful_files/user-agents.md) and place it in the `main.py` file.
+- Locate your `Authorization Bearer token` and place it in the `config.py` file. [How to Obtain a Token and Set Up the Bot?](https://www.youtube.com/watch?v=cjWE7DmMFgw)
+- [Find your device's UserAgent](https://github.com/masterking32/MasterHamsterKombatBot/blob/main/useful_files/user-agents.md) and place it in the `config.py` file.
 - Configure accounts
 
 4. Execute the command `py main.py`.

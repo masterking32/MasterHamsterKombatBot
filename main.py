@@ -12,69 +12,60 @@ import requests
 from colorlog import ColoredFormatter
 import uuid
 from utilities import *
+from config import *
 
-# ---------------------------------------------#
-# Configuration
-# ---------------------------------------------#
-# Recheck time in seconds to check all accounts again (60 seconds = 1 minute and 0 means no recheck)
-AccountsRecheckTime = 300
-
-# Adds a random delay to the AccountsRecheckTime interval to make it more unpredictable and less detectable.
-# Set it to 0 to disable the random delay.
-# For example, if set to 120, the bot will introduce a random delay between 1 and 120 seconds each time it rechecks.
-MaxRandomDelay = 120
-
-# Accounts will be checked in the order they are listed
-AccountList = [
-    {
-        "account_name": "Account 1",  # A custom name for the account (not important, just for logs)
-        "Authorization": "Bearer TOKEN_HERE",  # To get the token, refer to the README.md file
-        "UserAgent": "Your UserAgent",  # Refer to the README.md file to obtain a user agent
-        "Proxy": {},  # You can use proxies to avoid getting banned. Use {} for no proxy
-        # Example of using a proxy:
-        # "Proxy": {
-        #   "https": "https://10.10.1.10:3128",
-        #   "http": "http://user:pass@10.10.1.10:3128/"
-        # },
-        "config": {
-            "auto_tap": True,  # Enable auto tap by setting it to True, or set it to False to disable
-            "auto_free_tap_boost": True,  # Enable auto free tap boost by setting it to True, or set it to False to disable
-            "auto_get_daily_cipher": True,  # Enable auto get daily cipher by setting it to True, or set it to False to disable
-            "auto_get_daily_task": True,  # Enable auto get daily tasks by setting it to True, or set it to False to disable
-            "auto_get_task": True,  # Enable auto get (Youtube/Twitter and ...) task to True, or set it to False to disable
-            "auto_finish_mini_game": True,  # Enable auto finish mini game by setting it to True, or set it to False to disable
-            "auto_playground_games": False,  # Enable auto playground games by setting it to True, or set it to False to disable
-            # If you have over 5 accounts, disable the auto_playground_games feature or use a proxy for each account.
-            "auto_upgrade": True,  # Enable auto-upgrade by setting it to True, or set it to False to disable
-            "auto_upgrade_start": 2_000_000,  # Start buying upgrades when the balance is greater than this amount
-            "auto_upgrade_min": 100_000,  # Stop buying upgrades when the balance is less than this amount
-            # This feature will ignore the auto_upgrade_start and auto_upgrade_min.
-            # By changing it to True, the bot will find the overall best card and then wait for the best card to be available (based on cooldown or price).
-            # When the best card is available, the bot will buy it and then wait for the next best card to be available.
-            # This feature will stop buying upgrades when the balance is less than the price of the best card.
-            "wait_for_best_card": True,  # Recommended to keep it True for high-level accounts
-            "enable_parallel_upgrades": True,  # Enable parallel card upgrades. This will buy cards in parallel if the best card is on cooldown. It should speed up the profit.
-            "parallel_upgrades_max_price_per_hour": 1000,  # Cards with less than X coins per 1k will be bought
-        },
-        # If you have enabled Telegram bot logging,
-        # you can add your chat ID below to receive logs in your Telegram account.
-        # You can obtain your chat ID by messaging @chatIDrobot.
-        # Example: "telegram_chat_id": "12345678".
-        # If you do not wish to use this feature for this account, leave it empty.
-        # This feature is optional and is required to enable the telegramBotLogging feature below.
-        "telegram_chat_id": "",  # String - you can get it from https://t.me/chatIDrobot
-    },
-    # Add more accounts if you want to use multiple accounts
-    # {
-    #     "account_name": "Account 2",
-    #     "Authorization": "Bearer Token_Here",
-    #     ...
-    #     Other configurations like the first account
-    # },
-]
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
+# To edit the account configuration, you can modify the config.py file.
 
 SupportedPromoGames = {
-    "43e35910-c168-4634-ad4f-52fd764a843f": "Bike Ride 3D in Hamster FAM",
+    "43e35910-c168-4634-ad4f-52fd764a843f": {
+        "name": "Bike Ride 3D in Hamster FAM",
+        "appToken": "d28721be-fd2d-4b45-869e-9f253b554e50",
+        "promoId": "43e35910-c168-4634-ad4f-52fd764a843f",
+        "delay": 20,
+        "retry_delay": 20,
+    },
+    "fe693b26-b342-4159-8808-15e3ff7f8767": {
+        "name": "My Clone Army",
+        "appToken": "74ee0b5b-775e-4bee-974f-63e7f4d5bacb",
+        "promoId": "fe693b26-b342-4159-8808-15e3ff7f8767",
+        "delay": 120,
+        "retry_delay": 20,
+    },
+    "b4170868-cef0-424f-8eb9-be0622e8e8e3": {
+        "name": "Chain Cube 2024",
+        "appToken": "d1690a07-3780-4068-810f-9b5bbf2931b2",
+        "promoId": "b4170868-cef0-424f-8eb9-be0622e8e8e3",
+        "delay": 20,
+        "retry_delay": 20,
+    },
+    "c4480ac7-e178-4973-8061-9ed5b2e17954": {
+        "name": "Train Miner",
+        "appToken": "82647f43-3f87-402d-88dd-09a90025313f",
+        "promoId": "c4480ac7-e178-4973-8061-9ed5b2e17954",
+        "delay": 120,
+        "retry_delay": 20,
+    },
 }
 
 # ---------------------------------------------#
@@ -852,25 +843,22 @@ class HamsterKombatAccount:
             if promo[
                 "promoId"
             ] in SupportedPromoGames and self.CheckPlayGroundGameState(promo, response):
-                if promo["promoId"] == "43e35910-c168-4634-ad4f-52fd764a843f":
+                promoData = SupportedPromoGames[promo["promoId"]]
+                log.info(
+                    f"[{self.account_name}] Starting {promoData['name']} Playground game..."
+                )
+                time.sleep(1)
+                promoCode = self.GetPlayGroundGameKey(promoData)
+                if promoCode is not None:
                     log.info(
-                        f"[{self.account_name}] Starting Bike Ride 3D in Hamster FAM..."
+                        f"\033[1;34m[{self.account_name}] {promoData['name']} key: {promoCode}\033[0m"
                     )
                     time.sleep(2)
-                    promoCode = self.GetPlayGroundBikeRideKey(promo["promoId"])
-                    if promoCode is not None:
-                        log.info(
-                            f"[{self.account_name}] Bike Ride 3D in Hamster FAM key: {promoCode}"
-                        )
-                        time.sleep(2)
-                        log.info(
-                            f"[{self.account_name}] Claiming Bike Ride 3D in Hamster FAM..."
-                        )
-
-                        self.ClaimPlayGroundGame(promoCode)
-                        log.info(
-                            f"[{self.account_name}] Playground game claimed successfully."
-                        )
+                    log.info(f"[{self.account_name}] Claiming {promoData['name']}...")
+                    self.ClaimPlayGroundGame(promoCode)
+                    log.info(
+                        f"[{self.account_name}] {promoData['name']} claimed successfully."
+                    )
 
     def ClaimPlayGroundGame(self, promoCode):
         url = "https://api.hamsterkombatgame.io/clicker/apply-promo"
@@ -898,11 +886,11 @@ class HamsterKombatAccount:
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200, payload)
 
-    def GetPlayGroundBikeRideKey(self, promoID):
-        appToken = "d28721be-fd2d-4b45-869e-9f253b554e50"
+    def GetPlayGroundGameKey(self, promoData):
+        appToken = promoData["appToken"]
         clientId = f"{int(time.time() * 1000)}-{''.join(str(random.randint(0, 9)) for _ in range(19))}"
 
-        log.info(f"[{self.account_name}] Getting Bike Ride 3D in Hamster FAM key...")
+        log.info(f"[{self.account_name}] Getting {promoData['name']} key...")
         url = "https://api.gamepromo.io/promo/login-client"
 
         headers = {
@@ -916,32 +904,32 @@ class HamsterKombatAccount:
             {
                 "appToken": appToken,
                 "clientId": clientId,
-                "clientOrigin": "deviceid",
+                "clientOrigin": "ios",
             }
         )
 
         response = self.HttpRequest(url, headers, "POST", 200, payload)
         if response is None:
-            log.error(
-                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key."
-            )
+            log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
             self.SendTelegramLog(
-                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key.",
+                f"[{self.account_name}] Unable to get {promoData['name']} key.",
                 "other_errors",
             )
             return None
 
         if "clientToken" not in response:
-            log.error(
-                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key."
-            )
+            log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
             self.SendTelegramLog(
-                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key.",
+                f"[{self.account_name}] Unable to get {promoData['name']} key.",
                 "other_errors",
             )
             return None
 
         clientToken = response["clientToken"]
+
+        time.sleep(promoData["delay"] + random.randint(1, 5))
+
+        log.info(f"[{self.account_name}] Registering event for {promoData['name']}...")
 
         url = "https://api.gamepromo.io/promo/register-event"
 
@@ -955,12 +943,14 @@ class HamsterKombatAccount:
 
         response = None
 
-        while True:
+        retryCount = 0
+        while retryCount < 5:
+            retryCount += 1
             eventID = str(uuid.uuid4())
 
             payload = json.dumps(
                 {
-                    "promoId": promoID,
+                    "promoId": promoData["promoId"],
                     "eventId": eventID,
                     "eventOrigin": "undefined",
                 }
@@ -969,14 +959,16 @@ class HamsterKombatAccount:
             response = self.HttpRequest(url, headers, "POST", 200, payload, True)
 
             if response is None or not isinstance(response, dict):
-                time.sleep(5)
+                time.sleep(promoData["delay"] + random.randint(1, 5))
                 continue
 
             if not response.get("hasCode", False):
-                time.sleep(5)
+                time.sleep(promoData["delay"] + random.randint(1, 5))
                 continue
 
             break
+
+        log.info(f"[{self.account_name}] Event registered successfully.")
 
         url = "https://api.gamepromo.io/promo/create-code"
 
@@ -990,17 +982,15 @@ class HamsterKombatAccount:
 
         payload = json.dumps(
             {
-                "promoId": promoID,
+                "promoId": promoData["promoId"],
             }
         )
 
         response = self.HttpRequest(url, headers, "POST", 200, payload)
         if response is None:
-            log.error(
-                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key."
-            )
+            log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
             self.SendTelegramLog(
-                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key.",
+                f"[{self.account_name}] Unable to get {promoData['name']} key.",
                 "other_errors",
             )
             return None
@@ -1010,11 +1000,9 @@ class HamsterKombatAccount:
             or response.get("promoCode") is None
             or response.get("promoCode") == ""
         ):
-            log.error(
-                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key."
-            )
+            log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
             self.SendTelegramLog(
-                f"[{self.account_name}] Unable to get Bike Ride 3D in Hamster FAM key.",
+                f"[{self.account_name}] Unable to get {promoData['name']} key."
                 "other_errors",
             )
             return None
