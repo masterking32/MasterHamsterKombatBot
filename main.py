@@ -1027,7 +1027,7 @@ class HamsterKombatAccount:
                 and state["receiveKeysToday"] >= promo["keysPerDay"]
             ):
                 log.info(
-                    f"[{self.account_name}] Playground game {SupportedPromoGames[promo['promoId']]} already claimed."
+                    f"[{self.account_name}] Playground game {SupportedPromoGames[promo['promoId']]['name']} already claimed."
                 )
                 return False
 
