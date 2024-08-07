@@ -1065,7 +1065,7 @@ class HamsterKombatAccount:
         if (
             AccountConfigData is None
             or AccountConfigData is False
-            or "clickerConfig" not in AccountConfigData
+#            or "clickerConfig" not in AccountConfigData
         ):
             log.error(f"[{self.account_name}] Unable to get account config data.")
             self.SendTelegramLog(
