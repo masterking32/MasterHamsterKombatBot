@@ -584,6 +584,23 @@ class HamsterKombatAccount:
         self.earnPassivePerHour += card["profitPerHourDelta"]
 
         return True
+    
+    def ListBuyOptions(self, selected_upgrades):
+        log.info(f"[{self.account_name}] List of {self.config["show_num_buy_options"]} best buy options:")
+        count = 1
+        for selected_card in selected_upgrades:
+            if (
+                "cooldownSeconds" in selected_card
+                and selected_card["cooldownSeconds"] > 0
+            ):
+                continue
+            profitCoefficient = CalculateCardProfitCoefficient(selected_card)
+            log.info(
+                f"[{self.account_name}] {count}: {selected_card['name']}, Profit: {selected_card['profitPerHourDelta']}, Price: {number_to_string(selected_card['price'])}, Coefficient: {int(profitCoefficient)} Level: {selected_card['level']}"
+            )
+            count = count + 1
+            if count > self.config["show_num_buy_options"]:
+                break
 
     def BuyBestCard(self):
         log.info(f"[{self.account_name}] Checking for best card...")
@@ -618,6 +635,9 @@ class HamsterKombatAccount:
             log.warning(f"[{self.account_name}] No upgrades available.")
             return False
 
+        if self.config["show_num_buy_options"] > 0:
+            self.ListBuyOptions(selected_upgrades)
+            
         current_selected_card = selected_upgrades[0]
         for selected_card in selected_upgrades:
             if (
@@ -639,13 +659,23 @@ class HamsterKombatAccount:
                 )
                 continue
 
+            profitCoefficient = CalculateCardProfitCoefficient(selected_card)
+            coefficientLimit = self.config["parallel_upgrades_max_price_per_hour"]
+
             if (
-                CalculateCardProfitCoefficient(selected_card)
-                > self.config["parallel_upgrades_max_price_per_hour"]
+                profitCoefficient
+                > coefficientLimit
                 and self.config["enable_parallel_upgrades"]
             ):
                 log.warning(
                     f"[{self.account_name}] {selected_card['name']} is too expensive to buy in parallel..."
+                )
+                log.warning(
+                    f"[{self.account_name}] Cost is: {int(profitCoefficient)} / coin increase in profit. Cost limit: {coefficientLimit}"
+                    
+                )
+                log.warning(
+                    f"[{self.account_name}] Adjust `parallel_upgrades_max_price_per_hour` to change this behaviour"
                 )
                 return False
 
@@ -1065,7 +1095,6 @@ class HamsterKombatAccount:
         if (
             AccountConfigData is None
             or AccountConfigData is False
-#            or "clickerConfig" not in AccountConfigData
         ):
             log.error(f"[{self.account_name}] Unable to get account config data.")
             self.SendTelegramLog(
