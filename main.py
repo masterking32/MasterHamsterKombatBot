@@ -97,7 +97,9 @@ LOG_LEVEL = logging.DEBUG
 # Include date and time in the log format
 LOGFORMAT = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(asctime)s %(log_color)s%(message)s%(reset)s"
 logging.root.setLevel(LOG_LEVEL)
-formatter = ColoredFormatter(LOGFORMAT, "%Y-%m-%d %H:%M:%S")  # Specify the date/time format
+formatter = ColoredFormatter(
+    LOGFORMAT, "%Y-%m-%d %H:%M:%S"
+)  # Specify the date/time format
 stream = logging.StreamHandler()
 stream.setLevel(LOG_LEVEL)
 stream.setFormatter(formatter)
@@ -1063,11 +1065,7 @@ class HamsterKombatAccount:
 
         log.info(f"[{self.account_name}] Getting account config data...")
         AccountConfigData = self.GetAccountConfigRequest()
-        if (
-            AccountConfigData is None
-            or AccountConfigData is False
-#            or "clickerConfig" not in AccountConfigData
-        ):
+        if AccountConfigData is None or AccountConfigData is False:
             log.error(f"[{self.account_name}] Unable to get account config data.")
             self.SendTelegramLog(
                 f"[{self.account_name}] Unable to get account config data.",
@@ -1208,8 +1206,10 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Checking for available task...")
             selected_task = None
             for task in tasksResponse["tasks"]:
-                link = task.get("link", "")
-                if task["isCompleted"] == False and ("https://" in link):
+                TaskType = task.get("type", "")
+                if task["isCompleted"] == False and (
+                    TaskType == "WithLink" or TaskType == "WithLocaleLink"
+                ):
                     log.info(
                         f"[{self.account_name}] Attempting to complete Youtube Or Twitter task..."
                     )
