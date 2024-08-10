@@ -626,6 +626,21 @@ class HamsterKombatAccount:
             if (
                 "cooldownSeconds" in selected_card
                 and selected_card["cooldownSeconds"] > 0
+                and selected_card["cooldownSeconds"] < 180
+            ):
+                log.warning(
+                    f"[{self.account_name}] {selected_card['name']} is on cooldown and cooldown is less than 180 seconds..."
+                )
+                log.warning(
+                    f"[{self.account_name}] Waiting for {selected_card['cooldownSeconds'] + 2} seconds..."
+                )
+
+                time.sleep(selected_card["cooldownSeconds"] + 2)
+                selected_card["cooldownSeconds"] = 0
+
+            if (
+                "cooldownSeconds" in selected_card
+                and selected_card["cooldownSeconds"] > 0
                 and not self.config["enable_parallel_upgrades"]
             ):
                 log.warning(
