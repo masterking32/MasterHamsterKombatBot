@@ -506,7 +506,7 @@ class HamsterKombatAccount:
         url = f"https://api.hamsterkombatgame.io/clicker/config/{self.configVersion}"
         headers = {
             "Access-Control-Request-Headers": "authorization",
-            "Access-Control-Request-Method": "POST",
+            "Access-Control-Request-Method": "GET",
         }
 
         # Send OPTIONS request
@@ -516,8 +516,8 @@ class HamsterKombatAccount:
             "Authorization": self.Authorization,
         }
 
-        # Send POST request
-        return self.HttpRequest(url, headers, "POST", 200)
+        # Send GET request
+        return self.HttpRequest(url, headers, "GET", 200)
 
     def ClaimDailyCipherRequest(self, DailyCipher):
         url = "https://api.hamsterkombatgame.io/clicker/claim-daily-cipher"
