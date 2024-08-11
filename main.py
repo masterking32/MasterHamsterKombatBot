@@ -447,7 +447,7 @@ class HamsterKombatAccount:
             "Content-Type": "application/json",
         }
 
-        payload = json.dumps({})
+        payload = "{}"
 
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200, payload)
