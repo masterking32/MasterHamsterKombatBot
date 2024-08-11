@@ -700,6 +700,8 @@ class HamsterKombatAccount:
 
             return True
 
+        return False
+
     def StartMiniGame(self, AccountConfigData, AccountID):
         if "dailyKeysMiniGame" not in AccountConfigData:
             log.error(f"[{self.account_name}] Unable to get daily keys mini game.")
