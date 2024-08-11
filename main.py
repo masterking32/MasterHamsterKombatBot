@@ -439,7 +439,7 @@ class HamsterKombatAccount:
         }
 
         # Send OPTIONS request
-        self.HttpRequest(url, headers, "OPTIONS", 200)
+        self.HttpRequest(url, headers, "OPTIONS", 204)
 
         headers = {
             "Accept": "application/json",
@@ -447,10 +447,8 @@ class HamsterKombatAccount:
             "Content-Type": "application/json",
         }
 
-        payload = "{}"
-
         # Send POST request
-        return self.HttpRequest(url, headers, "POST", 200, payload)
+        return self.HttpRequest(url, headers, "POST", 200, "{}")
 
     def MeTelegramRequest(self):
         url = "https://api.hamsterkombatgame.io/auth/me-telegram"
