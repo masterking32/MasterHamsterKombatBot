@@ -1092,10 +1092,7 @@ class HamsterKombatAccount:
 
         log.info(f"[{self.account_name}] Getting account config data...")
         AccountConfigData = self.GetAccountConfigRequest()
-        if (
-            AccountConfigData is None
-            or AccountConfigData is False
-        ):
+        if AccountConfigData is None or AccountConfigData is False:
             log.error(f"[{self.account_name}] Unable to get account config data.")
             self.SendTelegramLog(
                 f"[{self.account_name}] Unable to get account config data.",
@@ -1345,6 +1342,12 @@ class HamsterKombatAccount:
             )
 
             balanceCoins -= current_selected_card["price"]
+
+            if balanceCoins <= self.config["auto_upgrade_min"]:
+                log.warning(
+                    f"[{self.account_name}] Upgrade purchase would decrease balance below minimum limit, aborting."
+                )
+                return
 
             log.info(f"[{self.account_name}] Attempting to buy an upgrade...")
             time.sleep(2)
