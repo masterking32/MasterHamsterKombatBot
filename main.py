@@ -104,9 +104,6 @@ class HamsterKombatAccount:
         return default
 
     def SendTelegramLog(self, message, level):
-        if "telegramBotLogging" not in locals():
-            return
-
         if (
             not telegramBotLogging["is_active"]
             or self.telegram_chat_id == ""
