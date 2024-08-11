@@ -12,30 +12,39 @@ import requests
 from colorlog import ColoredFormatter
 import uuid
 from utilities import *
-from config import *
 
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
-# To edit the account configuration, you can modify the config.py file.
+try:
+    from config import *
+except ImportError:
+    print("Config file not found.")
+    print("Create a copy of config.py.example and rename it to config.py")
+    print("And fill in the required fields.")
+    exit()
+
+if "ConfigFileVersion" not in locals() or ConfigFileVersion != 1:
+    print("Invalid config file version.")
+    print("Please update the config file to the latest version.")
+    print("Create a copy of config.py.example and rename it to config.py")
+    print("And fill in the required fields.")
+    exit()
+
+# ---------------------------------------------#
+# Logging configuration
+LOG_LEVEL = logging.DEBUG
+# Include date and time in the log format
+LOGFORMAT = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(asctime)s %(log_color)s%(message)s%(reset)s"
+logging.root.setLevel(LOG_LEVEL)
+formatter = ColoredFormatter(
+    LOGFORMAT, "%Y-%m-%d %H:%M:%S"
+)  # Specify the date/time format
+stream = logging.StreamHandler()
+stream.setLevel(LOG_LEVEL)
+stream.setFormatter(formatter)
+log = logging.getLogger("pythonConfig")
+log.setLevel(LOG_LEVEL)
+log.addHandler(stream)
+# End of configuration
+# ---------------------------------------------#
 
 SupportedPromoGames = {
     "43e35910-c168-4634-ad4f-52fd764a843f": {
@@ -67,48 +76,6 @@ SupportedPromoGames = {
         "retry_delay": 20,
     },
 }
-
-# ---------------------------------------------#
-# Telegram Logging
-# By enabling this feature, you will receive logs in your Telegram account.
-# To use this feature, you need to create a bot and obtain the token from @BotFather.
-# Note: Only important logs are sent to Telegram, feel free to include more logs as needed.
-# You can also use this feature to receive logs from a bot running on a server.
-# If you don't want to use this feature, set "is_active" to False and leave "bot_token" and "uid" fields empty.
-# This feature is optional, and you can disable it by setting "is_active" to False.
-telegramBotLogging = {
-    "is_active": False,  # Set it to True if you want to use it, and make sure to fill out the below fields
-    "bot_token": "",  # HTTP API access token from https://t.me/BotFather ~ Start your bot after creating it
-    # Configure the what you want to receive logs from the bot
-    "messages": {
-        "general_info": True,  # General information
-        "account_info": True,  # Account information
-        "http_errors": False,  # HTTP errors
-        "other_errors": False,  # Other errors
-        "daily_cipher": True,  # Daily cipher
-        "daily_task": False,  # Daily task
-        "upgrades": True,  # Upgrades
-    },
-}
-
-# ---------------------------------------------#
-# Logging configuration
-LOG_LEVEL = logging.DEBUG
-# Include date and time in the log format
-LOGFORMAT = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(asctime)s %(log_color)s%(message)s%(reset)s"
-logging.root.setLevel(LOG_LEVEL)
-formatter = ColoredFormatter(
-    LOGFORMAT, "%Y-%m-%d %H:%M:%S"
-)  # Specify the date/time format
-stream = logging.StreamHandler()
-stream.setLevel(LOG_LEVEL)
-stream.setFormatter(formatter)
-log = logging.getLogger("pythonConfig")
-log.setLevel(LOG_LEVEL)
-log.addHandler(stream)
-# End of configuration
-# ---------------------------------------------#
-
 
 class HamsterKombatAccount:
     def __init__(self, AccountData):
