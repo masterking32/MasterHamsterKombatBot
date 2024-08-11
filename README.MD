@@ -52,6 +52,8 @@ pip install requests colorlog
 
 3. Add your accounts
 
+- Copy the `config.py.example` file to `config.py`.
+
 - Locate your `Authorization Bearer token` and place it in the `config.py` file. [How to Obtain a Token and Set Up the Bot?](https://www.youtube.com/watch?v=cjWE7DmMFgw)
 - [Find your device's UserAgent](https://github.com/masterking32/MasterHamsterKombatBot/blob/main/useful_files/user-agents.md) and place it in the `config.py` file.
 - Configure accounts
