@@ -77,6 +77,7 @@ SupportedPromoGames = {
     },
 }
 
+
 class HamsterKombatAccount:
     def __init__(self, AccountData):
         self.account_name = AccountData["account_name"]
@@ -95,6 +96,11 @@ class HamsterKombatAccount:
         self.telegram_chat_id = AccountData["telegram_chat_id"]
         self.totalKeys = 0
         self.balanceKeys = 0
+
+    def GetConfig(self, key, default=None):
+        if key in self.config:
+            return self.config[key]
+        return default
 
     def SendTelegramLog(self, message, level):
         if (
@@ -554,9 +560,11 @@ class HamsterKombatAccount:
         self.earnPassivePerHour += card["profitPerHourDelta"]
 
         return True
-    
+
     def ListBuyOptions(self, selected_upgrades):
-        log.info(f"[{self.account_name}] List of {self.config["show_num_buy_options"]} best buy options:")
+        log.info(
+            f"[{self.account_name}] List of {self.GetConfig('show_num_buy_options', 0)} best buy options:"
+        )
         count = 1
         for selected_card in selected_upgrades:
             if (
@@ -569,7 +577,7 @@ class HamsterKombatAccount:
                 f"[{self.account_name}] {count}: {selected_card['name']}, Profit: {selected_card['profitPerHourDelta']}, Price: {number_to_string(selected_card['price'])}, Coefficient: {int(profitCoefficient)} Level: {selected_card['level']}"
             )
             count = count + 1
-            if count > self.config["show_num_buy_options"]:
+            if count > self.GetConfig("show_num_buy_options", 0):
                 break
 
     def BuyBestCard(self):
@@ -605,9 +613,9 @@ class HamsterKombatAccount:
             log.warning(f"[{self.account_name}] No upgrades available.")
             return False
 
-        if self.config["show_num_buy_options"] > 0:
+        if self.GetConfig("show_num_buy_options", 0) > 0:
             self.ListBuyOptions(selected_upgrades)
-            
+
         current_selected_card = selected_upgrades[0]
         for selected_card in selected_upgrades:
             if (
@@ -648,8 +656,7 @@ class HamsterKombatAccount:
             coefficientLimit = self.config["parallel_upgrades_max_price_per_hour"]
 
             if (
-                profitCoefficient
-                > coefficientLimit
+                profitCoefficient > coefficientLimit
                 and self.config["enable_parallel_upgrades"]
             ):
                 log.warning(
@@ -657,7 +664,6 @@ class HamsterKombatAccount:
                 )
                 log.warning(
                     f"[{self.account_name}] Cost is: {int(profitCoefficient)} / coin increase in profit. Cost limit: {coefficientLimit}"
-                    
                 )
                 log.warning(
                     f"[{self.account_name}] Adjust `parallel_upgrades_max_price_per_hour` to change this behaviour"
