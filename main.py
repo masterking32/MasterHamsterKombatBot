@@ -96,6 +96,7 @@ class HamsterKombatAccount:
         self.telegram_chat_id = AccountData["telegram_chat_id"]
         self.totalKeys = 0
         self.balanceKeys = 0
+        self.configVersion = ""
 
     def GetConfig(self, key, default=None):
         if key in self.config:
@@ -103,6 +104,9 @@ class HamsterKombatAccount:
         return default
 
     def SendTelegramLog(self, message, level):
+        if "telegramBotLogging" not in locals():
+            return
+
         if (
             not telegramBotLogging["is_active"]
             or self.telegram_chat_id == ""
@@ -185,6 +189,9 @@ class HamsterKombatAccount:
                     "http_errors",
                 )
                 return None
+
+            if "config-version" in response.headers:
+                self.configVersion = response.headers["config-version"]
 
             if method == "OPTIONS":
                 return True
@@ -477,6 +484,26 @@ class HamsterKombatAccount:
 
     def GetAccountConfigRequest(self):
         url = "https://api.hamsterkombatgame.io/clicker/config"
+        headers = {
+            "Access-Control-Request-Headers": "authorization",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Authorization": self.Authorization,
+        }
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200)
+
+    def GetAccountConfigVersionRequest(self):
+        if self.configVersion == "":
+            return None
+
+        url = f"https://api.hamsterkombatgame.io/clicker/config/{self.configVersion}"
         headers = {
             "Access-Control-Request-Headers": "authorization",
             "Access-Control-Request-Method": "POST",
@@ -1084,6 +1111,13 @@ class HamsterKombatAccount:
         )
 
         log.info(f"[{self.account_name}] Getting account config data...")
+        AccountConfigVersionData = None
+        if self.configVersion != "":
+            AccountConfigVersionData = self.GetAccountConfigVersionRequest()
+            log.info(
+                f"[{self.account_name}] Account config version: {self.configVersion}"
+            )
+
         AccountConfigData = self.GetAccountConfigRequest()
         if AccountConfigData is None or AccountConfigData is False:
             log.error(f"[{self.account_name}] Unable to get account config data.")
