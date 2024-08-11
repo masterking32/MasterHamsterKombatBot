@@ -431,6 +431,27 @@ class HamsterKombatAccount:
         # Send GET request
         return self.HttpRequest(url, headers, "GET", 200)
 
+    def GetSkins(self):
+        url = "https://api.hamsterkombatgame.io/clicker/get-skin"
+        headers = {
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 200)
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": self.Authorization,
+            "Content-Type": "application/json",
+        }
+
+        payload = json.dumps({})
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200, payload)
+
     def MeTelegramRequest(self):
         url = "https://api.hamsterkombatgame.io/auth/me-telegram"
         headers = {
@@ -1182,6 +1203,14 @@ class HamsterKombatAccount:
                 f"[{self.account_name}] Failed to get IP.", "other_errors"
             )
             return
+
+        log.info(f"[{self.account_name}] Getting account skins...")
+        SkinsData = self.GetSkins()
+        if SkinsData is None:
+            log.error(f"[{self.account_name}] Failed to get skins.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Failed to get skins.", "other_errors"
+            )
 
         log.info(
             f"[{self.account_name}] IP: {ipResponse['ip']} Company: {ipResponse['asn_org']} Country: {ipResponse['country_code']}"
