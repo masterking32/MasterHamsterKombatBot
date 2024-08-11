@@ -65,6 +65,8 @@ pip install requests colorlog
 
 ## 💻 Update to the Latest Version
 
+This option only works if you have Git installed on your system and you downloaded the project using the command: `git clone https://github.com/masterking32/MasterHamsterKombatBot`. If you downloaded the project as a zip file, simply re-download and replace all files.
+
 1. Run the following command: `git pull origin main`
 2. Update the configuration file if needed.
 3. Start the project.
