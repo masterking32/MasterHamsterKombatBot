@@ -94,9 +94,12 @@ telegramBotLogging = {
 # ---------------------------------------------#
 # Logging configuration
 LOG_LEVEL = logging.DEBUG
-LOGFORMAT = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(log_color)s%(message)s%(reset)s"
+# Include date and time in the log format
+LOGFORMAT = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(asctime)s %(log_color)s%(message)s%(reset)s"
 logging.root.setLevel(LOG_LEVEL)
-formatter = ColoredFormatter(LOGFORMAT)
+formatter = ColoredFormatter(
+    LOGFORMAT, "%Y-%m-%d %H:%M:%S"
+)  # Specify the date/time format
 stream = logging.StreamHandler()
 stream.setLevel(LOG_LEVEL)
 stream.setFormatter(formatter)
@@ -643,6 +646,21 @@ class HamsterKombatAccount:
             if (
                 "cooldownSeconds" in selected_card
                 and selected_card["cooldownSeconds"] > 0
+                and selected_card["cooldownSeconds"] < 180
+            ):
+                log.warning(
+                    f"[{self.account_name}] {selected_card['name']} is on cooldown and cooldown is less than 180 seconds..."
+                )
+                log.warning(
+                    f"[{self.account_name}] Waiting for {selected_card['cooldownSeconds'] + 2} seconds..."
+                )
+
+                time.sleep(selected_card["cooldownSeconds"] + 2)
+                selected_card["cooldownSeconds"] = 0
+
+            if (
+                "cooldownSeconds" in selected_card
+                and selected_card["cooldownSeconds"] > 0
                 and not self.config["enable_parallel_upgrades"]
             ):
                 log.warning(
@@ -711,6 +729,8 @@ class HamsterKombatAccount:
             )
 
             return True
+
+        return False
 
     def StartMiniGame(self, AccountConfigData, AccountID):
         if "dailyKeysMiniGame" not in AccountConfigData:
@@ -1233,8 +1253,10 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Checking for available task...")
             selected_task = None
             for task in tasksResponse["tasks"]:
-                link = task.get("link", "")
-                if task["isCompleted"] == False and ("https://" in link):
+                TaskType = task.get("type", "")
+                if task["isCompleted"] == False and (
+                    TaskType == "WithLink" or TaskType == "WithLocaleLink"
+                ):
                     log.info(
                         f"[{self.account_name}] Attempting to complete Youtube Or Twitter task..."
                     )

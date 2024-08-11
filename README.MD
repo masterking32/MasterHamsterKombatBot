@@ -13,7 +13,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 <hr>
 
-✅ Tested and confirmed to work as of `29 July 2024`. ✅
+✅ Tested and confirmed to work as of `11 August 2024`. ✅
 
 <img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/screenshot.png" alt="Screenshot" />
 
@@ -66,6 +66,10 @@ pip install requests colorlog
 ### <a href="https://github.com/masterking32/MasterHamsterKombatBot/discussions/12#discussioncomment-9852919" target="_blank">🐧 Linux Installation Guide</a>
 
 ### <a href="https://github.com/masterking32/MasterHamsterKombatBot/discussions/33#discussioncomment-10045854" target="_blank">👥 Multi-Account Example</a>
+
+### <a href="https://github.com/masterking32/MasterHamsterKombatBot/discussions/133#discussioncomment-10290865">🔒 Proxy Example</a>
+
+You can buy proxies from <a href="https://www.webshare.io/?referral_code=2ghmowzxmc26">WebShare</a> or <a href="https://iproyal.com/?r=128279">IPRoyal</a>.
 
 <hr>
 
