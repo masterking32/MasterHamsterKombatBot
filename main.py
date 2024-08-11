@@ -1474,7 +1474,7 @@ def main():
         "\033[1;34mProject Github: https://github.com/masterking32/MasterHamsterKombatBot\033[0m"
     )
     log.info("\033[1;33mDeveloped by: MasterkinG32\033[0m")
-    log.info("\033[1;35mVersion: 2.2\033[0m")
+    log.info("\033[1;35mVersion: 2.3\033[0m")
     log.info("\033[1;36mTo stop the bot, press Ctrl + C\033[0m")
     log.info("------------------------------------------------------------------------")
     log.info("------------------------------------------------------------------------")
