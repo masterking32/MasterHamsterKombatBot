@@ -40,7 +40,7 @@ AccountList = [
             "wait_for_best_card": True,  # Recommended to keep it True for high-level accounts
             "enable_parallel_upgrades": True,  # Enable parallel card upgrades. This will buy cards in parallel if the best card is on cooldown. It should speed up the profit.
             "parallel_upgrades_max_price_per_hour": 1000,  # Cards with less than X coins per 1k will be bought
-            "show_num_buy_options": 10,  # Number of card buy options to show in the logs, ranked by best value, 0 disables this.
+            "show_num_buy_options": 0,  # Number of card buy options to show in the logs, ranked by best value, 0 disables this.
         },
         # If you have enabled Telegram bot logging,
         # you can add your chat ID below to receive logs in your Telegram account.
@@ -79,6 +79,7 @@ AccountList = [
     #         "wait_for_best_card": True,  # Recommended to keep it True for high-level accounts
     #         "enable_parallel_upgrades": True,  # Enable parallel card upgrades. This will buy cards in parallel if the best card is on cooldown. It should speed up the profit.
     #         "parallel_upgrades_max_price_per_hour": 1000,  # Cards with less than X coins per 1k will be bought
+    #         "show_num_buy_options": 0,  # Number of card buy options to show in the logs, ranked by best value, 0 disables this.
     #     },
     #     # If you have enabled Telegram bot logging,
     #     # you can add your chat ID below to receive logs in your Telegram account.
