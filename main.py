@@ -96,12 +96,35 @@ class HamsterKombatAccount:
         self.telegram_chat_id = AccountData["telegram_chat_id"]
         self.totalKeys = 0
         self.balanceKeys = 0
-        self.configVersion = ""
+        # Correct usage of dict.get() with parentheses
+        self.cards = AccountData.get("cards", [])
 
-    def GetConfig(self, key, default=None):
-        if key in self.config:
-            return self.config[key]
-        return default
+    # Add your methods here
+
+    def calculate_upgrade_cost(self, current_level, target_level):
+        # Placeholder function for cost calculation logic
+        cost_per_level = 100  # Replace with actual cost logic
+        return (target_level - current_level) * cost_per_level
+
+    def find_card_to_upgrade(self):
+        target_level = 25
+        least_cost = float('inf')
+        card_to_upgrade = None
+
+        for card in self.cards:
+            current_level = card["level"]
+            if current_level < target_level:
+                upgrade_cost = self.calculate_upgrade_cost(current_level, target_level)
+                if upgrade_cost < least_cost:
+                    least_cost = upgrade_cost
+                    card_to_upgrade = card
+
+        if card_to_upgrade:
+            log.info(f"[{self.account_name}] Card to upgrade: {card_to_upgrade['name']} with cost {least_cost}")
+            self.SendTelegramLog(f"Card to upgrade: {card_to_upgrade['name']} with cost {least_cost}", "general_info")
+        else:
+            log.info(f"[{self.account_name}] All cards are already at level {target_level} or higher.")
+            self.SendTelegramLog(f"All cards are already at level {target_level} or higher.", "general_info")
 
     def SendTelegramLog(self, message, level):
         if (
