@@ -57,7 +57,7 @@ SupportedPromoGames = {
 # This feature is optional, and you can disable it by setting "is_active" to False.
 telegramBotLogging = {
     "is_active": True,  # Set it to True if you want to use it, and make sure to fill out the below fields
-    "bot_token": "6792713813:AAHbjkpo0EsZWo1nm88S3Hp0C1RubORfph8",  # HTTP API access token from https://t.me/BotFather ~ Start your bot after creating it
+    "bot_token": "YOUR-TOKEN",  # HTTP API access token from https://t.me/BotFather ~ Start your bot after creating it
     # Configure the what you want to receive logs from the bot
     "messages": {
         "general_info": False,  # General information
