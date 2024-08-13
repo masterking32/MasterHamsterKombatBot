@@ -1099,7 +1099,7 @@ class HamsterKombatAccount:
         ):
             log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
             self.SendTelegramLog(
-                f"[{self.account_name}] Unable to get {promoData['name']} key."
+                f"[{self.account_name}] Unable to get {promoData['name']} key.",
                 "other_errors",
             )
             return None
