@@ -51,7 +51,7 @@ SupportedPromoGames = {
         "name": "Bike Ride 3D in Hamster FAM",
         "appToken": "d28721be-fd2d-4b45-869e-9f253b554e50",
         "promoId": "43e35910-c168-4634-ad4f-52fd764a843f",
-        "delay": 20,
+        "delay": 120,
         "retry_delay": 20,
     },
     "fe693b26-b342-4159-8808-15e3ff7f8767": {
@@ -65,7 +65,7 @@ SupportedPromoGames = {
         "name": "Chain Cube 2024",
         "appToken": "d1690a07-3780-4068-810f-9b5bbf2931b2",
         "promoId": "b4170868-cef0-424f-8eb9-be0622e8e8e3",
-        "delay": 20,
+        "delay": 120,
         "retry_delay": 20,
     },
     "c4480ac7-e178-4973-8061-9ed5b2e17954": {
@@ -103,7 +103,7 @@ class HamsterKombatAccount:
             return self.config[key]
         return default
 
-    def SendTelegramLog(self, message, level):
+    def SendTelegramLog(self, message, level="other_errors"):
         if (
             not telegramBotLogging["is_active"]
             or self.telegram_chat_id == ""
@@ -959,11 +959,21 @@ class HamsterKombatAccount:
         log.info(f"[{self.account_name}] Getting {promoData['name']} key...")
         url = "https://api.gamepromo.io/promo/login-client"
 
-        headers = {
-            "Content-Type": "application/json; charset=utf-8",
+        headers_option = {
             "Host": "api.gamepromo.io",
             "Origin": "",
             "Referer": "",
+            "access-control-request-headers": "content-type",
+            "access-control-request-method": "POST",
+        }
+
+        self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
+
+        headers = {
+            "Host": "api.gamepromo.io",
+            "Origin": "",
+            "Referer": "",
+            "Content-Type": "application/json; charset=utf-8",
         }
 
         payload = json.dumps(
@@ -1010,9 +1020,15 @@ class HamsterKombatAccount:
         response = None
 
         retryCount = 0
-        while retryCount < 5:
+        while retryCount < 10:
             retryCount += 1
             eventID = str(uuid.uuid4())
+
+            headers_option["access-control-request-headers"] = (
+                "authorization,content-type"
+            )
+
+            self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
 
             payload = json.dumps(
                 {
@@ -1034,6 +1050,17 @@ class HamsterKombatAccount:
 
             break
 
+        if (
+            response is None
+            or not isinstance(response, dict)
+            or "hasCode" not in response
+        ):
+            log.error(f"[{self.account_name}] Unable to register event.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to register event.", "other_errors"
+            )
+            return None
+
         log.info(f"[{self.account_name}] Event registered successfully.")
 
         url = "https://api.gamepromo.io/promo/create-code"
@@ -1045,6 +1072,10 @@ class HamsterKombatAccount:
             "Origin": "",
             "Referer": "",
         }
+
+        headers_option["access-control-request-headers"] = "authorization,content-type"
+
+        self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
 
         payload = json.dumps(
             {
