@@ -916,7 +916,9 @@ class HamsterKombatAccount:
         for promo in response["promos"]:
             promo_count += 1
 
-            if promo_count > self.GetConfig("max_promo_games_per_round", 3):
+            if self.GetConfig(
+                "max_promo_games_per_round", 3
+            ) != 0 and promo_count > self.GetConfig("max_promo_games_per_round", 3):
                 log.info(
                     f"[{self.account_name}] Maximum number of playground games reached. We will retrieve other games in the next run."
                 )

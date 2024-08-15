@@ -41,6 +41,7 @@ AccountList = [
             "enable_parallel_upgrades": True,  # Enable parallel card upgrades. This will buy cards in parallel if the best card is on cooldown. It should speed up the profit.
             "parallel_upgrades_max_price_per_hour": 1000,  # Cards with less than X coins per 1k will be bought
             "show_num_buy_options": 0,  # Number of card buy options to show in the logs, ranked by best value, 0 disables this.
+            "max_promo_games_per_round": 3,  # Maximum number of promo games to play in a single round, 0 disables this.
         },
         # If you have enabled Telegram bot logging,
         # you can add your chat ID below to receive logs in your Telegram account.
@@ -80,6 +81,7 @@ AccountList = [
     #         "enable_parallel_upgrades": True,  # Enable parallel card upgrades. This will buy cards in parallel if the best card is on cooldown. It should speed up the profit.
     #         "parallel_upgrades_max_price_per_hour": 1000,  # Cards with less than X coins per 1k will be bought
     #         "show_num_buy_options": 0,  # Number of card buy options to show in the logs, ranked by best value, 0 disables this.
+    #         "max_promo_games_per_round": 3,  # Maximum number of promo games to play in a single round, 0 disables this.
     #     },
     #     # If you have enabled Telegram bot logging,
     #     # you can add your chat ID below to receive logs in your Telegram account.
