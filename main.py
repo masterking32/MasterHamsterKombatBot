@@ -1157,8 +1157,8 @@ class HamsterKombatAccount:
         if (
             AccountBasicData is None
             or AccountBasicData is False
-            or "telegramUser" not in AccountBasicData
-            or "id" not in AccountBasicData["telegramUser"]
+            or "accountInfo" not in AccountBasicData
+            or "id" not in AccountBasicData["accountInfo"]
         ):
             log.error(f"[{self.account_name}] Unable to get account basic data.")
             self.SendTelegramLog(
@@ -1168,10 +1168,10 @@ class HamsterKombatAccount:
             return
 
         log.info(
-            f"\033[1;35m[{self.account_name}] Account ID: {AccountBasicData['telegramUser']['id']}, Account detected as bot: {AccountBasicData['telegramUser']['isBot']}\033[0m"
+            f"\033[1;35m[{self.account_name}] Account ID: {AccountBasicData['accountInfo']['id']}, Account Name: {AccountBasicData['accountInfo']['name']}\033[0m"
         )
         self.SendTelegramLog(
-            f"[{self.account_name}] Account ID: {AccountBasicData['telegramUser']['id']}, Account detected as bot: {AccountBasicData['telegramUser']['isBot']}",
+            f"[{self.account_name}] Account ID: {AccountBasicData['accountInfo']['id']}",
             "account_info",
         )
 
@@ -1263,9 +1263,7 @@ class HamsterKombatAccount:
         if self.config["auto_finish_mini_game"]:
             log.info(f"[{self.account_name}] Attempting to finish mini game...")
             time.sleep(1)
-            self.StartMiniGame(
-                AccountConfigData, AccountBasicData["telegramUser"]["id"]
-            )
+            self.StartMiniGame(AccountConfigData, AccountBasicData["accountInfo"]["id"])
 
         # Start tapping
         if self.config["auto_tap"]:
