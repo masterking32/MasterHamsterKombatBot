@@ -12,7 +12,7 @@ Learn more about user-agents [here](https://en.wikipedia.org/wiki/User_agent).
 
 ### Method 1:
 
-On your **phone**, open Telegram and start this bot to find your User Agent: [MyUserAgent Telegram Bot](https://t.me/myuseragent_bot/MyUserAgent)
+On your **phone**, open Telegram and start this bot to find your User Agent: [My UserAgent Bot](https://t.me/myuseragent_bot/MyUserAgent) Telegram Bot. (`@myuseragent_bot`)
 
 ### Method 2:
 
