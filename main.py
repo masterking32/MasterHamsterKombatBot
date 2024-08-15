@@ -914,9 +914,12 @@ class HamsterKombatAccount:
 
         promo_count = 0
         for promo in response["promos"]:
-            if promo[
-                "promoId"
-            ] in SupportedPromoGames and self.CheckPlayGroundGameState(promo, response):
+
+            if promo["promoId"] not in SupportedPromoGames:
+                log.warning(f"[{self.account_name}] Detected unknown playground game: {promo['title']['en']}. Check project github for updates.")
+                continue
+
+            if self.CheckPlayGroundGameState(promo, response):
                 promoData = SupportedPromoGames[promo["promoId"]]
 
                 promo_count += 1
@@ -1128,9 +1131,6 @@ class HamsterKombatAccount:
     def CheckPlayGroundGameState(self, promo, promos):
         if not self.config["auto_playground_games"]:
             log.info(f"[{self.account_name}] Playground games are disabled.")
-            return False
-
-        if promo["promoId"] not in SupportedPromoGames:
             return False
 
         if "states" not in promos:
