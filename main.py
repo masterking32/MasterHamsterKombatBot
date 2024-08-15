@@ -804,9 +804,9 @@ class HamsterKombatAccount:
                 "other_errors",
             )
             return
-
+        
         if response["dailyKeysMiniGame"]["isClaimed"] == True:
-            log.info(f"[{self.account_name}] Daily keys mini game already claimed.")
+            log.info(f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m")
             return
 
         if "remainSecondsToGuess" not in response["dailyKeysMiniGame"]:
@@ -1142,7 +1142,7 @@ class HamsterKombatAccount:
                 and state["receiveKeysToday"] >= promo["keysPerDay"]
             ):
                 log.info(
-                    f"[{self.account_name}] Playground game {SupportedPromoGames[promo['promoId']]['name']} already claimed."
+                    f"\033[1;34m[{self.account_name}] Playground game {SupportedPromoGames[promo['promoId']]['name']} already claimed.\033[0m"
                 )
                 return False
 
