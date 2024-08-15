@@ -880,7 +880,7 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Playground games are disabled.")
             return
 
-        log.info(f"[{self.account_name}] Starting gettting playground games...")
+        log.info(f"[{self.account_name}] Starting getting playground games...")
 
         url = "https://api.hamsterkombatgame.io/clicker/get-promos"
         headers = {
