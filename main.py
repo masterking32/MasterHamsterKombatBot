@@ -454,8 +454,8 @@ class HamsterKombatAccount:
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200, "{}")
 
-    def MeTelegramRequest(self):
-        url = "https://api.hamsterkombatgame.io/auth/me-telegram"
+    def AccountInfoTelegramRequest(self):
+        url = "https://api.hamsterkombatgame.io/auth/account-info"
         headers = {
             "Access-Control-Request-Headers": "authorization",
             "Access-Control-Request-Method": "POST",
@@ -1152,7 +1152,7 @@ class HamsterKombatAccount:
         log.info(f"[{self.account_name}] Starting account...")
 
         log.info(f"[{self.account_name}] Getting basic account data...")
-        AccountBasicData = self.MeTelegramRequest()
+        AccountBasicData = self.AccountInfoTelegramRequest()
 
         if (
             AccountBasicData is None
