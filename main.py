@@ -765,7 +765,7 @@ class HamsterKombatAccount:
             return
 
         if AccountConfigData["dailyKeysMiniGame"]["isClaimed"] == True:
-            log.info(f"[{self.account_name}] Daily keys mini game already claimed.")
+            log.info(f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m")
             return
 
         if AccountConfigData["dailyKeysMiniGame"]["remainSecondsToNextAttempt"] > 0:
