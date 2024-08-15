@@ -912,7 +912,16 @@ class HamsterKombatAccount:
             )
             return
 
+        promo_count = 0
         for promo in response["promos"]:
+            promo_count += 1
+
+            if promo_count > self.GetConfig("max_promo_games_per_round", 3):
+                log.info(
+                    f"[{self.account_name}] Maximum number of playground games reached. We will retrieve other games in the next run."
+                )
+                break
+
             if promo[
                 "promoId"
             ] in SupportedPromoGames and self.CheckPlayGroundGameState(promo, response):
@@ -1027,7 +1036,7 @@ class HamsterKombatAccount:
         response = None
 
         retryCount = 0
-        while retryCount < 15:
+        while retryCount < 8:
             retryCount += 1
             eventID = str(uuid.uuid4())
 
