@@ -1027,7 +1027,7 @@ class HamsterKombatAccount:
         response = None
 
         retryCount = 0
-        while retryCount < 10:
+        while retryCount < 15:
             retryCount += 1
             eventID = str(uuid.uuid4())
 
@@ -1048,11 +1048,11 @@ class HamsterKombatAccount:
             response = self.HttpRequest(url, headers, "POST", 200, payload, True)
 
             if response is None or not isinstance(response, dict):
-                time.sleep(promoData["delay"] + random.randint(1, 5))
+                time.sleep(promoData["retry_delay"] + random.randint(1, 5))
                 continue
 
             if not response.get("hasCode", False):
-                time.sleep(promoData["delay"] + random.randint(1, 5))
+                time.sleep(promoData["retry_delay"] + random.randint(1, 5))
                 continue
 
             break
