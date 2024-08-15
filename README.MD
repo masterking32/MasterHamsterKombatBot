@@ -13,7 +13,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 <hr>
 
-✅ Tested and confirmed to work as of `11 August 2024`. ✅
+✅ Tested and confirmed to work as of `15 August 2024`. ✅
 
 <img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/screenshot.png" alt="Screenshot" />
 
@@ -38,7 +38,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Automatically complete Hamster Kombat **Mini-Games** to earn keys. (July 21, 2024)
 - Playground `Bike Ride 3D` added. (July 29, 2024)
 - Playground `My Clone Army`, `Chain Cube 2024`, `Train Miner` added. (August 06, 2024)
-- Playground `Merge Away`added. (August 15, 2024)
+- Playground `Merge Away` added. (August 15, 2024)
 
 <hr>
 
