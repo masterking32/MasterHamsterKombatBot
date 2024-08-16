@@ -131,9 +131,12 @@ class HamsterKombatAccount:
         ):
             return
 
-        requests.get(
-            f"https://api.telegram.org/bot{telegramBotLogging['bot_token']}/sendMessage?chat_id={self.telegram_chat_id}&text={message}"
-        )
+        try:
+            requests.get(
+                f"https://api.telegram.org/bot{telegramBotLogging['bot_token']}/sendMessage?chat_id={self.telegram_chat_id}&text={message}"
+            )
+        except Exception as e:
+            log.error(f"[{self.account_name}] TelegramLog error: {e}")
 
     # Send HTTP requests
     def HttpRequest(
