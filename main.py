@@ -47,6 +47,7 @@ log.addHandler(stream)
 # End of configuration
 # ---------------------------------------------#
 
+
 class HamsterKombatAccount:
     def __init__(self, AccountData):
         self.account_name = AccountData["account_name"]
@@ -730,7 +731,9 @@ class HamsterKombatAccount:
             return
 
         if AccountConfigData["dailyKeysMiniGame"]["isClaimed"] == True:
-            log.info(f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m")
+            log.info(
+                f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m"
+            )
             return
 
         if AccountConfigData["dailyKeysMiniGame"]["remainSecondsToNextAttempt"] > 0:
@@ -769,9 +772,11 @@ class HamsterKombatAccount:
                 "other_errors",
             )
             return
-        
+
         if response["dailyKeysMiniGame"]["isClaimed"] == True:
-            log.info(f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m")
+            log.info(
+                f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m"
+            )
             return
 
         if "remainSecondsToGuess" not in response["dailyKeysMiniGame"]:
@@ -881,7 +886,9 @@ class HamsterKombatAccount:
         for promo in response["promos"]:
 
             if promo["promoId"] not in SupportedPromoGames:
-                log.warning(f"[{self.account_name}] Detected unknown playground game: {promo['title']['en']}. Check project github for updates.")
+                log.warning(
+                    f"[{self.account_name}] Detected unknown playground game: {promo['title']['en']}. Check project github for updates."
+                )
                 continue
 
             if self.CheckPlayGroundGameState(promo, response):
@@ -1016,13 +1023,16 @@ class HamsterKombatAccount:
 
             self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
 
-            payload = json.dumps(
-                {
-                    "promoId": promoData["promoId"],
-                    "eventId": eventID,
-                    "eventOrigin": "undefined",
-                }
-            )
+            PayloadData = {
+                "promoId": promoData["promoId"],
+                "eventId": eventID,
+                "eventOrigin": "undefined",
+            }
+
+            if "eventType" in promoData and promoData["eventType"] != None:
+                PayloadData["eventType"] = promoData["eventType"]
+
+            payload = json.dumps(PayloadData)
 
             response = self.HttpRequest(url, headers, "POST", 200, payload, True)
 

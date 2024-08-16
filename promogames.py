@@ -5,6 +5,7 @@ SupportedPromoGames = {
         "promoId": "43e35910-c168-4634-ad4f-52fd764a843f",
         "delay": 120,
         "retry_delay": 20,
+        "eventType": None,
     },
     "fe693b26-b342-4159-8808-15e3ff7f8767": {
         "name": "My Clone Army",
@@ -12,6 +13,7 @@ SupportedPromoGames = {
         "promoId": "fe693b26-b342-4159-8808-15e3ff7f8767",
         "delay": 120,
         "retry_delay": 20,
+        "eventType": "MiniQuest",
     },
     "b4170868-cef0-424f-8eb9-be0622e8e8e3": {
         "name": "Chain Cube 2024",
@@ -19,6 +21,7 @@ SupportedPromoGames = {
         "promoId": "b4170868-cef0-424f-8eb9-be0622e8e8e3",
         "delay": 120,
         "retry_delay": 20,
+        "eventType": None,
     },
     "c4480ac7-e178-4973-8061-9ed5b2e17954": {
         "name": "Train Miner",
@@ -26,6 +29,7 @@ SupportedPromoGames = {
         "promoId": "c4480ac7-e178-4973-8061-9ed5b2e17954",
         "delay": 120,
         "retry_delay": 20,
+        "eventType": "hitStatue",
     },
     "dc128d28-c45b-411c-98ff-ac7726fbaea4": {
         "name": "Merge Away",
@@ -33,6 +37,7 @@ SupportedPromoGames = {
         "promoId": "dc128d28-c45b-411c-98ff-ac7726fbaea4",
         "delay": 120,
         "retry_delay": 20,
+        "eventType": "spend-energy",
     },
     "61308365-9d16-4040-8bb0-2f4a4c69074c": {
         "name": "Twerk Race",
@@ -40,5 +45,6 @@ SupportedPromoGames = {
         "promoId": "61308365-9d16-4040-8bb0-2f4a4c69074c",
         "delay": 120,
         "retry_delay": 20,
+        "eventType": None,
     },
 }
