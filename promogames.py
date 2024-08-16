@@ -34,7 +34,7 @@ SupportedPromoGames = {
         "delay": 120,
         "retry_delay": 20,
     },
-        "61308365-9d16-4040-8bb0-2f4a4c69074c": {
+    "61308365-9d16-4040-8bb0-2f4a4c69074c": {
         "name": "Twerk Race",
         "appToken": "61308365-9d16-4040-8bb0-2f4a4c69074c",
         "promoId": "61308365-9d16-4040-8bb0-2f4a4c69074c",
