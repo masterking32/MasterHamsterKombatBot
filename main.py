@@ -1,7 +1,10 @@
 # Developed by: MasterkinG32
 # Date: 2024
 # Github: https://github.com/masterking32
-
+# BEGIN_UPDATE_LOGIC
+from updater import update_check
+update_check()
+# END_UPDATE_LOGIC
 import asyncio
 import datetime
 import json
