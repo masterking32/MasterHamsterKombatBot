@@ -82,6 +82,13 @@ SupportedPromoGames = {
         "delay": 120,
         "retry_delay": 20,
     },
+    "61308365-9d16-4040-8bb0-2f4a4c69074c": {
+        "name": "Twerk Race",
+        "appToken": "61308365-9d16-4040-8bb0-2f4a4c69074c",
+        "promoId": "61308365-9d16-4040-8bb0-2f4a4c69074c",
+        "delay": 120,
+        "retry_delay": 20,
+    },
 }
 
 
@@ -804,9 +811,9 @@ class HamsterKombatAccount:
                 "other_errors",
             )
             return
-
+        
         if response["dailyKeysMiniGame"]["isClaimed"] == True:
-            log.info(f"[{self.account_name}] Daily keys mini game already claimed.")
+            log.info(f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m")
             return
 
         if "remainSecondsToGuess" not in response["dailyKeysMiniGame"]:
@@ -880,7 +887,7 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Playground games are disabled.")
             return
 
-        log.info(f"[{self.account_name}] Starting gettting playground games...")
+        log.info(f"[{self.account_name}] Starting getting playground games...")
 
         url = "https://api.hamsterkombatgame.io/clicker/get-promos"
         headers = {
@@ -1041,7 +1048,7 @@ class HamsterKombatAccount:
         response = None
 
         retryCount = 0
-        while retryCount < 8:
+        while retryCount < 15:
             retryCount += 1
             eventID = str(uuid.uuid4())
 
@@ -1142,7 +1149,7 @@ class HamsterKombatAccount:
                 and state["receiveKeysToday"] >= promo["keysPerDay"]
             ):
                 log.info(
-                    f"[{self.account_name}] Playground game {SupportedPromoGames[promo['promoId']]['name']} already claimed."
+                    f"\033[1;34m[{self.account_name}] Playground game {SupportedPromoGames[promo['promoId']]['name']} already claimed.\033[0m"
                 )
                 return False
 
