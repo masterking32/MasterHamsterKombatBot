@@ -82,6 +82,13 @@ SupportedPromoGames = {
         "delay": 120,
         "retry_delay": 20,
     },
+    "61308365-9d16-4040-8bb0-2f4a4c69074c": {
+        "name": "Twerk Race",
+        "appToken": "61308365-9d16-4040-8bb0-2f4a4c69074c",
+        "promoId": "61308365-9d16-4040-8bb0-2f4a4c69074c",
+        "delay": 120,
+        "retry_delay": 20,
+    },
 }
 
 
@@ -1041,7 +1048,7 @@ class HamsterKombatAccount:
         response = None
 
         retryCount = 0
-        while retryCount < 8:
+        while retryCount < 15:
             retryCount += 1
             eventID = str(uuid.uuid4())
 
