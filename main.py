@@ -948,6 +948,12 @@ class HamsterKombatAccount:
     def GetPlayGroundGameKey(self, promoData):
         appToken = promoData["appToken"]
         clientId = f"{int(time.time() * 1000)}-{''.join(str(random.randint(0, 9)) for _ in range(19))}"
+        if "clientIdType" in promoData and promoData["clientIdType"] == "32str":
+            clientId = "".join(
+                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
+            )
+        if "clientIdType" in promoData and promoData["clientIdType"] == "uuid":
+            clientId = str(uuid.uuid4())
 
         log.info(f"[{self.account_name}] Getting {promoData['name']} key...")
         url = "https://api.gamepromo.io/promo/login-client"
@@ -960,24 +966,31 @@ class HamsterKombatAccount:
             "access-control-request-method": "POST",
         }
 
-        self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
-
-        headers = {
+        headers_post = {
             "Host": "api.gamepromo.io",
             "Origin": "",
             "Referer": "",
             "Content-Type": "application/json; charset=utf-8",
         }
 
-        payload = json.dumps(
-            {
-                "appToken": appToken,
-                "clientId": clientId,
-                "clientOrigin": "ios",
-            }
-        )
+        if "userAgent" in promoData and promoData["userAgent"] != None:
+            headers_post["User-Agent"] = promoData["userAgent"]
+            headers_option["User-Agent"] = promoData["userAgent"]
 
-        response = self.HttpRequest(url, headers, "POST", 200, payload)
+        self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
+
+        payloadData = {
+            "appToken": appToken,
+            "clientId": clientId,
+            "clientOrigin": promoData["clientOrigin"],
+        }
+
+        if "clientVersion" in promoData and promoData["clientVersion"] != None:
+            payloadData["clientVersion"] = promoData["clientVersion"]
+
+        payload = json.dumps(payloadData)
+
+        response = self.HttpRequest(url, headers_post, "POST", 200, payload)
         if response is None:
             log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
             self.SendTelegramLog(
@@ -1002,13 +1015,7 @@ class HamsterKombatAccount:
 
         url = "https://api.gamepromo.io/promo/register-event"
 
-        headers = {
-            "Authorization": f"Bearer {clientToken}",
-            "Host": "api.gamepromo.io",
-            "Content-Type": "application/json; charset=utf-8",
-            "Origin": "",
-            "Referer": "",
-        }
+        headers_post["Authorization"] = f"Bearer {clientToken}"
 
         response = None
 
@@ -1016,6 +1023,12 @@ class HamsterKombatAccount:
         while retryCount < 15:
             retryCount += 1
             eventID = str(uuid.uuid4())
+
+            if "eventIdType" in promoData:
+                if promoData["eventIdType"] == "uuid":
+                    eventID = str(uuid.uuid4())
+                else:
+                    eventID = promoData["eventIdType"]
 
             headers_option["access-control-request-headers"] = (
                 "authorization,content-type"
@@ -1026,7 +1039,7 @@ class HamsterKombatAccount:
             PayloadData = {
                 "promoId": promoData["promoId"],
                 "eventId": eventID,
-                "eventOrigin": "undefined",
+                "eventOrigin": promoData["eventOrigin"],
             }
 
             if "eventType" in promoData and promoData["eventType"] != None:
@@ -1034,7 +1047,7 @@ class HamsterKombatAccount:
 
             payload = json.dumps(PayloadData)
 
-            response = self.HttpRequest(url, headers, "POST", 200, payload, True)
+            response = self.HttpRequest(url, headers_post, "POST", 200, payload, True)
 
             if response is None or not isinstance(response, dict):
                 time.sleep(promoData["retry_delay"] + random.randint(1, 5))
@@ -1061,14 +1074,6 @@ class HamsterKombatAccount:
 
         url = "https://api.gamepromo.io/promo/create-code"
 
-        headers = {
-            "Authorization": f"Bearer {clientToken}",
-            "Content-Type": "application/json; charset=utf-8",
-            "Host": "api.gamepromo.io",
-            "Origin": "",
-            "Referer": "",
-        }
-
         headers_option["access-control-request-headers"] = "authorization,content-type"
 
         self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
@@ -1079,7 +1084,7 @@ class HamsterKombatAccount:
             }
         )
 
-        response = self.HttpRequest(url, headers, "POST", 200, payload)
+        response = self.HttpRequest(url, headers_post, "POST", 200, payload)
         if response is None:
             log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
             self.SendTelegramLog(
