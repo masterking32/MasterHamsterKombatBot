@@ -977,6 +977,10 @@ class HamsterKombatAccount:
             headers_post["User-Agent"] = promoData["userAgent"]
             headers_option["User-Agent"] = promoData["userAgent"]
 
+        if "x-unity-version" in promoData and promoData["x-unity-version"] != None:
+            headers_post["X-Unity-Version"] = promoData["x-unity-version"]
+            headers_option["X-Unity-Version"] = promoData["x-unity-version"]
+
         self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
 
         payloadData = {
@@ -1009,9 +1013,13 @@ class HamsterKombatAccount:
 
         clientToken = response["clientToken"]
 
-        time.sleep(promoData["delay"] + random.randint(1, 5))
+        TimeSleep = promoData["delay"] + random.randint(1, 5)
+        log.info(f"[{self.account_name}] Waiting for {TimeSleep} seconds...")
+        time.sleep(TimeSleep)
 
-        log.info(f"[{self.account_name}] Registering event for {promoData['name']}...")
+        log.info(
+            f"[{self.account_name}] Registering event for {promoData['name']} (This may take a while ~5-20 minutes)..."
+        )
 
         url = "https://api.gamepromo.io/promo/register-event"
 
