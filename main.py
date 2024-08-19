@@ -12,6 +12,7 @@ import requests
 from colorlog import ColoredFormatter
 import uuid
 from utilities import *
+from promogames import *
 
 try:
     from config import *
@@ -45,51 +46,6 @@ log.setLevel(LOG_LEVEL)
 log.addHandler(stream)
 # End of configuration
 # ---------------------------------------------#
-
-SupportedPromoGames = {
-    "43e35910-c168-4634-ad4f-52fd764a843f": {
-        "name": "Bike Ride 3D in Hamster FAM",
-        "appToken": "d28721be-fd2d-4b45-869e-9f253b554e50",
-        "promoId": "43e35910-c168-4634-ad4f-52fd764a843f",
-        "delay": 120,
-        "retry_delay": 20,
-    },
-    "fe693b26-b342-4159-8808-15e3ff7f8767": {
-        "name": "My Clone Army",
-        "appToken": "74ee0b5b-775e-4bee-974f-63e7f4d5bacb",
-        "promoId": "fe693b26-b342-4159-8808-15e3ff7f8767",
-        "delay": 120,
-        "retry_delay": 20,
-    },
-    "b4170868-cef0-424f-8eb9-be0622e8e8e3": {
-        "name": "Chain Cube 2024",
-        "appToken": "d1690a07-3780-4068-810f-9b5bbf2931b2",
-        "promoId": "b4170868-cef0-424f-8eb9-be0622e8e8e3",
-        "delay": 120,
-        "retry_delay": 20,
-    },
-    "c4480ac7-e178-4973-8061-9ed5b2e17954": {
-        "name": "Train Miner",
-        "appToken": "82647f43-3f87-402d-88dd-09a90025313f",
-        "promoId": "c4480ac7-e178-4973-8061-9ed5b2e17954",
-        "delay": 120,
-        "retry_delay": 20,
-    },
-    "dc128d28-c45b-411c-98ff-ac7726fbaea4": {
-        "name": "Merge Away",
-        "appToken": "8d1cc2ad-e097-4b86-90ef-7a27e19fb833",
-        "promoId": "dc128d28-c45b-411c-98ff-ac7726fbaea4",
-        "delay": 120,
-        "retry_delay": 20,
-    },
-    "61308365-9d16-4040-8bb0-2f4a4c69074c": {
-        "name": "Twerk Race",
-        "appToken": "61308365-9d16-4040-8bb0-2f4a4c69074c",
-        "promoId": "61308365-9d16-4040-8bb0-2f4a4c69074c",
-        "delay": 120,
-        "retry_delay": 20,
-    },
-}
 
 
 class HamsterKombatAccount:
@@ -131,9 +87,12 @@ class HamsterKombatAccount:
         ):
             return
 
-        requests.get(
-            f"https://api.telegram.org/bot{telegramBotLogging['bot_token']}/sendMessage?chat_id={self.telegram_chat_id}&text={message}"
-        )
+        try:
+            requests.get(
+                f"https://api.telegram.org/bot{telegramBotLogging['bot_token']}/sendMessage?chat_id={self.telegram_chat_id}&text={message}"
+            )
+        except Exception as e:
+            log.error(f"[{self.account_name}] TelegramLog error: {e}")
 
     # Send HTTP requests
     def HttpRequest(
@@ -772,7 +731,9 @@ class HamsterKombatAccount:
             return
 
         if AccountConfigData["dailyKeysMiniGame"]["isClaimed"] == True:
-            log.info(f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m")
+            log.info(
+                f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m"
+            )
             return
 
         if AccountConfigData["dailyKeysMiniGame"]["remainSecondsToNextAttempt"] > 0:
@@ -811,9 +772,11 @@ class HamsterKombatAccount:
                 "other_errors",
             )
             return
-        
+
         if response["dailyKeysMiniGame"]["isClaimed"] == True:
-            log.info(f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m")
+            log.info(
+                f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m"
+            )
             return
 
         if "remainSecondsToGuess" not in response["dailyKeysMiniGame"]:
@@ -923,7 +886,9 @@ class HamsterKombatAccount:
         for promo in response["promos"]:
 
             if promo["promoId"] not in SupportedPromoGames:
-                log.warning(f"[{self.account_name}] Detected unknown playground game: {promo['title']['en']}. Check project github for updates.")
+                log.warning(
+                    f"[{self.account_name}] Detected unknown playground game: {promo['title']['en']}. Check project github for updates."
+                )
                 continue
 
             if self.CheckPlayGroundGameState(promo, response):
@@ -983,6 +948,12 @@ class HamsterKombatAccount:
     def GetPlayGroundGameKey(self, promoData):
         appToken = promoData["appToken"]
         clientId = f"{int(time.time() * 1000)}-{''.join(str(random.randint(0, 9)) for _ in range(19))}"
+        if "clientIdType" in promoData and promoData["clientIdType"] == "32str":
+            clientId = "".join(
+                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
+            )
+        if "clientIdType" in promoData and promoData["clientIdType"] == "uuid":
+            clientId = str(uuid.uuid4())
 
         log.info(f"[{self.account_name}] Getting {promoData['name']} key...")
         url = "https://api.gamepromo.io/promo/login-client"
@@ -995,24 +966,35 @@ class HamsterKombatAccount:
             "access-control-request-method": "POST",
         }
 
-        self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
-
-        headers = {
+        headers_post = {
             "Host": "api.gamepromo.io",
             "Origin": "",
             "Referer": "",
             "Content-Type": "application/json; charset=utf-8",
         }
 
-        payload = json.dumps(
-            {
-                "appToken": appToken,
-                "clientId": clientId,
-                "clientOrigin": "ios",
-            }
-        )
+        if "userAgent" in promoData and promoData["userAgent"] != None:
+            headers_post["User-Agent"] = promoData["userAgent"]
+            headers_option["User-Agent"] = promoData["userAgent"]
 
-        response = self.HttpRequest(url, headers, "POST", 200, payload)
+        if "x-unity-version" in promoData and promoData["x-unity-version"] != None:
+            headers_post["X-Unity-Version"] = promoData["x-unity-version"]
+            headers_option["X-Unity-Version"] = promoData["x-unity-version"]
+
+        self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
+
+        payloadData = {
+            "appToken": appToken,
+            "clientId": clientId,
+            "clientOrigin": promoData["clientOrigin"],
+        }
+
+        if "clientVersion" in promoData and promoData["clientVersion"] != None:
+            payloadData["clientVersion"] = promoData["clientVersion"]
+
+        payload = json.dumps(payloadData)
+
+        response = self.HttpRequest(url, headers_post, "POST", 200, payload)
         if response is None:
             log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
             self.SendTelegramLog(
@@ -1031,19 +1013,17 @@ class HamsterKombatAccount:
 
         clientToken = response["clientToken"]
 
-        time.sleep(promoData["delay"] + random.randint(1, 5))
+        TimeSleep = promoData["delay"] + random.randint(1, 5)
+        log.info(f"[{self.account_name}] Waiting for {TimeSleep} seconds...")
+        time.sleep(TimeSleep)
 
-        log.info(f"[{self.account_name}] Registering event for {promoData['name']}...")
+        log.info(
+            f"[{self.account_name}] Registering event for {promoData['name']} (This may take a while ~5-20 minutes)..."
+        )
 
         url = "https://api.gamepromo.io/promo/register-event"
 
-        headers = {
-            "Authorization": f"Bearer {clientToken}",
-            "Host": "api.gamepromo.io",
-            "Content-Type": "application/json; charset=utf-8",
-            "Origin": "",
-            "Referer": "",
-        }
+        headers_post["Authorization"] = f"Bearer {clientToken}"
 
         response = None
 
@@ -1052,21 +1032,30 @@ class HamsterKombatAccount:
             retryCount += 1
             eventID = str(uuid.uuid4())
 
+            if "eventIdType" in promoData:
+                if promoData["eventIdType"] == "uuid":
+                    eventID = str(uuid.uuid4())
+                else:
+                    eventID = promoData["eventIdType"]
+
             headers_option["access-control-request-headers"] = (
                 "authorization,content-type"
             )
 
             self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
 
-            payload = json.dumps(
-                {
-                    "promoId": promoData["promoId"],
-                    "eventId": eventID,
-                    "eventOrigin": "undefined",
-                }
-            )
+            PayloadData = {
+                "promoId": promoData["promoId"],
+                "eventId": eventID,
+                "eventOrigin": promoData["eventOrigin"],
+            }
 
-            response = self.HttpRequest(url, headers, "POST", 200, payload, True)
+            if "eventType" in promoData and promoData["eventType"] != None:
+                PayloadData["eventType"] = promoData["eventType"]
+
+            payload = json.dumps(PayloadData)
+
+            response = self.HttpRequest(url, headers_post, "POST", 200, payload, True)
 
             if response is None or not isinstance(response, dict):
                 time.sleep(promoData["retry_delay"] + random.randint(1, 5))
@@ -1093,14 +1082,6 @@ class HamsterKombatAccount:
 
         url = "https://api.gamepromo.io/promo/create-code"
 
-        headers = {
-            "Authorization": f"Bearer {clientToken}",
-            "Content-Type": "application/json; charset=utf-8",
-            "Host": "api.gamepromo.io",
-            "Origin": "",
-            "Referer": "",
-        }
-
         headers_option["access-control-request-headers"] = "authorization,content-type"
 
         self.HttpRequest(url, headers_option, "OPTIONS", 204, True)
@@ -1111,7 +1092,7 @@ class HamsterKombatAccount:
             }
         )
 
-        response = self.HttpRequest(url, headers, "POST", 200, payload)
+        response = self.HttpRequest(url, headers_post, "POST", 200, payload)
         if response is None:
             log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
             self.SendTelegramLog(
