@@ -89,4 +89,19 @@ SupportedPromoGames = {
         "delay": 20,
         "retry_delay": 20,
     },
+    "2aaf5aee-2cbc-47ec-8a3f-0962cc14bc71": {
+        "name": "Polysphere: Art Puzzle Game",
+        "appToken": "2aaf5aee-2cbc-47ec-8a3f-0962cc14bc71",
+        "promoId": "2aaf5aee-2cbc-47ec-8a3f-0962cc14bc71",
+        "userAgent": "UnityPlayer/2021.3.39f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)",
+        "x-unity-version": "2021.3.39f1",
+        "clientOrigin": "android",
+        "clientIdType": "type1",
+        "clientVersion": None,
+        "eventIdType": "uuid",
+        "eventOrigin": "undefined",
+        "eventType": "test",
+        "delay": 20,
+        "retry_delay": 20,
+    }
 }
