@@ -1028,7 +1028,7 @@ class HamsterKombatAccount:
         response = None
 
         retryCount = 0
-        while retryCount < 15:
+        while retryCount < 20:
             retryCount += 1
             eventID = str(uuid.uuid4())
 
@@ -1077,8 +1077,14 @@ class HamsterKombatAccount:
                 f"[{self.account_name}] Unable to register event.", "other_errors"
             )
             return None
-
-        log.info(f"[{self.account_name}] Event registered successfully.")
+        elif (response and "hasCode" in response and not response.get('hasCode')):
+            log.error(f"[{self.account_name}] Unable to register event, may need to increase retryCount")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to register event, may need to increase retryCount", "other_errors"
+            )
+            return None
+        elif (response and "hasCode" in response and response.get('hasCode')):
+            log.info(f"[{self.account_name}] Event registered successfully.")
 
         url = "https://api.gamepromo.io/promo/create-code"
 
