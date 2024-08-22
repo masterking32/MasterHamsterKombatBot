@@ -32,19 +32,28 @@ if "ConfigFileVersion" not in locals() or ConfigFileVersion != 1:
 # ---------------------------------------------#
 # Logging configuration
 LOG_LEVEL = logging.DEBUG
-# Include date and time in the log format
-LOGFORMAT = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(asctime)s %(log_color)s%(message)s%(reset)s"
-logging.root.setLevel(LOG_LEVEL)
-formatter = ColoredFormatter(
-    LOGFORMAT, "%Y-%m-%d %H:%M:%S"
-)  # Specify the date/time format
-stream = logging.StreamHandler()
-stream.setLevel(LOG_LEVEL)
-stream.setFormatter(formatter)
+LOGFORMAT_CONSOLE = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(asctime)s %(log_color)s%(message)s%(reset)s"
+LOGFORMAT_FILE = "[Master HamsterKombat Bot][%(levelname)s] %(asctime)s %(message)s"
+
+# Create a logger
 log = logging.getLogger("pythonConfig")
 log.setLevel(LOG_LEVEL)
-log.addHandler(stream)
-# End of configuration
+
+# Console handler
+console_handler = logging.StreamHandler()
+console_handler.setLevel(LOG_LEVEL)
+console_handler.setFormatter(ColoredFormatter(LOGFORMAT_CONSOLE, "%Y-%m-%d %H:%M:%S"))
+
+# File handler for logging to a file
+file_handler = logging.FileHandler("output.log")
+file_handler.setLevel(LOG_LEVEL)
+file_handler.setFormatter(logging.Formatter(LOGFORMAT_FILE, "%Y-%m-%d %H:%M:%S"))
+
+# Add handlers to the logger
+log.addHandler(console_handler)
+log.addHandler(file_handler)
+
+# End of logging configuration
 # ---------------------------------------------#
 
 
