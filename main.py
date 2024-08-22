@@ -52,7 +52,6 @@ file_handler.setFormatter(logging.Formatter(LOGFORMAT_FILE, "%Y-%m-%d %H:%M:%S")
 # Add handlers to the logger
 log.addHandler(console_handler)
 log.addHandler(file_handler)
-
 # End of logging configuration
 # ---------------------------------------------#
 
