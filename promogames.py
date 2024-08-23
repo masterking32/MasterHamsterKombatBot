@@ -97,7 +97,7 @@ SupportedPromoGames = {
         "x-unity-version": "2021.3.39f1",
         "clientOrigin": "android",
         "clientIdType": "type1",
-        "clientVersion": None,
+        "clientVersion": "1.15.2",
         "eventIdType": "uuid",
         "eventOrigin": "undefined",
         "eventType": "test",

@@ -891,7 +891,9 @@ class HamsterKombatAccount:
             return
 
         promo_count = 0
-        for promo in response["promos"]:
+        shuffled_promos = response["promos"][:]
+        random.shuffle(shuffled_promos)
+        for promo in shuffled_promos:
 
             if promo["promoId"] not in SupportedPromoGames:
                 log.warning(
