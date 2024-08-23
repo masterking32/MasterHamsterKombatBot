@@ -70,12 +70,6 @@ file_handler.addFilter(RemoveEscapeCodesFilter())
 log.addHandler(console_handler)
 log.addHandler(file_handler)
 
-log.debug("\033[1;32mDebug test with colors\033[0m")
-log.info("\033[1;36mInfo test with colors\033[0m")
-log.warning("\033[1;33mWarning test with colors\033[0m")
-log.error("\033[1;31mError test with colors\033[0m")
-log.critical("\033[1;35mCritical test with colors\033[0m")
-
 # End of logging configuration
 # ---------------------------------------------#
 
