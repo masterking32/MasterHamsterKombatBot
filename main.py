@@ -6,6 +6,7 @@ import asyncio
 import datetime
 import json
 import logging
+import re
 import random
 import time
 import requests
@@ -31,27 +32,50 @@ if "ConfigFileVersion" not in locals() or ConfigFileVersion != 1:
 
 # ---------------------------------------------#
 # Logging configuration
-LOG_LEVEL = logging.DEBUG
+
+# creating filtering class
+class RemoveEscapeCodesFilter(logging.Filter):
+    def filter(self, record):
+        escape_code_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]') # regex to catch escape codes
+        record.msg = escape_code_pattern.sub('', record.msg) # cleanup message
+        if record.args:
+            record.args = tuple(escape_code_pattern.sub('', str(arg)) for arg in record.args)
+        return True
+
+LOG_LEVEL = logging.DEBUG # logging configuration
+
+# format for console with colors
 LOGFORMAT_CONSOLE = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(asctime)s %(log_color)s%(message)s%(reset)s"
+# format for file without colors
 LOGFORMAT_FILE = "[Master HamsterKombat Bot][%(levelname)s] %(asctime)s %(message)s"
 
-# Create a logger
+# creating logger
 log = logging.getLogger("pythonConfig")
 log.setLevel(LOG_LEVEL)
 
-# Console handler
+# console handler
 console_handler = logging.StreamHandler()
 console_handler.setLevel(LOG_LEVEL)
 console_handler.setFormatter(ColoredFormatter(LOGFORMAT_CONSOLE, "%Y-%m-%d %H:%M:%S"))
 
-# File handler for logging to a file
+# file handler
 file_handler = logging.FileHandler("output.log")
 file_handler.setLevel(LOG_LEVEL)
 file_handler.setFormatter(logging.Formatter(LOGFORMAT_FILE, "%Y-%m-%d %H:%M:%S"))
 
-# Add handlers to the logger
+# add filter to remove ascii escape codes from log message
+file_handler.addFilter(RemoveEscapeCodesFilter())
+
+# adding handlers to logger
 log.addHandler(console_handler)
 log.addHandler(file_handler)
+
+log.debug("\033[1;32mDebug test with colors\033[0m")
+log.info("\033[1;36mInfo test with colors\033[0m")
+log.warning("\033[1;33mWarning test with colors\033[0m")
+log.error("\033[1;31mError test with colors\033[0m")
+log.critical("\033[1;35mCritical test with colors\033[0m")
+
 # End of logging configuration
 # ---------------------------------------------#
 
