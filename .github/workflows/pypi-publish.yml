@@ -1,0 +1,32 @@
+            - name: pypi-publish
+  # You may pin to the exact commit or the version.
+  # uses: pypa/gh-action-pypi-publish@ec4db0b4ddc65acdf4bff5fa45ac92d78b56bdf0
+  uses: pypa/gh-action-pypi-publish@v1.9.0
+  with:
+    # PyPI user
+    user: # optional, default is __token__
+    # Password for your PyPI user or an access token
+    password: # optional
+    # The repository URL to use
+    repository-url: # optional
+    # [DEPRECATED] The repository URL to use
+    repository_url: # optional, default is https://upload.pypi.org/legacy/
+    # The target directory for distribution
+    packages-dir: # optional
+    # [DEPRECATED] The target directory for distribution
+    packages_dir: # optional, default is dist
+    # Check metadata before uploading
+    verify-metadata: # optional
+    # [DEPRECATED] Check metadata before uploading
+    verify_metadata: # optional, default is true
+    # Do not fail if a Python package distribution exists in the target package index
+    skip-existing: # optional
+    # [DEPRECATED] Do not fail if a Python package distribution exists in the target package index
+    skip_existing: # optional, default is false
+    # Show verbose output.
+    verbose: # optional, default is false
+    # Show hash values of files to be uploaded
+    print-hash: # optional
+    # [DEPRECATED] Show hash values of files to be uploaded
+    print_hash: # optional, default is false
+          
