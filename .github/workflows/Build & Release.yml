@@ -57,7 +57,7 @@ jobs:
           pyinstaller --windowed --onefile main.py utilities.py promogames.py
       - name: Rename app
         run: |
-          mv dist/myscript.app "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app"
+          mv dist/main.app "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app"
       - name: Zip the app
         run: |
           zip -r "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.zip" "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app"
