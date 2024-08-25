@@ -53,7 +53,7 @@ jobs:
           pyinstaller --onefile main.py
       - name: Rename executable
         run: |
-          mv dist/main dist/HamsterKeyGen-v1.0.${{ github.run_number }}.app
+          mv dist/main dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
