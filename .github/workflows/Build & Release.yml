@@ -60,7 +60,7 @@ jobs:
           mv dist/main dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app
       - name: Zip the app
         run: |
-          zip -r "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.zip" "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app"
+          zip -r MasterHamsterKombatBot-v2.3.4.zip . -i MasterHamsterKombatBot-v2.3.4.app
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
