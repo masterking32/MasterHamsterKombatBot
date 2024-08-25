@@ -12,9 +12,9 @@ jobs:
   build-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: '3.8'
       - name: Install dependencies
@@ -30,7 +30,7 @@ jobs:
           Rename-Item -Path dist/main.exe -NewName MasterHamsterKombatBot-v2.3.${{ github.run_number }}.exe
         shell: pwsh
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}.exe
@@ -38,9 +38,9 @@ jobs:
   build-macos:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: '3.8'
       - name: Install dependencies
@@ -55,7 +55,7 @@ jobs:
         run: |
           mv dist/main dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: macos-build
           path: dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app
@@ -64,14 +64,14 @@ jobs:
     needs: [build-windows, build-macos]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Download Windows build
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: windows-build
           path: ./build
       - name: Download macOS build
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: macos-build
           path: ./build
