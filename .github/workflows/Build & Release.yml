@@ -27,17 +27,17 @@ jobs:
           pyinstaller --onefile main.py utilities.py promogames.py
       - name: Rename executable
         run: |
-          Rename-Item -Path dist/main.exe -NewName MasterHamsterKombatBot-v2.3.${{ github.run_number }}.exe
+          Rename-Item -Path dist/main.exe -NewName MasterHamsterKombatBot-v2.3.${{ github.run_number }}-windows.exe
         shell: pwsh
       - name: Zip the exe
         run: |
-          Compress-Archive -Path "dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}.exe" -DestinationPath "dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}.zip"
+          Compress-Archive -Path "dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}-windows.exe" -DestinationPath "dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}-windows.zip"
         shell: pwsh
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: windows-build
-          path: dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}.zip
+          path: dist/MasterHamsterKombatBot-v2.3.${{ github.run_number }}-windows.zip
 
   build-macos:
     runs-on: macos-latest
@@ -57,15 +57,15 @@ jobs:
           pyinstaller --windowed --onefile main.py utilities.py promogames.py
       - name: Rename app
         run: |
-          mv dist/main.app "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app"
+          mv dist/main.app "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-mac.app"
       - name: Zip the app
         run: |
-          zip -r "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.zip" "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.app"
+          zip -r "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-mac.zip" "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-mac.app"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: macos-build
-          path: "MasterHamsterKombatBot-v2.3.${{ github.run_number }}.zip"
+          path: "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-mac.zip"
 
 
   create-release:
