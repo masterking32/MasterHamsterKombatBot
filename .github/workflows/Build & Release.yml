@@ -85,10 +85,10 @@ jobs:
           pyinstaller --windowed --onefile main.py utilities.py promogames.py
       - name: Rename executable
         run: |
-          mv dist/main.elf "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-ubuntu.elf"
+          mv dist/main.deb "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-ubuntu.deb"
       - name: Zip the executable
         run: |
-          zip -r "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-ubuntu.zip" "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-ubuntu.elf"
+          zip -r "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-ubuntu.zip" "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-ubuntu.deb"
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
