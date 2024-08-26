@@ -14,7 +14,7 @@ FILES = {
     "promogames.py": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/promogames.py",
     "utilities.py": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/utilities.py"
 }
-RESTART_DELAY = 2  # Delay in seconds before restarting
+RESTART_DELAY = 600  # Delay in seconds before restarting
 
 def get_local_file_contents(file_path):
     with open(file_path, 'r') as file:
