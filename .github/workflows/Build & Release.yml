@@ -82,7 +82,7 @@ jobs:
           pip install pyinstaller
       - name: Build executable
         run: |
-          pyinstaller --onefile main.py utilities.py promogames.py
+          pyinstaller --windowed --onefile main.py utilities.py promogames.py
       - name: Rename executable
         run: |
           mv dist/main.elf "MasterHamsterKombatBot-v2.3.${{ github.run_number }}-ubuntu.elf"
