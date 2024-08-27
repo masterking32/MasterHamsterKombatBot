@@ -10,8 +10,11 @@ import re
 import random
 import time
 import requests
-from colorlog import ColoredFormatter
+import os
+import zipfile
 import uuid
+from colorlog import ColoredFormatter
+from logging.handlers import TimedRotatingFileHandler
 from utilities import *
 from promogames import *
 
@@ -33,16 +36,39 @@ if "ConfigFileVersion" not in locals() or ConfigFileVersion != 1:
 # ---------------------------------------------#
 # Logging configuration
 
+# Path to the directory where logs will be stored
+log_dir = os.path.join(os.path.dirname(__file__), 'Logs')
+
+# Ensure the Logs directory exists
+os.makedirs(log_dir, exist_ok=True)
+
+# Path to the output log file
+log_file_path = os.path.join(log_dir, 'output.log')
+
+# Custom function to zip the old log file
+def zip_old_log_file(source_log):
+    if os.path.exists(source_log):
+        zip_filename = f"{source_log}-{datetime.now().strftime('%Y-%m-%d')}.zip"
+        with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
+            zipf.write(source_log, os.path.basename(source_log))
+        os.remove(source_log)
+
+# Custom TimedRotatingFileHandler to handle the zipping
+class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
+    def doRollover(self):
+        super().doRollover()
+        zip_old_log_file(self.baseFilename)
+
 # creating filtering class
 class RemoveEscapeCodesFilter(logging.Filter):
     def filter(self, record):
-        escape_code_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]') # regex to catch escape codes
-        record.msg = escape_code_pattern.sub('', record.msg) # cleanup message
+        escape_code_pattern = re.compile(r'\x1B\[[0-?]*[ -/]*[@-~]')  # regex to catch escape codes
+        record.msg = escape_code_pattern.sub('', record.msg)  # cleanup message
         if record.args:
             record.args = tuple(escape_code_pattern.sub('', str(arg)) for arg in record.args)
         return True
 
-LOG_LEVEL = logging.DEBUG # logging configuration
+LOG_LEVEL = logging.DEBUG  # logging configuration
 
 # format for console with colors
 LOGFORMAT_CONSOLE = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(asctime)s %(log_color)s%(message)s%(reset)s"
@@ -58,8 +84,8 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(LOG_LEVEL)
 console_handler.setFormatter(ColoredFormatter(LOGFORMAT_CONSOLE, "%Y-%m-%d %H:%M:%S"))
 
-# file handler
-file_handler = logging.FileHandler("output.log")
+# file handler with weekly rotation and zipping
+file_handler = CustomTimedRotatingFileHandler(log_file_path, when='W0', interval=1, backupCount=0)
 file_handler.setLevel(LOG_LEVEL)
 file_handler.setFormatter(logging.Formatter(LOGFORMAT_FILE, "%Y-%m-%d %H:%M:%S"))
 
