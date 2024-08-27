@@ -18,7 +18,7 @@ FILES = {
     "requirements.txt": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/requirements.txt",
     "utilities.py": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/utilities.py"
 }
-CHECK_DELAY = 10  # Delay in seconds between each update check cycle
+CHECK_DELAY = 60  # Delay in seconds between each update check cycle
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # Current directory of the updater script
 MAIN_SCRIPT_PATH = os.path.join(CURRENT_DIR, 'main.py')  # Full path to main.py
 
@@ -27,6 +27,9 @@ def get_local_file_contents(file_path):
         with open(file_path, 'r', encoding='utf-8') as file:
             contents = file.read()
         return contents
+    except FileNotFoundError:
+        print(f"File {file_path} not found. It will be downloaded.")
+        return None
     except UnicodeDecodeError as e:
         print(f"Error reading local file {file_path}: {e}")
         return None
@@ -51,8 +54,11 @@ def check_for_updates():
     for local_file, github_url in FILES.items():
         local_contents = get_local_file_contents(local_file)
         github_contents = get_github_file_contents(github_url)
-        if local_contents is None or github_contents is None:
-            continue  # Skip this file if there's an error
+        if local_contents is None:  # If the file is missing or an error occurred, download it
+            updates_needed.append(local_file)
+            continue
+        if github_contents is None:
+            continue  # Skip this file if there's an error fetching it from GitHub
         if local_contents != github_contents:
             updates_needed.append(local_file)
             print(f"Update needed for {local_file}")
@@ -77,13 +83,44 @@ def download_update(file_name, github_url):
         return False
 
 def close_main_process():
-    for proc in psutil.process_iter(['pid', 'name', 'cmdline']):
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
         cmdline = proc.info['cmdline']
-        if cmdline and proc.info['name'] == 'py.exe' and MAIN_SCRIPT_PATH in cmdline:
-            print(f"Closing process: {proc.info['name']} (PID: {proc.info['pid']}) running {MAIN_SCRIPT_PATH}")
-            proc.terminate()  # Terminate the process
-            proc.wait()  # Wait for the process to terminate
+        cwd = proc.info['cwd']
+        if cmdline and (proc.info['name'] in ['py.exe', 'python.exe']) and MAIN_SCRIPT_PATH in cmdline and cwd == CURRENT_DIR:
+            print(f"Attempting to close process: {proc.info['name']} (PID: {proc.info['pid']}) running {MAIN_SCRIPT_PATH}")
+            proc.terminate()  # Attempt to gracefully terminate the process
+            try:
+                proc.wait(timeout=5)  # Wait for up to 5 seconds for the process to terminate
+            except psutil.TimeoutExpired:
+                print(f"Process {proc.info['pid']} did not terminate, forcefully killing it.")
+                proc.kill()  # Forcefully terminate the process if it doesn't close
+            finally:
+                ensure_process_terminated(proc.info['pid'])  # Ensure the process is terminated
             break
+
+def ensure_process_terminated(pid):
+    """Ensures that the process with the given PID is terminated."""
+    try:
+        proc = psutil.Process(pid)
+        proc.wait(timeout=5)
+    except psutil.TimeoutExpired:
+        print(f"Process {pid} still running, forcefully killing it.")
+        proc.kill()
+    except psutil.NoSuchProcess:
+        print(f"Process {pid} already terminated.")
+
+    # Double-check the process is terminated by rechecking its status
+    for _ in range(5):  # Retry up to 5 times with a short delay between
+        try:
+            proc = psutil.Process(pid)
+            proc.wait(timeout=1)
+        except psutil.NoSuchProcess:
+            print(f"Process {pid} is confirmed terminated.")
+            return
+        except psutil.TimeoutExpired:
+            print(f"Waiting for process {pid} to terminate...")
+        time.sleep(2)
+    print(f"Process {pid} could not be terminated.")
 
 def reopen_main():
     try:
@@ -95,7 +132,7 @@ def reopen_main():
 def update_check():
     updates_needed = check_for_updates()
     if updates_needed:
-        close_main_process()  # Close main.py process if it's running
+        close_main_process()  # Attempt to close main.py process if it's running
         all_updates_successful = True
         for file_name in updates_needed:
             github_url = FILES[file_name]
@@ -103,6 +140,7 @@ def update_check():
                 all_updates_successful = False
         if all_updates_successful:
             print("All updates downloaded.")
+            time.sleep(2)  # Add a delay to ensure old process has completely terminated
             reopen_main()  # Always reopen main.py after updates
         else:
             print("Some updates failed to download.")
