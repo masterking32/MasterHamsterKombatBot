@@ -56,6 +56,10 @@ def zip_old_log_file(source_log):
 
 # Custom TimedRotatingFileHandler to handle the zipping
 class CustomTimedRotatingFileHandler(TimedRotatingFileHandler):
+    def __init__(self, *args, **kwargs):
+        kwargs['encoding'] = 'utf-8'  # Set encoding to utf-8
+        super().__init__(*args, **kwargs)
+
     def doRollover(self):
         super().doRollover()
         zip_old_log_file(self.baseFilename)
@@ -85,7 +89,7 @@ console_handler = logging.StreamHandler()
 console_handler.setLevel(LOG_LEVEL)
 console_handler.setFormatter(ColoredFormatter(LOGFORMAT_CONSOLE, "%Y-%m-%d %H:%M:%S"))
 
-# file handler with weekly rotation and zipping
+# file handler with weekly rotation and zipping, using utf-8 encoding
 file_handler = CustomTimedRotatingFileHandler(log_file_path, when='W0', interval=1, backupCount=0)
 file_handler.setLevel(LOG_LEVEL)
 file_handler.setFormatter(logging.Formatter(LOGFORMAT_FILE, "%Y-%m-%d %H:%M:%S"))
