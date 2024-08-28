@@ -5,7 +5,7 @@ import time
 import psutil
 import subprocess
 import json
-#
+
 # Constants
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/tboy1337/MasterHamsterKombatBot/test/"
 FILES_CONFIG_URL = GITHUB_RAW_URL + "files_to_update.json"
