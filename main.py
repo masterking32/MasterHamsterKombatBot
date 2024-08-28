@@ -733,17 +733,26 @@ class HamsterKombatAccount:
         minigames = list(AccountConfigData["dailyKeysMiniGames"].values())
         random.shuffle(minigames)
         for game in minigames:
-            if game['id'] not in ['Candles', 'Tiles']:
-                log.warning(f"[{self.account_name}] Detected new daily mini game {game['id']}, check project github for updates.")
-                self.SendTelegramLog(f"[{self.account_name}] Detected new daily mini game {game['id']}, check project github for updates.", "other_errors")
+            if game["id"] not in ["Candles", "Tiles"]:
+                log.warning(
+                    f"[{self.account_name}] Detected new daily mini game {game['id']}, check project github for updates."
+                )
+                self.SendTelegramLog(
+                    f"[{self.account_name}] Detected new daily mini game {game['id']}, check project github for updates.",
+                    "other_errors",
+                )
                 continue
 
             if game["isClaimed"] == True:
-                log.info(f"\033[1;34m[{self.account_name}] Daily mini game {game['id']} already claimed.\033[0m")
+                log.info(
+                    f"\033[1;34m[{self.account_name}] Daily mini game {game['id']} already claimed.\033[0m"
+                )
                 continue
 
-            if game['id'] == 'Candles' and game["remainSecondsToNextAttempt"] > 0:
-                log.info(f"[{self.account_name}] Daily mini game {game['id']} is on cooldown...")
+            if game["id"] == "Candles" and game["remainSecondsToNextAttempt"] > 0:
+                log.info(
+                    f"[{self.account_name}] Daily mini game {game['id']} is on cooldown..."
+                )
                 continue
 
             ## check timer.
@@ -763,20 +772,25 @@ class HamsterKombatAccount:
                 "Content-Type": "application/json",
             }
 
-            payload = json.dumps({"miniGameId": game['id']})
+            payload = json.dumps({"miniGameId": game["id"]})
 
             # Send POST request
             response = self.HttpRequest(url, headers, "POST", 200, payload)
 
             if response is None:
-                log.error(f"[{self.account_name}] Unable to start mini game {game['id']}.")
+                log.error(
+                    f"[{self.account_name}] Unable to start mini game {game['id']}."
+                )
                 self.SendTelegramLog(
-                    f"[{self.account_name}] Unable to start mini game {game['id']}.", "other_errors"
+                    f"[{self.account_name}] Unable to start mini game {game['id']}.",
+                    "other_errors",
                 )
                 continue
 
             if "dailyKeysMiniGames" not in response:
-                log.error(f"[{self.account_name}] Unable to get daily mini game {game['id']}.")
+                log.error(
+                    f"[{self.account_name}] Unable to get daily mini game {game['id']}."
+                )
                 self.SendTelegramLog(
                     f"[{self.account_name}] Unable to get daily mini game {game['id']}.",
                     "other_errors",
@@ -790,7 +804,9 @@ class HamsterKombatAccount:
                 continue
 
             if "remainSecondsToGuess" not in response["dailyKeysMiniGames"]:
-                log.error(f"[{self.account_name}] Unable to get daily mini game {game['id']}.")
+                log.error(
+                    f"[{self.account_name}] Unable to get daily mini game {game['id']}."
+                )
                 self.SendTelegramLog(
                     f"[{self.account_name}] Unable to get daily keys mini game {game['id']}.",
                     "other_errors",
@@ -798,15 +814,21 @@ class HamsterKombatAccount:
                 continue
 
             waitTime = 0
-            if game['id'] == 'Candles':
-                waitTime = int(response["dailyKeysMiniGames"]["remainSecondsToGuess"] - random.randint(8, 15))
-            elif game['id'] == 'Tiles':
+            if game["id"] == "Candles":
+                waitTime = int(
+                    response["dailyKeysMiniGames"]["remainSecondsToGuess"]
+                    - random.randint(8, 15)
+                )
+            elif game["id"] == "Tiles":
                 waitTime = random.randint(20, 60)
 
             if waitTime < 0:
-                log.error(f"[{self.account_name}] Unable to claim mini game {game['id']}.")
+                log.error(
+                    f"[{self.account_name}] Unable to claim mini game {game['id']}."
+                )
                 self.SendTelegramLog(
-                    f"[{self.account_name}] Unable to claim mini game {game['id']}.", "other_errors"
+                    f"[{self.account_name}] Unable to claim mini game {game['id']}.",
+                    "other_errors",
                 )
                 continue
 
@@ -831,16 +853,24 @@ class HamsterKombatAccount:
                 "Content-Type": "application/json",
             }
 
-            responseGameData = response['dailyKeysMiniGames']
-            startDate = responseGameData['startDate']
-            remainPoints = responseGameData['remainPoints']
-            number = int(datetime.datetime.fromisoformat(startDate.replace("Z", "+00:00")).timestamp())
+            responseGameData = response["dailyKeysMiniGames"]
+            startDate = responseGameData["startDate"]
+            remainPoints = responseGameData["remainPoints"]
+            number = int(
+                datetime.datetime.fromisoformat(
+                    startDate.replace("Z", "+00:00")
+                ).timestamp()
+            )
             number_len = len(str(number))
             index = (number % (number_len - 2)) + 1
             res = ""
             score_per_game = {
                 "Candles": 0,
-                "Tiles": random.randint(int(remainPoints * 0.1), remainPoints) if remainPoints > 300 else remainPoints
+                "Tiles": (
+                    random.randint(int(remainPoints * 0.1), remainPoints)
+                    if remainPoints > 300
+                    else remainPoints
+                ),
             }
 
             for i in range(1, number_len + 1):
@@ -849,15 +879,19 @@ class HamsterKombatAccount:
                 else:
                     res += str(random.randint(0, 9))
 
-            score_cipher = 2 * (number + (score_per_game[responseGameData['id']]))
+            score_cipher = 2 * (number + (score_per_game[responseGameData["id"]]))
 
             data_string = "|".join(
                 [
                     res,
                     AccountID,
-                    responseGameData['id'],
+                    responseGameData["id"],
                     str(score_cipher),
-                    base64.b64encode(hashlib.sha256(f"415t1ng{score_cipher}0ra1cum5h0t".encode()).digest()).decode()
+                    base64.b64encode(
+                        hashlib.sha256(
+                            f"415t1ng{score_cipher}0ra1cum5h0t".encode()
+                        ).digest()
+                    ).decode(),
                 ]
             ).encode()
 
@@ -866,7 +900,7 @@ class HamsterKombatAccount:
             payload = json.dumps(
                 {
                     "miniGameId": response["dailyKeysMiniGames"]["id"],
-                    "cipher": cipher_base64
+                    "cipher": cipher_base64,
                 }
             )
 
@@ -874,12 +908,17 @@ class HamsterKombatAccount:
             response = self.HttpRequest(url, headers, "POST", 200, payload)
 
             if response is None:
-                log.error(f"[{self.account_name}] Unable to claim mini game {game['id']}.")
+                log.error(
+                    f"[{self.account_name}] Unable to claim mini game {game['id']}."
+                )
                 self.SendTelegramLog(
-                    f"[{self.account_name}] Unable to claim mini game {game['id']}.", "other_errors"
+                    f"[{self.account_name}] Unable to claim mini game {game['id']}.",
+                    "other_errors",
                 )
                 return
-            log.info(f"[{self.account_name}] Mini game {game['id']} claimed successfully, + {number_to_string(response['bonus'])} {f"keys" if game['id'] == 'Candles' else "coins"}")
+            log.info(
+                f"[{self.account_name}] Mini game {game['id']} claimed successfully, + {number_to_string(response['bonus'])} {'keys' if game['id'] == 'Candles' else 'coins'}"
+            )
 
         log.info(f"[{self.account_name}] Mini game phase completed.")
 
@@ -989,9 +1028,13 @@ class HamsterKombatAccount:
         appToken = promoData["appToken"]
         clientId = f"{int(time.time() * 1000)}-{''.join(str(random.randint(0, 9)) for _ in range(19))}"
         if "clientIdType" in promoData and promoData["clientIdType"] == "16str":
-            clientId = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16))
+            clientId = "".join(
+                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16)
+            )
         if "clientIdType" in promoData and promoData["clientIdType"] == "32str":
-            clientId = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32))
+            clientId = "".join(
+                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
+            )
         if "clientIdType" in promoData and promoData["clientIdType"] == "uuid":
             clientId = str(uuid.uuid4())
 
@@ -1119,13 +1162,16 @@ class HamsterKombatAccount:
                 f"[{self.account_name}] Unable to register event.", "other_errors"
             )
             return None
-        elif (response and "hasCode" in response and not response.get('hasCode')):
-            log.error(f"[{self.account_name}] Unable to register event, may need to increase retryCount")
+        elif response and "hasCode" in response and not response.get("hasCode"):
+            log.error(
+                f"[{self.account_name}] Unable to register event, may need to increase retryCount"
+            )
             self.SendTelegramLog(
-                f"[{self.account_name}] Unable to register event, may need to increase retryCount", "other_errors"
+                f"[{self.account_name}] Unable to register event, may need to increase retryCount",
+                "other_errors",
             )
             return None
-        elif (response and "hasCode" in response and response.get('hasCode')):
+        elif response and "hasCode" in response and response.get("hasCode"):
             log.info(f"[{self.account_name}] Event registered successfully.")
 
         url = "https://api.gamepromo.io/promo/create-code"
