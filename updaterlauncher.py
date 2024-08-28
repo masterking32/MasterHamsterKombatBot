@@ -28,7 +28,8 @@ def get_github_file_contents(url):
 def restart_updater():
     """Restarts the updater.py script."""
     print("Restarting updater.py...")
-    subprocess.Popen([sys.executable, UPDATER_SCRIPT_PATH])
+    python_executable = f'"{sys.executable}"'  # Enclose the Python executable in quotes
+    subprocess.Popen(f'{python_executable} "{UPDATER_SCRIPT_PATH}"', shell=True)
     sys.exit(0)  # Exit the current instance of updaterlauncher.py
 
 def self_update():
@@ -63,7 +64,8 @@ def self_update():
 
 def launch_updater():
     """Launches the updater.py script."""
-    subprocess.Popen([sys.executable, UPDATER_SCRIPT_PATH])
+    python_executable = f'"{sys.executable}"'  # Enclose the Python executable in quotes
+    subprocess.Popen(f'{python_executable} "{UPDATER_SCRIPT_PATH}"', shell=True)
 
 if __name__ == "__main__":
     print("Launcher started.")
