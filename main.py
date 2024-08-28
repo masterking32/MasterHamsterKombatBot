@@ -1038,7 +1038,7 @@ class HamsterKombatAccount:
                 if promoData["eventIdType"] == "uuid":
                     eventID = str(uuid.uuid4())
                 elif promoData["eventIdType"] == "timestamp":
-                    eventID = int(datetime.datetime.now().timestamp() * 1000)
+                    eventID = str(int(datetime.datetime.now().timestamp() * 1000))
                 else:
                     eventID = promoData["eventIdType"]
 
