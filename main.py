@@ -923,13 +923,7 @@ class HamsterKombatAccount:
 
         log.info(f"[{self.account_name}] Mini game phase completed.")
 
-    def StartPlaygroundGame(self):
-        if not self.config["auto_playground_games"]:
-            log.info(f"[{self.account_name}] Playground games are disabled.")
-            return
-
-        log.info(f"[{self.account_name}] Starting getting playground games...")
-
+    def GetPromos(self):
         url = "https://api.hamsterkombatgame.io/clicker/get-promos"
         headers = {
             "Access-Control-Request-Headers": "authorization",
@@ -945,6 +939,16 @@ class HamsterKombatAccount:
 
         # Send POST request
         response = self.HttpRequest(url, headers, "POST", 200)
+        return response
+
+    def StartPlaygroundGame(self):
+        if not self.config["auto_playground_games"]:
+            log.info(f"[{self.account_name}] Playground games are disabled.")
+            return
+
+        log.info(f"[{self.account_name}] Starting getting playground games...")
+
+        response = self.GetPromos()
 
         if response is None:
             log.error(f"[{self.account_name}] Unable to get playground games.")
