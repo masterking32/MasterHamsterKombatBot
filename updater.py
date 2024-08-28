@@ -69,10 +69,10 @@ def update_file(file_name, github_url):
         return False
 
 def restart_launcher():
-    """Restarts the updaterlauncher.py script."""
-    print("Restarting updaterlauncher.py...")
+    """Restarts the updaterlauncher.py script in a new command window."""
+    print("Restarting updaterlauncher.py in a new command window...")
     python_executable = f'"{sys.executable}"'  # Enclose the Python executable in quotes
-    subprocess.Popen(f'{python_executable} "{LAUNCHER_SCRIPT_PATH}"', shell=True)
+    subprocess.Popen(f'start cmd /c {python_executable} "{LAUNCHER_SCRIPT_PATH}"', shell=True)
     sys.exit(0)  # Exit the current instance of updater.py
 
 def update_check():
