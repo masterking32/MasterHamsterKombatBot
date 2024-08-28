@@ -1249,6 +1249,19 @@ class HamsterKombatAccount:
     def Start(self):
         log.info(f"[{self.account_name}] Starting account...")
 
+        log.info(f"[{self.account_name}] Getting account IP...")
+        ipResponse = self.IPRequest()
+        if ipResponse is None:
+            log.error(f"[{self.account_name}] Failed to get IP.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Failed to get IP.", "other_errors"
+            )
+            return
+        
+        log.info(
+            f"[{self.account_name}] IP: {ipResponse['ip']} Company: {ipResponse['asn_org']} Country: {ipResponse['country_code']}"
+        )
+
         log.info(f"[{self.account_name}] Getting basic account data...")
         AccountBasicData = self.AccountInfoTelegramRequest()
 
@@ -1273,6 +1286,15 @@ class HamsterKombatAccount:
             "account_info",
         )
 
+        log.info(f"[{self.account_name}] Getting account data...")
+        getAccountDataStatus = self.getAccountData()
+        if getAccountDataStatus is False:
+            return
+
+        log.info(
+            f"[{self.account_name}] Account Balance Coins: {number_to_string(self.balanceCoins)}, Available Taps: {self.availableTaps}, Max Taps: {self.maxTaps}, Total Keys: {self.totalKeys}, Balance Keys: {self.balanceKeys}"
+        )
+
         log.info(f"[{self.account_name}] Getting account config data...")
         AccountConfigVersionData = None
         if self.configVersion != "":
@@ -1289,29 +1311,7 @@ class HamsterKombatAccount:
                 "other_errors",
             )
             return
-
-        DailyCipher = ""
-        if (
-            self.config["auto_get_daily_cipher"]
-            and "dailyCipher" in AccountConfigData
-            and "cipher" in AccountConfigData["dailyCipher"]
-        ):
-            log.info(f"[{self.account_name}] Decoding daily cipher...")
-            DailyCipher = DailyCipherDecode(AccountConfigData["dailyCipher"]["cipher"])
-            MorseCode = TextToMorseCode(DailyCipher)
-            log.info(
-                f"\033[1;34m[{self.account_name}] Daily cipher: {DailyCipher} and Morse code: {MorseCode}\033[0m"
-            )
-
-        log.info(f"[{self.account_name}] Getting account data...")
-        getAccountDataStatus = self.getAccountData()
-        if getAccountDataStatus is False:
-            return
-
-        log.info(
-            f"[{self.account_name}] Account Balance Coins: {number_to_string(self.balanceCoins)}, Available Taps: {self.availableTaps}, Max Taps: {self.maxTaps}, Total Keys: {self.totalKeys}, Balance Keys: {self.balanceKeys}"
-        )
-
+        
         log.info(f"[{self.account_name}] Getting account upgrades...")
         upgradesResponse = self.UpgradesForBuyRequest()
 
@@ -1321,7 +1321,7 @@ class HamsterKombatAccount:
                 f"[{self.account_name}] Failed to get upgrades list.", "other_errors"
             )
             return
-
+        
         log.info(f"[{self.account_name}] Getting account tasks...")
         tasksResponse = self.ListTasksRequest()
 
@@ -1337,15 +1337,6 @@ class HamsterKombatAccount:
         if airdropTasksResponse is None:
             log.error(f"[{self.account_name}] Failed to get airdrop tasks list.")
 
-        log.info(f"[{self.account_name}] Getting account IP...")
-        ipResponse = self.IPRequest()
-        if ipResponse is None:
-            log.error(f"[{self.account_name}] Failed to get IP.")
-            self.SendTelegramLog(
-                f"[{self.account_name}] Failed to get IP.", "other_errors"
-            )
-            return
-
         log.info(f"[{self.account_name}] Getting account skins...")
         SkinsData = self.GetSkins()
         if SkinsData is None:
@@ -1354,9 +1345,18 @@ class HamsterKombatAccount:
                 f"[{self.account_name}] Failed to get skins.", "other_errors"
             )
 
-        log.info(
-            f"[{self.account_name}] IP: {ipResponse['ip']} Company: {ipResponse['asn_org']} Country: {ipResponse['country_code']}"
-        )
+        DailyCipher = ""
+        if (
+            self.config["auto_get_daily_cipher"]
+            and "dailyCipher" in AccountConfigData
+            and "cipher" in AccountConfigData["dailyCipher"]
+        ):
+            log.info(f"[{self.account_name}] Decoding daily cipher...")
+            DailyCipher = DailyCipherDecode(AccountConfigData["dailyCipher"]["cipher"])
+            MorseCode = TextToMorseCode(DailyCipher)
+            log.info(
+                f"\033[1;34m[{self.account_name}] Daily cipher: {DailyCipher} and Morse code: {MorseCode}\033[0m"
+            )
 
         if self.config["auto_finish_mini_game"]:
             log.info(f"[{self.account_name}] Attempting to finish mini game...")
