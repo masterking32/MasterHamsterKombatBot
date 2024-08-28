@@ -730,6 +730,17 @@ class HamsterKombatAccount:
                 "other_errors",
             )
             return
+        
+                
+        response = self.GetPromos()
+
+        if response is None:
+            log.error(f"[{self.account_name}] Unable to get promo games befor starting minigames.")
+            self.SendTelegramLog(
+                f"[{self.account_name}] Unable to get promo games befor starting minigames.", "other_errors"
+            )
+            return
+
         minigames = list(AccountConfigData["dailyKeysMiniGames"].values())
         random.shuffle(minigames)
         for game in minigames:
