@@ -865,8 +865,8 @@ class HamsterKombatAccount:
 
             payload = json.dumps(
                 {
-                  "miniGameId": response["dailyKeysMiniGames"]["id"],
-                  "cipher": cipher_base64
+                    "miniGameId": response["dailyKeysMiniGames"]["id"],
+                    "cipher": cipher_base64
                 }
             )
 
@@ -879,7 +879,8 @@ class HamsterKombatAccount:
                     f"[{self.account_name}] Unable to claim mini game {game['id']}.", "other_errors"
                 )
                 return
-            log.info(f"[{self.account_name}] Mini game {game['id']} claimed successfully{f", +{number_to_string(response['bonus'])} {f"keys" if game['id'] == 'Candles' else "coins"}"}.")
+            log.info(f"[{self.account_name}] Mini game {game['id']} claimed successfully, + {number_to_string(response['bonus'])} {f"keys" if game['id'] == 'Candles' else "coins"}")
+
         log.info(f"[{self.account_name}] Mini game phase completed.")
 
     def StartPlaygroundGame(self):
