@@ -7,7 +7,7 @@ import subprocess
 import json
 
 # Constants
-GITHUB_RAW_URL = "https://raw.githubusercontent.com/tboy1337/MasterHamsterKombatBot/test/"
+GITHUB_RAW_URL = "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/"
 FILES_CONFIG_URL = GITHUB_RAW_URL + "files_to_update.json"
 UPDATER_SCRIPT_NAME = "updater.py"
 CHECK_DELAY = 60  # Delay in seconds between each update check cycle
@@ -147,4 +147,9 @@ def self_update():
         print("Updater script downloaded. Restarting...")
 
         # Restart the script after downloading
-        subprocess.Popen(['cmd', '/c', 'start', 'python', UPDATER_SCRIPT
+        subprocess.Popen(['cmd', '/c', 'start', 'python', UPDATER_SCRIPT_PATH], shell=True)
+        sys.exit(0)  # Exit the current instance to allow the new one to take over
+    
+    except Exception as e:
+        print(f"Error updating updater script: {e}")
+        return False
