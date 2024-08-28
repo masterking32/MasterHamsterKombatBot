@@ -1,8 +1,8 @@
 import os
 import sys
+import subprocess
 import requests
 import time
-import subprocess
 import json
 
 # Constants
@@ -71,7 +71,8 @@ def update_file(file_name, github_url):
 def restart_launcher():
     """Restarts the updaterlauncher.py script."""
     print("Restarting updaterlauncher.py...")
-    subprocess.Popen([sys.executable, LAUNCHER_SCRIPT_PATH])
+    python_executable = f'"{sys.executable}"'  # Enclose the Python executable in quotes
+    subprocess.Popen(f'{python_executable} "{LAUNCHER_SCRIPT_PATH}"', shell=True)
     sys.exit(0)  # Exit the current instance of updater.py
 
 def update_check():
