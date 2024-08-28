@@ -118,5 +118,20 @@ SupportedPromoGames = {
         "eventType": "racing",
         "delay": 30,
         "retry_delay": 60,
+    },
+    "bc0971b8-04df-4e72-8a3e-ec4dc663cd11": {
+        "name": "Cafe Dash",
+        "appToken": "bc0971b8-04df-4e72-8a3e-ec4dc663cd11",
+        "promoId": "bc0971b8-04df-4e72-8a3e-ec4dc663cd11",
+        "userAgent": "Mozilla/5.0",
+        "x-unity-version": None,
+        "clientOrigin": "android",
+        "clientIdType": "16str",
+        "clientVersion": "2.24.0",
+        "eventIdType": "timestamp",
+        "eventOrigin": "undefined",
+        "eventType": "5visitorsChecks",
+        "delay": 30,
+        "retry_delay": 60,
     }
 }
