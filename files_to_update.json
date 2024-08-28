@@ -1,0 +1,14 @@
+{
+  "files": [
+    {"name": "useful_files/hamsterkombat.io-telegram-web-app.php"},
+    {"name": "useful_files/hamsterkombat.js"},
+    {"name": "useful_files/user-agents.md"},
+    {"name": ".gitignore"},
+    {"name": "README.MD"},
+    {"name": "config.py.example"},
+    {"name": "main.py"},
+    {"name": "promogames.py"},
+    {"name": "requirements.txt"},
+    {"name": "utilities.py"}
+  ]
+}
