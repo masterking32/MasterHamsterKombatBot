@@ -5,7 +5,7 @@ import time
 import psutil
 import subprocess
 import json
-#
+
 # Constants
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/tboy1337/MasterHamsterKombatBot/test/"
 FILES_CONFIG_URL = GITHUB_RAW_URL + "files_to_update.json"
@@ -123,6 +123,7 @@ def self_update():
     """Checks if the updater script itself needs to be updated and performs the update if necessary."""
     github_updater_contents = get_github_file_contents(GITHUB_RAW_URL + UPDATER_SCRIPT_NAME)
     if github_updater_contents is None:
+        print("Failed to fetch updater script from GitHub.")
         return False
     try:
         # Read the local updater.py file
@@ -136,7 +137,13 @@ def self_update():
                 file.write(github_updater_contents)
             print("Updater script updated. Restarting...")
 
+            # Ensure file is flushed and delay before restart
+            file.flush()
+            os.fsync(file.fileno())
+            time.sleep(1)  # Short delay to ensure everything is written
+
             # Restart the script after the update
+            print("Executing os.execl to restart script...")
             os.execl(sys.executable, sys.executable, UPDATER_SCRIPT_PATH)  # Directly replace the current process
     
     except FileNotFoundError:
@@ -148,7 +155,13 @@ def self_update():
             file.write(github_updater_contents)
         print("Updater script restored. Restarting...")
 
+        # Ensure file is flushed and delay before restart
+        file.flush()
+        os.fsync(file.fileno())
+        time.sleep(1)  # Short delay to ensure everything is written
+
         # Restart the script after restoring
+        print("Executing os.execl to restart script...")
         os.execl(sys.executable, sys.executable, UPDATER_SCRIPT_PATH)  # Directly replace the current process
     
     except Exception as e:
