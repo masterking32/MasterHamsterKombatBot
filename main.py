@@ -11,6 +11,7 @@ import time
 import requests
 from colorlog import ColoredFormatter
 import uuid
+import hashlib
 from utilities import *
 from promogames import *
 import re
@@ -778,128 +779,204 @@ class HamsterKombatAccount:
         return False
 
     def StartMiniGame(self, AccountConfigData, AccountID):
-        if "dailyKeysMiniGame" not in AccountConfigData:
+        if "dailyKeysMiniGames" not in AccountConfigData:
             log.error(f"[{self.account_name}] Unable to get daily keys mini game.")
             self.SendTelegramLog(
                 f"[{self.account_name}] Unable to get daily keys mini game.",
                 "other_errors",
             )
             return
+        minigames = list(AccountConfigData["dailyKeysMiniGames"].values())
+        random.shuffle(minigames)
+        for game in minigames:
+            if game["id"] not in ["Candles", "Tiles"]:
+                log.warning(
+                    f"[{self.account_name}] Detected new daily mini game {game['id']}, check project github for updates."
+                )
+                self.SendTelegramLog(
+                    f"[{self.account_name}] Detected new daily mini game {game['id']}, check project github for updates.",
+                    "other_errors",
+                )
+                continue
 
-        if AccountConfigData["dailyKeysMiniGame"]["isClaimed"] == True:
-            log.info(
-                f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m"
-            )
-            return
+            if game["isClaimed"] == True:
+                log.info(
+                    f"\033[1;34m[{self.account_name}] Daily mini game {game['id']} already claimed.\033[0m"
+                )
+                continue
 
-        if AccountConfigData["dailyKeysMiniGame"]["remainSecondsToNextAttempt"] > 0:
-            log.info(f"[{self.account_name}] Daily keys mini game is on cooldown...")
-            return
+            if game["id"] == "Candles" and game["remainSecondsToNextAttempt"] > 0:
+                log.info(
+                    f"[{self.account_name}] Daily mini game {game['id']} is on cooldown..."
+                )
+                continue
 
-        ## check timer.
-        url = "https://api.hamsterkombatgame.io/clicker/start-keys-minigame"
+            ## check timer.
+            url = "https://api.hamsterkombatgame.io/clicker/start-keys-minigame"
 
-        headers = {
-            "Access-Control-Request-Headers": "authorization",
-            "Access-Control-Request-Method": "POST",
-        }
-
-        # Send OPTIONS request
-        self.HttpRequest(url, headers, "OPTIONS", 204)
-
-        headers = {
-            "Authorization": self.Authorization,
-        }
-
-        # Send POST request
-        response = self.HttpRequest(url, headers, "POST", 200)
-
-        if response is None:
-            log.error(f"[{self.account_name}] Unable to start mini game.")
-            self.SendTelegramLog(
-                f"[{self.account_name}] Unable to start mini game.", "other_errors"
-            )
-            return
-
-        if "dailyKeysMiniGame" not in response:
-            log.error(f"[{self.account_name}] Unable to get daily keys mini game.")
-            self.SendTelegramLog(
-                f"[{self.account_name}] Unable to get daily keys mini game.",
-                "other_errors",
-            )
-            return
-
-        if response["dailyKeysMiniGame"]["isClaimed"] == True:
-            log.info(
-                f"\033[1;34m[{self.account_name}] Daily keys mini game already claimed.\033[0m"
-            )
-            return
-
-        if "remainSecondsToGuess" not in response["dailyKeysMiniGame"]:
-            log.error(f"[{self.account_name}] Unable to get daily keys mini game.")
-            self.SendTelegramLog(
-                f"[{self.account_name}] Unable to get daily keys mini game.",
-                "other_errors",
-            )
-            return
-
-        waitTime = int(
-            response["dailyKeysMiniGame"]["remainSecondsToGuess"]
-            - random.randint(8, 15)
-        )
-
-        if waitTime < 0:
-            log.error(f"[{self.account_name}] Unable to claim mini game.")
-            self.SendTelegramLog(
-                f"[{self.account_name}] Unable to claim mini game.", "other_errors"
-            )
-            return
-
-        log.info(
-            f"[{self.account_name}] Waiting for {waitTime} seconds, Mini-game will be completed in {waitTime} seconds..."
-        )
-        time.sleep(waitTime)
-
-        url = "https://api.hamsterkombatgame.io/clicker/claim-daily-keys-minigame"
-
-        headers = {
-            "Access-Control-Request-Headers": "authorization,content-type",
-            "Access-Control-Request-Method": "POST",
-        }
-
-        # Send OPTIONS request
-        self.HttpRequest(url, headers, "OPTIONS", 204)
-
-        headers = {
-            "Accept": "application/json",
-            "Authorization": self.Authorization,
-            "Content-Type": "application/json",
-        }
-
-        cipher = (
-            ("0" + str(waitTime) + str(random.randint(10000000000, 99999999999)))[:10]
-            + "|"
-            + str(AccountID)
-        )
-        cipher_base64 = base64.b64encode(cipher.encode()).decode()
-
-        payload = json.dumps(
-            {
-                "cipher": cipher_base64,
+            headers = {
+                "Access-Control-Request-Headers": "authorization",
+                "Access-Control-Request-Method": "POST",
             }
-        )
 
-        # Send POST request
-        response = self.HttpRequest(url, headers, "POST", 200, payload)
+            # Send OPTIONS request
+            self.HttpRequest(url, headers, "OPTIONS", 204)
 
-        if response is None:
-            log.error(f"[{self.account_name}] Unable to claim mini game.")
-            self.SendTelegramLog(
-                f"[{self.account_name}] Unable to claim mini game.", "other_errors"
+            headers = {
+                "Accept": "application/json",
+                "Authorization": self.Authorization,
+                "Content-Type": "application/json",
+            }
+
+            payload = json.dumps({"miniGameId": game["id"]})
+
+            # Send POST request
+            response = self.HttpRequest(url, headers, "POST", 200, payload)
+
+            if response is None:
+                log.error(
+                    f"[{self.account_name}] Unable to start mini game {game['id']}."
+                )
+                self.SendTelegramLog(
+                    f"[{self.account_name}] Unable to start mini game {game['id']}.",
+                    "other_errors",
+                )
+                continue
+
+            if "dailyKeysMiniGames" not in response:
+                log.error(
+                    f"[{self.account_name}] Unable to get daily mini game {game['id']}."
+                )
+                self.SendTelegramLog(
+                    f"[{self.account_name}] Unable to get daily mini game {game['id']}.",
+                    "other_errors",
+                )
+                continue
+
+            if response["dailyKeysMiniGames"]["isClaimed"] == True:
+                log.info(
+                    f"\033[1;34m[{self.account_name}] Daily mini game {game['id']} already claimed.\033[0m"
+                )
+                continue
+
+            if "remainSecondsToGuess" not in response["dailyKeysMiniGames"]:
+                log.error(
+                    f"[{self.account_name}] Unable to get daily mini game {game['id']}."
+                )
+                self.SendTelegramLog(
+                    f"[{self.account_name}] Unable to get daily keys mini game {game['id']}.",
+                    "other_errors",
+                )
+                continue
+
+            waitTime = 0
+            if game["id"] == "Candles":
+                waitTime = int(
+                    response["dailyKeysMiniGames"]["remainSecondsToGuess"]
+                    - random.randint(8, 15)
+                )
+            elif game["id"] == "Tiles":
+                waitTime = random.randint(20, 60)
+
+            if waitTime < 0:
+                log.error(
+                    f"[{self.account_name}] Unable to claim mini game {game['id']}."
+                )
+                self.SendTelegramLog(
+                    f"[{self.account_name}] Unable to claim mini game {game['id']}.",
+                    "other_errors",
+                )
+                continue
+
+            log.info(
+                f"[{self.account_name}] Waiting for {waitTime} seconds, Mini-game {game['id']} will be completed in {waitTime} seconds..."
             )
-            return
+            time.sleep(waitTime)
 
-        log.info(f"[{self.account_name}] Mini game claimed successfully.")
+            url = "https://api.hamsterkombatgame.io/clicker/claim-daily-keys-minigame"
+
+            headers = {
+                "Access-Control-Request-Headers": "authorization,content-type",
+                "Access-Control-Request-Method": "POST",
+            }
+
+            # Send OPTIONS request
+            self.HttpRequest(url, headers, "OPTIONS", 204)
+
+            headers = {
+                "Accept": "application/json",
+                "Authorization": self.Authorization,
+                "Content-Type": "application/json",
+            }
+
+            responseGameData = response["dailyKeysMiniGames"]
+            startDate = responseGameData["startDate"]
+            remainPoints = responseGameData["remainPoints"]
+            number = int(
+                datetime.datetime.fromisoformat(
+                    startDate.replace("Z", "+00:00")
+                ).timestamp()
+            )
+            number_len = len(str(number))
+            index = (number % (number_len - 2)) + 1
+            res = ""
+            score_per_game = {
+                "Candles": 0,
+                "Tiles": (
+                    random.randint(int(remainPoints * 0.1), remainPoints)
+                    if remainPoints > 300
+                    else remainPoints
+                ),
+            }
+
+            for i in range(1, number_len + 1):
+                if i == index:
+                    res += "0"
+                else:
+                    res += str(random.randint(0, 9))
+
+            score_cipher = 2 * (number + (score_per_game[responseGameData["id"]]))
+
+            data_string = "|".join(
+                [
+                    res,
+                    AccountID,
+                    responseGameData["id"],
+                    str(score_cipher),
+                    base64.b64encode(
+                        hashlib.sha256(
+                            f"415t1ng{score_cipher}0ra1cum5h0t".encode()
+                        ).digest()
+                    ).decode(),
+                ]
+            ).encode()
+
+            cipher_base64 = base64.b64encode(data_string).decode()
+
+            payload = json.dumps(
+                {
+                    "miniGameId": response["dailyKeysMiniGames"]["id"],
+                    "cipher": cipher_base64,
+                }
+            )
+
+            # Send POST request
+            response = self.HttpRequest(url, headers, "POST", 200, payload)
+
+            if response is None:
+                log.error(
+                    f"[{self.account_name}] Unable to claim mini game {game['id']}."
+                )
+                self.SendTelegramLog(
+                    f"[{self.account_name}] Unable to claim mini game {game['id']}.",
+                    "other_errors",
+                )
+                return
+            log.info(
+                f"[{self.account_name}] Mini game {game['id']} claimed successfully, + {number_to_string(response['bonus'])} {'keys' if game['id'] == 'Candles' else 'coins'}"
+            )
+
+        log.info(f"[{self.account_name}] Mini game phase completed.")
 
     def StartPlaygroundGame(self):
         if not self.config["auto_playground_games"]:
@@ -1007,9 +1084,13 @@ class HamsterKombatAccount:
         appToken = promoData["appToken"]
         clientId = f"{int(time.time() * 1000)}-{''.join(str(random.randint(0, 9)) for _ in range(19))}"
         if "clientIdType" in promoData and promoData["clientIdType"] == "16str":
-            clientId = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16))
+            clientId = "".join(
+                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16)
+            )
         if "clientIdType" in promoData and promoData["clientIdType"] == "32str":
-            clientId = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32))
+            clientId = "".join(
+                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
+            )
         if "clientIdType" in promoData and promoData["clientIdType"] == "uuid":
             clientId = str(uuid.uuid4())
 
@@ -1137,13 +1218,16 @@ class HamsterKombatAccount:
                 f"[{self.account_name}] Unable to register event.", "other_errors"
             )
             return None
-        elif (response and "hasCode" in response and not response.get('hasCode')):
-            log.error(f"[{self.account_name}] Unable to register event, may need to increase retryCount")
+        elif response and "hasCode" in response and not response.get("hasCode"):
+            log.error(
+                f"[{self.account_name}] Unable to register event, may need to increase retryCount"
+            )
             self.SendTelegramLog(
-                f"[{self.account_name}] Unable to register event, may need to increase retryCount", "other_errors"
+                f"[{self.account_name}] Unable to register event, may need to increase retryCount",
+                "other_errors",
             )
             return None
-        elif (response and "hasCode" in response and response.get('hasCode')):
+        elif response and "hasCode" in response and response.get("hasCode"):
             log.info(f"[{self.account_name}] Event registered successfully.")
 
         url = "https://api.gamepromo.io/promo/create-code"
