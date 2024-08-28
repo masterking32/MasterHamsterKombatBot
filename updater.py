@@ -1,33 +1,24 @@
-# V1.0
 import os
 import sys
 import requests
 import time
 import psutil
 import subprocess
+import json
 
 # Constants
-FILES = {
-    "useful_files/hamsterkombat.io-telegram-web-app.php": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/useful_files/hamsterkombat.io-telegram-web-app.php",
-    "useful_files/hamsterkombat.js": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/useful_files/hamsterkombat.js",
-    "useful_files/user-agents.md": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/useful_files/user-agents.md",
-    ".gitignore": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/.gitignore",
-    "README.MD": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/README.MD",
-    "config.py.example": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/config.py.example",
-    "main.py": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/main.py",
-    "promogames.py": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/promogames.py",
-    "requirements.txt": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/requirements.txt",
-    "utilities.py": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/utilities.py"
-}
+GITHUB_RAW_URL = "https://raw.githubusercontent.com/tboy1337/MasterHamsterKombatBot/test/"
+FILES_CONFIG_URL = GITHUB_RAW_URL + "files_to_update.json"
+UPDATER_SCRIPT_NAME = "updater.py"
 CHECK_DELAY = 60  # Delay in seconds between each update check cycle
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # Current directory of the updater script
 MAIN_SCRIPT_PATH = os.path.join(CURRENT_DIR, 'main.py')  # Full path to main.py
+UPDATER_SCRIPT_PATH = os.path.join(CURRENT_DIR, UPDATER_SCRIPT_NAME)  # Full path to updater.py
 
 def get_local_file_contents(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
-            contents = file.read()
-        return contents
+            return file.read()
     except FileNotFoundError:
         print(f"File {file_path} not found. It will be downloaded.")
         return None
@@ -50,24 +41,19 @@ def get_github_file_contents(url):
         print(f"Error fetching file from GitHub: {e}")
         return None
 
-def check_for_updates():
-    updates_needed = []
-    for local_file, github_url in FILES.items():
-        local_contents = get_local_file_contents(local_file)
-        github_contents = get_github_file_contents(github_url)
-        if local_contents is None:  # If the file is missing or an error occurred, download it
-            updates_needed.append(local_file)
-            continue
-        if github_contents is None:
-            continue  # Skip this file if there's an error fetching it from GitHub
-        if local_contents != github_contents:
-            updates_needed.append(local_file)
-            print(f"Update needed for {local_file}")
-        else:
-            print(f"No update needed for {local_file}")
-    return updates_needed
+def fetch_file_list():
+    config_contents = get_github_file_contents(FILES_CONFIG_URL)
+    if config_contents is None:
+        print("Failed to fetch the list of files to update.")
+        return []
+    try:
+        file_list = json.loads(config_contents)
+        return file_list.get("files", [])
+    except json.JSONDecodeError as e:
+        print(f"Error decoding JSON from file list: {e}")
+        return []
 
-def download_update(file_name, github_url):
+def update_file(file_name, github_url):
     github_contents = get_github_file_contents(github_url)
     if github_contents is None:
         return False
@@ -76,11 +62,8 @@ def download_update(file_name, github_url):
             file.write(github_contents)
         print(f"Successfully updated {file_name}")
         return True
-    except UnicodeEncodeError as e:
-        print(f"Error writing to file {file_name}: {e}")
-        return False
     except Exception as e:
-        print(f"General error writing to file {file_name}: {e}")
+        print(f"Error writing to file {file_name}: {e}")
         return False
 
 def close_main_process():
@@ -89,18 +72,16 @@ def close_main_process():
         cwd = proc.info['cwd']
         if cmdline and (proc.info['name'] in ['py.exe', 'python.exe']) and MAIN_SCRIPT_PATH in cmdline and cwd == CURRENT_DIR:
             print(f"Attempting to close process: {proc.info['name']} (PID: {proc.info['pid']}) running {MAIN_SCRIPT_PATH}")
-            proc.terminate()  # Attempt to gracefully terminate the process
+            proc.terminate()
             try:
-                proc.wait(timeout=5)  # Wait for up to 5 seconds for the process to terminate
+                proc.wait(timeout=5)
             except psutil.TimeoutExpired:
                 print(f"Process {proc.info['pid']} did not terminate, forcefully killing it.")
-                proc.kill()  # Forcefully terminate the process if it doesn't close
-            finally:
-                ensure_process_terminated(proc.info['pid'])  # Ensure the process is terminated
+                proc.kill()
+            ensure_process_terminated(proc.info['pid'])
             break
 
 def ensure_process_terminated(pid):
-    """Ensures that the process with the given PID is terminated."""
     try:
         proc = psutil.Process(pid)
         proc.wait(timeout=5)
@@ -109,9 +90,7 @@ def ensure_process_terminated(pid):
         proc.kill()
     except psutil.NoSuchProcess:
         print(f"Process {pid} already terminated.")
-
-    # Double-check the process is terminated by rechecking its status
-    for _ in range(5):  # Retry up to 5 times with a short delay between
+    for _ in range(5):
         try:
             proc = psutil.Process(pid)
             proc.wait(timeout=1)
@@ -130,31 +109,62 @@ def reopen_main():
     except Exception as e:
         print(f"Error reopening main.py: {e}")
 
+def self_update():
+    github_updater_contents = get_github_file_contents(GITHUB_RAW_URL + UPDATER_SCRIPT_NAME)
+    if github_updater_contents is None:
+        return False
+    try:
+        with open(UPDATER_SCRIPT_PATH, 'r', encoding='utf-8') as file:
+            local_updater_contents = file.read()
+        if github_updater_contents != local_updater_contents:
+            print("Updater script is outdated. Updating...")
+            with open(UPDATER_SCRIPT_PATH, 'w', encoding='utf-8') as file:
+                file.write(github_updater_contents)
+            print("Updater script updated. Restarting...")
+            os.execl(sys.executable, sys.executable, *sys.argv)
+    except FileNotFoundError:
+        print(f"Updater script not found. Downloading...")
+        with open(UPDATER_SCRIPT_PATH, 'w', encoding='utf-8') as file:
+            file.write(github_updater_contents)
+        print("Updater script downloaded. Restarting...")
+        os.execl(sys.executable, sys.executable, *sys.argv)
+    except Exception as e:
+        print(f"Error updating updater script: {e}")
+        return False
+
 def update_check():
-    updates_needed = check_for_updates()
+    self_update()  # First, ensure the updater itself is up-to-date
+    file_list = fetch_file_list()  # Fetch the dynamic list of files to update
+    updates_needed = []
+
+    for file_info in file_list:
+        file_name = file_info.get("name")
+        github_url = GITHUB_RAW_URL + file_name
+        local_contents = get_local_file_contents(file_name)
+        github_contents = get_github_file_contents(github_url)
+
+        if local_contents is None or local_contents != github_contents:
+            updates_needed.append(file_name)
+
     if updates_needed:
-        close_main_process()  # Attempt to close main.py process if it's running
+        close_main_process()
         all_updates_successful = True
         for file_name in updates_needed:
-            github_url = FILES[file_name]
-            if not download_update(file_name, github_url):
+            github_url = GITHUB_RAW_URL + file_name
+            if not update_file(file_name, github_url):
                 all_updates_successful = False
         if all_updates_successful:
             print("All updates downloaded.")
-            time.sleep(2)  # Add a delay to ensure old process has completely terminated
-            reopen_main()  # Always reopen main.py after updates
+            reopen_main()
         else:
             print("Some updates failed to download.")
     else:
         print("No updates available.")
 
-# Main loop to continuously check for updates
 def main_loop():
     while True:
         update_check()
-        print(f"Waiting {CHECK_DELAY} seconds before next check...")
-        time.sleep(CHECK_DELAY)  # Wait before checking again
+        time.sleep(CHECK_DELAY)
 
-# Start the main loop
 if __name__ == "__main__":
     main_loop()
