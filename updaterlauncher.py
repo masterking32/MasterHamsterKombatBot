@@ -27,9 +27,12 @@ def get_github_file_contents(url):
 
 def restart_updater():
     """Restarts the updater.py script in a new command window."""
-    print("Restarting updater.py in a new command window...")
-    python_executable = f'"{sys.executable}"'  # Enclose the Python executable in quotes
-    subprocess.Popen(f'start cmd /c {python_executable} "{UPDATER_SCRIPT_PATH}"', shell=True)
+    print("Attempting to restart updater.py in a new command window...")
+    python_executable = f'"{sys.executable}"'
+    command = f'start cmd /c {python_executable} "{UPDATER_SCRIPT_PATH}"'
+    print(f"Executing command: {command}")
+    subprocess.Popen(command, shell=True)
+    print("Command executed, exiting launcher.")
     sys.exit(0)  # Exit the current instance of updaterlauncher.py
 
 def self_update():
@@ -64,8 +67,12 @@ def self_update():
 
 def launch_updater():
     """Launches the updater.py script in a new command window."""
-    python_executable = f'"{sys.executable}"'  # Enclose the Python executable in quotes
-    subprocess.Popen(f'start cmd /c {python_executable} "{UPDATER_SCRIPT_PATH}"', shell=True)
+    print("Attempting to launch updater.py in a new command window...")
+    python_executable = f'"{sys.executable}"'
+    command = f'start cmd /c {python_executable} "{UPDATER_SCRIPT_PATH}"'
+    print(f"Executing command: {command}")
+    subprocess.Popen(command, shell=True)
+    print("Command executed.")
 
 if __name__ == "__main__":
     print("Launcher started.")
