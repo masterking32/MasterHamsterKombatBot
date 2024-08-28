@@ -69,11 +69,10 @@ def launch_updater():
     """Launches the updater.py script in a new command window."""
     print("Attempting to launch updater.py in a new command window...")
     python_executable = f'"{sys.executable}"'
-    command = f'start "" {python_executable} "{UPDATER_SCRIPT_PATH}"'
+    command = f'start cmd.exe /k {python_executable} "{UPDATER_SCRIPT_PATH}"'
     print(f"Executing command: {command}")
     subprocess.Popen(command, shell=True)
     print("Command executed.")
-
 
 if __name__ == "__main__":
     print("Launcher started.")
