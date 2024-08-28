@@ -16,7 +16,6 @@ FILES = {
     "config.py.example": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/config.py.example",
     "main.py": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/main.py",
     "promogames.py": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/promogames.py",
-    "requirements.txt": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/requirements.txt",
     "utilities.py": "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/utilities.py"
 }
 CHECK_DELAY = 60  # Delay in seconds between each update check cycle
