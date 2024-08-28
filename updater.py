@@ -16,6 +16,7 @@ MAIN_SCRIPT_PATH = os.path.join(CURRENT_DIR, 'main.py')  # Full path to main.py
 UPDATER_SCRIPT_PATH = os.path.join(CURRENT_DIR, UPDATER_SCRIPT_NAME)  # Full path to updater.py
 
 def get_local_file_contents(file_path):
+    """Reads the content of a local file."""
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
             return file.read()
@@ -30,6 +31,7 @@ def get_local_file_contents(file_path):
         return None
 
 def get_github_file_contents(url):
+    """Fetches the content of a file from a given GitHub URL."""
     try:
         response = requests.get(url)
         if response.status_code == 200:
@@ -42,6 +44,7 @@ def get_github_file_contents(url):
         return None
 
 def fetch_file_list():
+    """Fetches the list of files to update from files_to_update.json on GitHub."""
     config_contents = get_github_file_contents(FILES_CONFIG_URL)
     if config_contents is None:
         print("Failed to fetch the list of files to update.")
@@ -54,6 +57,7 @@ def fetch_file_list():
         return []
 
 def update_file(file_name, github_url):
+    """Downloads and updates a local file from GitHub if necessary."""
     github_contents = get_github_file_contents(github_url)
     if github_contents is None:
         return False
@@ -67,9 +71,11 @@ def update_file(file_name, github_url):
         return False
 
 def close_main_process():
+    """Closes the running main.py process, whether it's running under py.exe or python.exe."""
     for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
         cmdline = proc.info['cmdline']
         cwd = proc.info['cwd']
+        # Check if the process is running the current main.py script
         if cmdline and (proc.info['name'] in ['py.exe', 'python.exe']) and MAIN_SCRIPT_PATH in cmdline and cwd == CURRENT_DIR:
             print(f"Attempting to close process: {proc.info['name']} (PID: {proc.info['pid']}) running {MAIN_SCRIPT_PATH}")
             proc.terminate()
@@ -82,6 +88,7 @@ def close_main_process():
             break
 
 def ensure_process_terminated(pid):
+    """Ensures that the process with the given PID is terminated."""
     try:
         proc = psutil.Process(pid)
         proc.wait(timeout=5)
@@ -90,6 +97,8 @@ def ensure_process_terminated(pid):
         proc.kill()
     except psutil.NoSuchProcess:
         print(f"Process {pid} already terminated.")
+    
+    # Double-check that the process is truly terminated
     for _ in range(5):
         try:
             proc = psutil.Process(pid)
@@ -103,6 +112,7 @@ def ensure_process_terminated(pid):
     print(f"Process {pid} could not be terminated.")
 
 def reopen_main():
+    """Reopens main.py in a new command window."""
     try:
         print("Reopening main.py in a new command window...")
         subprocess.Popen(['cmd', '/c', 'start', 'python', MAIN_SCRIPT_PATH], shell=True)
@@ -110,29 +120,36 @@ def reopen_main():
         print(f"Error reopening main.py: {e}")
 
 def self_update():
+    """Checks if the updater script itself needs to be updated and performs the update if necessary."""
     github_updater_contents = get_github_file_contents(GITHUB_RAW_URL + UPDATER_SCRIPT_NAME)
     if github_updater_contents is None:
         return False
     try:
         with open(UPDATER_SCRIPT_PATH, 'r', encoding='utf-8') as file:
             local_updater_contents = file.read()
+
+        # If the contents differ, update the local updater.py
         if github_updater_contents != local_updater_contents:
             print("Updater script is outdated. Updating...")
             with open(UPDATER_SCRIPT_PATH, 'w', encoding='utf-8') as file:
                 file.write(github_updater_contents)
             print("Updater script updated. Restarting...")
             os.execl(sys.executable, sys.executable, *sys.argv)
+    
     except FileNotFoundError:
+        # If updater.py does not exist locally, download it
         print(f"Updater script not found. Downloading...")
         with open(UPDATER_SCRIPT_PATH, 'w', encoding='utf-8') as file:
             file.write(github_updater_contents)
         print("Updater script downloaded. Restarting...")
         os.execl(sys.executable, sys.executable, *sys.argv)
+    
     except Exception as e:
         print(f"Error updating updater script: {e}")
         return False
 
 def update_check():
+    """Checks for updates to the updater script itself and other files, updates them if necessary, and restarts main.py."""
     self_update()  # First, ensure the updater itself is up-to-date
     file_list = fetch_file_list()  # Fetch the dynamic list of files to update
     updates_needed = []
@@ -143,11 +160,12 @@ def update_check():
         local_contents = get_local_file_contents(file_name)
         github_contents = get_github_file_contents(github_url)
 
+        # Add to updates if the file is missing or outdated
         if local_contents is None or local_contents != github_contents:
             updates_needed.append(file_name)
 
     if updates_needed:
-        close_main_process()
+        close_main_process()  # Close main.py if updates are needed
         all_updates_successful = True
         for file_name in updates_needed:
             github_url = GITHUB_RAW_URL + file_name
@@ -155,13 +173,14 @@ def update_check():
                 all_updates_successful = False
         if all_updates_successful:
             print("All updates downloaded.")
-            reopen_main()
+            reopen_main()  # Reopen main.py after updates
         else:
             print("Some updates failed to download.")
     else:
         print("No updates available.")
 
 def main_loop():
+    """Continuously checks for updates and applies them."""
     while True:
         update_check()
         time.sleep(CHECK_DELAY)
