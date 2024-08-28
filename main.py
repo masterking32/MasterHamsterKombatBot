@@ -733,15 +733,16 @@ class HamsterKombatAccount:
         minigames = list(AccountConfigData["dailyKeysMiniGames"].values())
         random.shuffle(minigames)
         for game in minigames:
-            if game['id'] != 'Candles': # For Tiles need more analize
-                continue
-            if game["isClaimed"] == True:
-                log.info(
-                    f"\033[1;34m[{self.account_name}] Daily mini game {game['id']} already claimed.\033[0m"
-                )
+            if game['id'] not in ['Candles', 'Tiles']:
+                log.warning(f"[{self.account_name}] Detected new daily mini game {game['id']}, check project github for updates.")
+                self.SendTelegramLog(f"[{self.account_name}] Detected new daily mini game {game['id']}, check project github for updates.", "other_errors")
                 continue
 
-            if game["remainSecondsToNextAttempt"] > 0:
+            if game["isClaimed"] == True:
+                log.info(f"\033[1;34m[{self.account_name}] Daily mini game {game['id']} already claimed.\033[0m")
+                continue
+
+            if game['id'] == 'Candles' and game["remainSecondsToNextAttempt"] > 0:
                 log.info(f"[{self.account_name}] Daily mini game {game['id']} is on cooldown...")
                 continue
 
@@ -796,10 +797,11 @@ class HamsterKombatAccount:
                 )
                 continue
 
-            waitTime = int(
-                    response["dailyKeysMiniGames"]["remainSecondsToGuess"]
-                    - random.randint(8, 15)
-                )
+            waitTime = 0
+            if game['id'] == 'Candles':
+                waitTime = int(response["dailyKeysMiniGames"]["remainSecondsToGuess"] - random.randint(8, 15))
+            elif game['id'] == 'Tiles':
+                waitTime = random.randint(20, 60)
 
             if waitTime < 0:
                 log.error(f"[{self.account_name}] Unable to claim mini game {game['id']}.")
@@ -829,13 +831,16 @@ class HamsterKombatAccount:
                 "Content-Type": "application/json",
             }
 
-            number = int(datetime.datetime.fromisoformat(response["dailyKeysMiniGames"]["startDate"].replace("Z", "+00:00")).timestamp())
+            responseGameData = response['dailyKeysMiniGames']
+            startDate = responseGameData['startDate']
+            remainPoints = responseGameData['remainPoints']
+            number = int(datetime.datetime.fromisoformat(startDate.replace("Z", "+00:00")).timestamp())
             number_len = len(str(number))
             index = (number % (number_len - 2)) + 1
             res = ""
             score_per_game = {
                 "Candles": 0,
-                "Tiles": random.randint(10, 10 * 500)
+                "Tiles": random.randint(int(remainPoints * 0.1), remainPoints) if remainPoints > 300 else remainPoints
             }
 
             for i in range(1, number_len + 1):
@@ -844,13 +849,13 @@ class HamsterKombatAccount:
                 else:
                     res += str(random.randint(0, 9))
 
-            score_cipher = 2 + (number + score_per_game[response["dailyKeysMiniGames"]["id"]])
+            score_cipher = 2 * (number + (score_per_game[responseGameData['id']]))
 
             data_string = "|".join(
                 [
                     res,
                     AccountID,
-                    response["dailyKeysMiniGames"]["id"],
+                    responseGameData['id'],
                     str(score_cipher),
                     base64.b64encode(hashlib.sha256(f"415t1ng{score_cipher}0ra1cum5h0t".encode()).digest()).decode()
                 ]
@@ -874,8 +879,8 @@ class HamsterKombatAccount:
                     f"[{self.account_name}] Unable to claim mini game {game['id']}.", "other_errors"
                 )
                 return
-
-            log.info(f"[{self.account_name}] Mini game {game['id']} claimed successfully.")
+            log.info(f"[{self.account_name}] Mini game {game['id']} claimed successfully{f", +{number_to_string(response['bonus'])} {f"keys" if game['id'] == 'Candles' else "coins"}"}.")
+        log.info(f"[{self.account_name}] Mini game phase completed.")
 
     def StartPlaygroundGame(self):
         if not self.config["auto_playground_games"]:
