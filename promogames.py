@@ -48,7 +48,7 @@ SupportedPromoGames = {
         "name": "Merge Away",
         "appToken": "8d1cc2ad-e097-4b86-90ef-7a27e19fb833",
         "promoId": "dc128d28-c45b-411c-98ff-ac7726fbaea4",
-        "userAgent": None,
+        "userAgent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/26.0 Chrome/122.0.0.0 Mobile Safari/537.36",
         "x-unity-version": None,
         "clientOrigin": "android",
         "clientIdType": "type1",
