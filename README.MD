@@ -43,6 +43,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Playground `Polysphere: Art Puzzle Game` added. (August 21, 2024)
 - Playground `Mow and Trim` and `Mud Racing` added. (August 23, 2024)
 - Playground `My Clone Army` removed. (August 27, 2024)
+- Playground `Cafe Dash` added. (August 28, 2024)
 
 <hr>
 
