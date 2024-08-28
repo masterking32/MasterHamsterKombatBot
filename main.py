@@ -105,7 +105,6 @@ log.addHandler(file_handler)
 # End of logging configuration
 # ---------------------------------------------#
 
-
 class HamsterKombatAccount:
     def __init__(self, AccountData):
         self.account_name = AccountData["account_name"]
