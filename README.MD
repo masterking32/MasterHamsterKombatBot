@@ -55,7 +55,7 @@ git clone https://github.com/masterking32/MasterHamsterKombatBot
 3. Install the required packages,
 
 ```bash
-pip install requests colorlog
+pip install requests colorlog psutil
 ```
 
 4. Add your accounts
