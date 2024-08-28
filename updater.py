@@ -7,7 +7,7 @@ import subprocess
 import json
 
 # Constants
-GITHUB_RAW_URL = "https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/"
+GITHUB_RAW_URL = "https://raw.githubusercontent.com/tboy1337/MasterHamsterKombatBot/test/"
 FILES_CONFIG_URL = GITHUB_RAW_URL + "files_to_update.json"
 UPDATER_SCRIPT_NAME = "updater.py"
 CHECK_DELAY = 60  # Delay in seconds between each update check cycle
