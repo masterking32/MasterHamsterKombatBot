@@ -820,7 +820,7 @@ class HamsterKombatAccount:
                     - random.randint(8, 15)
                 )
             elif game["id"] == "Tiles":
-                waitTime = random.randint(20, 60)
+                waitTime = random.randint(35, 120)
 
             if waitTime < 0:
                 log.error(
@@ -856,6 +856,7 @@ class HamsterKombatAccount:
             responseGameData = response["dailyKeysMiniGames"]
             startDate = responseGameData["startDate"]
             remainPoints = responseGameData["remainPoints"]
+            maxMultiplier = min(self.GetConfig('mg_max_tiles_points_percent', 20), 100) / 100
             number = int(
                 datetime.datetime.fromisoformat(
                     startDate.replace("Z", "+00:00")
@@ -867,7 +868,7 @@ class HamsterKombatAccount:
             score_per_game = {
                 "Candles": 0,
                 "Tiles": (
-                    random.randint(int(remainPoints * 0.1), remainPoints)
+                    random.randint(int(remainPoints * 0.1), int(remainPoints * maxMultiplier))
                     if remainPoints > 300
                     else remainPoints
                 ),
