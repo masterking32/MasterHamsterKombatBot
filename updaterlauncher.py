@@ -29,7 +29,7 @@ def restart_updater():
     """Restarts the updater.py script in a new command window."""
     print("Attempting to restart updater.py in a new command window...")
     python_executable = f'"{sys.executable}"'
-    command = f'start cmd /c {python_executable} "{UPDATER_SCRIPT_PATH}"'
+    command = f'start "" cmd.exe /s /c "{python_executable} "{UPDATER_SCRIPT_PATH}""'
     print(f"Executing command: {command}")
     subprocess.Popen(command, shell=True)
     print("Command executed, exiting launcher.")
@@ -69,7 +69,7 @@ def launch_updater():
     """Launches the updater.py script in a new command window."""
     print("Attempting to launch updater.py in a new command window...")
     python_executable = f'"{sys.executable}"'
-    command = f'start cmd.exe /k {python_executable} "{UPDATER_SCRIPT_PATH}"'
+    command = f'start "" cmd.exe /s /c "{python_executable} "{UPDATER_SCRIPT_PATH}""'
     print(f"Executing command: {command}")
     subprocess.Popen(command, shell=True)
     print("Command executed.")
