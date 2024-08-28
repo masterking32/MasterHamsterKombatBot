@@ -14,7 +14,6 @@ CHECK_DELAY = 60  # Delay in seconds between each update check cycle
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # Current directory of the updater script
 MAIN_SCRIPT_PATH = os.path.join(CURRENT_DIR, 'main.py')  # Full path to main.py
 UPDATER_SCRIPT_PATH = os.path.join(CURRENT_DIR, UPDATER_SCRIPT_NAME)  # Full path to updater.py
-BATCH_FILE_PATH = os.path.join(CURRENT_DIR, "restart.bat")  # Path to the restart batch file
 
 def get_local_file_contents(file_path):
     """Reads the content of a local file."""
@@ -35,7 +34,7 @@ def get_github_file_contents(url):
     """Fetches the content of a file from a given GitHub URL."""
     try:
         response = requests.get(url)
-        if response.status_code == 200):
+        if response.status_code == 200:
             return response.text
         else:
             print(f"Error fetching file from GitHub: {url} - Status Code: {response.status_code}")
@@ -112,11 +111,13 @@ def ensure_process_terminated(pid):
         time.sleep(2)
     print(f"Process {pid} could not be terminated.")
 
-def restart_script_via_batch():
-    """Restarts the script using a batch file."""
-    print("Restarting the script via batch file...")
-    time.sleep(2)  # Short delay to observe the script before restarting
-    subprocess.call([BATCH_FILE_PATH])
+def reopen_main():
+    """Reopens main.py in a new command window."""
+    try:
+        print("Reopening main.py in a new command window...")
+        subprocess.Popen(['cmd', '/c', 'start', 'python', MAIN_SCRIPT_PATH], shell=True)
+    except Exception as e:
+        print(f"Error reopening main.py: {e}")
 
 def self_update():
     """Checks if the updater script itself needs to be updated and performs the update if necessary."""
@@ -136,9 +137,12 @@ def self_update():
                 file.write(github_updater_contents)
             print("Updater script updated. Restarting...")
 
-            # Restart the script using the batch file
-            restart_script_via_batch()
-            sys.exit(0)  # Exit the current instance to allow the new one to take over
+            # Short delay to ensure everything is written and settled
+            time.sleep(1)
+
+            # Restart the script after the update
+            print("Executing os.execl to restart script...")
+            os.execl(sys.executable, sys.executable, UPDATER_SCRIPT_PATH)  # Directly replace the current process
     
     except FileNotFoundError:
         # If the file was removed or can't be found after starting, handle it gracefully
@@ -149,9 +153,12 @@ def self_update():
             file.write(github_updater_contents)
         print("Updater script restored. Restarting...")
 
-        # Restart the script using the batch file
-        restart_script_via_batch()
-        sys.exit(0)  # Exit the current instance to allow the new one to take over
+        # Short delay to ensure everything is written and settled
+        time.sleep(1)
+
+        # Restart the script after restoring
+        print("Executing os.execl to restart script...")
+        os.execl(sys.executable, sys.executable, UPDATER_SCRIPT_PATH)  # Directly replace the current process
     
     except Exception as e:
         print(f"Error updating updater script: {e}")
@@ -182,7 +189,7 @@ def update_check():
                 all_updates_successful = False
         if all_updates_successful:
             print("All updates downloaded.")
-            restart_script_via_batch()  # Reopen main.py after updates using the batch file
+            reopen_main()  # Reopen main.py after updates
         else:
             print("Some updates failed to download.")
     else:
