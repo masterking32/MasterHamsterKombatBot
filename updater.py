@@ -134,10 +134,7 @@ def self_update():
             with open(UPDATER_SCRIPT_PATH, 'w', encoding='utf-8') as file:
                 file.write(github_updater_contents)
             print("Updater script updated. Restarting...")
-
-            # Restart the script after the update
-            subprocess.Popen(['cmd', '/c', 'start', 'python', UPDATER_SCRIPT_PATH], shell=True)
-            sys.exit(0)  # Exit the current instance to allow the new one to take over
+            os.execl(sys.executable, sys.executable, *sys.argv)
     
     except FileNotFoundError:
         # If updater.py does not exist locally, download it
@@ -145,11 +142,48 @@ def self_update():
         with open(UPDATER_SCRIPT_PATH, 'w', encoding='utf-8') as file:
             file.write(github_updater_contents)
         print("Updater script downloaded. Restarting...")
-
-        # Restart the script after downloading
-        subprocess.Popen(['cmd', '/c', 'start', 'python', UPDATER_SCRIPT_PATH], shell=True)
-        sys.exit(0)  # Exit the current instance to allow the new one to take over
+        os.execl(sys.executable, sys.executable, *sys.argv)
     
     except Exception as e:
         print(f"Error updating updater script: {e}")
         return False
+
+def update_check():
+    """Checks for updates to the updater script itself and other files, updates them if necessary, and restarts main.py."""
+    self_update()  # First, ensure the updater itself is up-to-date
+    file_list = fetch_file_list()  # Fetch the dynamic list of files to update
+    updates_needed = []
+
+    for file_info in file_list:
+        file_name = file_info.get("name")
+        github_url = GITHUB_RAW_URL + file_name
+        local_contents = get_local_file_contents(file_name)
+        github_contents = get_github_file_contents(github_url)
+
+        # Add to updates if the file is missing or outdated
+        if local_contents is None or local_contents != github_contents:
+            updates_needed.append(file_name)
+
+    if updates_needed:
+        close_main_process()  # Close main.py if updates are needed
+        all_updates_successful = True
+        for file_name in updates_needed:
+            github_url = GITHUB_RAW_URL + file_name
+            if not update_file(file_name, github_url):
+                all_updates_successful = False
+        if all_updates_successful:
+            print("All updates downloaded.")
+            reopen_main()  # Reopen main.py after updates
+        else:
+            print("Some updates failed to download.")
+    else:
+        print("No updates available.")
+
+def main_loop():
+    """Continuously checks for updates and applies them."""
+    while True:
+        update_check()
+        time.sleep(CHECK_DELAY)
+
+if __name__ == "__main__":
+    main_loop()
