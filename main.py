@@ -950,10 +950,10 @@ class HamsterKombatAccount:
     def GetPlayGroundGameKey(self, promoData):
         appToken = promoData["appToken"]
         clientId = f"{int(time.time() * 1000)}-{''.join(str(random.randint(0, 9)) for _ in range(19))}"
+        if "clientIdType" in promoData and promoData["clientIdType"] == "16str":
+            clientId = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16))
         if "clientIdType" in promoData and promoData["clientIdType"] == "32str":
-            clientId = "".join(
-                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
-            )
+            clientId = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32))
         if "clientIdType" in promoData and promoData["clientIdType"] == "uuid":
             clientId = str(uuid.uuid4())
 
@@ -1037,6 +1037,8 @@ class HamsterKombatAccount:
             if "eventIdType" in promoData:
                 if promoData["eventIdType"] == "uuid":
                     eventID = str(uuid.uuid4())
+                elif promoData["eventIdType"] == "timestamp":
+                    eventID = str(int(datetime.datetime.now().timestamp() * 1000))
                 else:
                     eventID = promoData["eventIdType"]
 
