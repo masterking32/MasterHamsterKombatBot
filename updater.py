@@ -125,7 +125,6 @@ def self_update():
     if github_updater_contents is None:
         return False
     try:
-        # Read the local updater.py file
         with open(UPDATER_SCRIPT_PATH, 'r', encoding='utf-8') as file:
             local_updater_contents = file.read()
 
@@ -141,18 +140,11 @@ def self_update():
             sys.exit(0)  # Exit the current instance to allow the new one to take over
     
     except FileNotFoundError:
-        # If the file was removed or can't be found after starting, handle it gracefully
-        print(f"Updater script not found. Attempting to restore...")
-
-        # Attempt to restore the updater script
+        # If updater.py does not exist locally, download it
+        print(f"Updater script not found. Downloading...")
         with open(UPDATER_SCRIPT_PATH, 'w', encoding='utf-8') as file:
             file.write(github_updater_contents)
-        print("Updater script restored. Restarting...")
+        print("Updater script downloaded. Restarting...")
 
-        # Restart the script after restoring
-        subprocess.Popen(['cmd', '/c', 'start', 'python', UPDATER_SCRIPT_PATH], shell=True)
-        sys.exit(0)  # Exit the current instance to allow the new one to take over
-    
-    except Exception as e:
-        print(f"Error updating updater script: {e}")
-        return False
+        # Restart the script after downloading
+        subprocess.Popen(['cmd', '/c', 'start', 'python', UPDATER_SCRIPT
