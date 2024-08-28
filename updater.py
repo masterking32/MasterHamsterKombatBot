@@ -5,7 +5,7 @@ import time
 import psutil
 import subprocess
 import json
-#
+
 # Constants
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/tboy1337/MasterHamsterKombatBot/test/"
 FILES_CONFIG_URL = GITHUB_RAW_URL + "files_to_update.json"
@@ -137,10 +137,8 @@ def self_update():
                 file.write(github_updater_contents)
             print("Updater script updated. Restarting...")
 
-            # Ensure file is flushed and delay before restart
-            file.flush()
-            os.fsync(file.fileno())
-            time.sleep(1)  # Short delay to ensure everything is written
+            # Short delay to ensure everything is written and settled
+            time.sleep(1)
 
             # Restart the script after the update
             print("Executing os.execl to restart script...")
@@ -155,10 +153,8 @@ def self_update():
             file.write(github_updater_contents)
         print("Updater script restored. Restarting...")
 
-        # Ensure file is flushed and delay before restart
-        file.flush()
-        os.fsync(file.fileno())
-        time.sleep(1)  # Short delay to ensure everything is written
+        # Short delay to ensure everything is written and settled
+        time.sleep(1)
 
         # Restart the script after restoring
         print("Executing os.execl to restart script...")
