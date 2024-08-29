@@ -3,11 +3,11 @@ import sys
 import time
 import requests
 import json
-import subprocess
 
 # Constants
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/tboy1337/MasterHamsterKombatBot/test/"
 FILES_CONFIG_URL = GITHUB_RAW_URL + "files_to_update.json"
+CHECK_DELAY = 60  # Delay in seconds between each update check cycle
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # Current directory of the updater script
 UPDATER_SCRIPT_NAME = "updater.py"
 UPDATER_SCRIPT_PATH = os.path.join(CURRENT_DIR, UPDATER_SCRIPT_NAME)  # Full path to updater.py
@@ -71,6 +71,7 @@ def update_check():
     """Checks for updates to the files listed in the configuration file."""
     file_list = fetch_file_list()
     updates_needed = []
+    restart_required = False
 
     for file_info in file_list:
         file_name = file_info.get("name")
@@ -84,17 +85,20 @@ def update_check():
     if updates_needed:
         for file_name in updates_needed:
             github_url = GITHUB_RAW_URL + file_name
-            update_file(file_name, github_url)
-        print("Updates applied. Restart required.")
-        return True  # Signal that a restart is required
+            if update_file(file_name, github_url):
+                if file_name == UPDATER_SCRIPT_NAME:
+                    restart_required = True
 
-    print("No updates available.")
-    return False  # No restart needed
+    return restart_required
 
-def main():
-    """Main function to check for updates and apply them."""
-    if update_check():
-        sys.exit(100)  # Exit with a specific code to indicate that a restart is needed
+def main_loop():
+    """Main loop to continuously check for updates and apply them."""
+    while True:
+        if update_check():
+            print("Updater script was updated. Restarting required.")
+            sys.exit(100)  # Signal that a restart is required
+        print(f"Sleeping for {CHECK_DELAY} seconds before next check...")
+        time.sleep(CHECK_DELAY)
 
 if __name__ == "__main__":
-    main()
+    main_loop()
