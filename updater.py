@@ -51,7 +51,11 @@ def get_files_to_check():
     json_content = get_github_file_contents(json_url)
     if json_content:
         try:
-            files = json.loads(json_content)
+            files_dict = json.loads(json_content)
+            for local_path, repo_path in files_dict.items():
+                # Construct the URL for each file based on the file path in the repo
+                github_url = f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{repo_path}"
+                files[local_path] = github_url
         except json.JSONDecodeError as e:
             print(f"Error decoding JSON: {e}")
     return files
