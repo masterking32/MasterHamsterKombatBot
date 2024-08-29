@@ -1,14 +1,12 @@
 {
-  "files": [
-    {"name": "useful_files/hamsterkombat.io-telegram-web-app.php"},
-    {"name": "useful_files/hamsterkombat.js"},
-    {"name": "useful_files/user-agents.md"},
-    {"name": ".gitignore"},
-    {"name": "README.MD"},
-    {"name": "config.py.example"},
-    {"name": "main.py"},
-    {"name": "promogames.py"},
-    {"name": "requirements.txt"},
-    {"name": "utilities.py"}
-  ]
+    "useful_files/hamsterkombat.io-telegram-web-app.php": "useful_files/hamsterkombat.io-telegram-web-app.php",
+    "useful_files/hamsterkombat.js": "useful_files/hamsterkombat.js",
+    "useful_files/user-agents.md": "useful_files/user-agents.md",
+    ".gitignore": ".gitignore",
+    "README.md": "README.md",
+    "config.py.example": "config.py.example",
+    "main.py": "main.py",
+    "promogames.py": "promogames.py",
+    "requirements.txt": "requirements.txt",
+    "utilities.py": "utilities.py"
 }
