@@ -1,17 +1,16 @@
 import os
 import sys
-import subprocess
-import requests
 import time
+import requests
 import json
+import subprocess
 
 # Constants
 GITHUB_RAW_URL = "https://raw.githubusercontent.com/tboy1337/MasterHamsterKombatBot/test/"
 FILES_CONFIG_URL = GITHUB_RAW_URL + "files_to_update.json"
-CHECK_DELAY = 60  # Delay in seconds between each update check cycle
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # Current directory of the updater script
-LAUNCHER_SCRIPT_NAME = "updaterlauncher.py"
-LAUNCHER_SCRIPT_PATH = os.path.join(CURRENT_DIR, LAUNCHER_SCRIPT_NAME)  # Full path to updaterlauncher.py
+UPDATER_SCRIPT_NAME = "updater.py"
+UPDATER_SCRIPT_PATH = os.path.join(CURRENT_DIR, UPDATER_SCRIPT_NAME)  # Full path to updater.py
 
 def get_local_file_contents(file_path):
     """Reads the content of a local file."""
@@ -68,16 +67,9 @@ def update_file(file_name, github_url):
         print(f"Error writing to file {file_name}: {e}")
         return False
 
-def restart_launcher():
-    """Restarts the updaterlauncher.py script in a new command window."""
-    print("Restarting updaterlauncher.py in a new command window...")
-    python_executable = f'"{sys.executable}"'  # Enclose the Python executable in quotes
-    subprocess.Popen(f'start cmd /c {python_executable} "{LAUNCHER_SCRIPT_PATH}"', shell=True)
-    sys.exit(0)  # Exit the current instance of updater.py
-
 def update_check():
     """Checks for updates to the files listed in the configuration file."""
-    file_list = fetch_file_list()  # Fetch the dynamic list of files to update
+    file_list = fetch_file_list()
     updates_needed = []
 
     for file_info in file_list:
@@ -86,7 +78,6 @@ def update_check():
         local_contents = get_local_file_contents(file_name)
         github_contents = get_github_file_contents(github_url)
 
-        # Add to updates if the file is missing or outdated
         if local_contents is None or local_contents != github_contents:
             updates_needed.append(file_name)
 
@@ -94,14 +85,16 @@ def update_check():
         for file_name in updates_needed:
             github_url = GITHUB_RAW_URL + file_name
             update_file(file_name, github_url)
-        print("All updates downloaded.")
-        restart_launcher()  # Restart launcher after updating other files
+        print("Updates applied. Restart required.")
+        return True  # Signal that a restart is required
 
-def main_loop():
-    """Continuously checks for updates and applies them."""
-    while True:
-        update_check()
-        time.sleep(CHECK_DELAY)
+    print("No updates available.")
+    return False  # No restart needed
+
+def main():
+    """Main function to check for updates and apply them."""
+    if update_check():
+        sys.exit(100)  # Exit with a specific code to indicate that a restart is needed
 
 if __name__ == "__main__":
-    main_loop()
+    main()
