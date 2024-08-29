@@ -867,7 +867,13 @@ class HamsterKombatAccount:
             responseGameData = response["dailyKeysMiniGames"]
             startDate = responseGameData["startDate"]
             remainPoints = responseGameData["remainPoints"]
-            maxMultiplier = min(self.GetConfig('mg_max_tiles_points_percent', 20), 100) / 100
+            maxMultiplier = max(2, self.GetConfig('mg_max_tiles_points', 25))
+            pointsToSpend = 0
+            if remainPoints > 300:
+                pointsToSpend = random.randint(waitTime * 2, waitTime * maxMultiplier)
+            else:
+                pointsToSpend = remainPoints
+            pointsToSpend = min(pointsToSpend, remainPoints)
             number = int(
                 datetime.datetime.fromisoformat(
                     startDate.replace("Z", "+00:00")
@@ -878,11 +884,7 @@ class HamsterKombatAccount:
             res = ""
             score_per_game = {
                 "Candles": 0,
-                "Tiles": (
-                    random.randint(int(remainPoints * 0.1), int(remainPoints * maxMultiplier))
-                    if remainPoints > 300
-                    else remainPoints
-                ),
+                "Tiles": pointsToSpend,
             }
 
             for i in range(1, number_len + 1):
@@ -929,7 +931,9 @@ class HamsterKombatAccount:
                 )
                 return
             log.info(
-                f"[{self.account_name}] Mini game {game['id']} claimed successfully, + {number_to_string(response['bonus'])} {'keys' if game['id'] == 'Candles' else 'coins'}"
+                f"[{self.account_name}] Mini game {game['id']} claimed successfully, + {number_to_string(response['bonus'])} "
+                f"{'keys' if game['id'] == 'Candles' else f'coins, spent {number_to_string(pointsToSpend)} points, '}"
+                f"{number_to_string(remainPoints - pointsToSpend)}/{number_to_string(responseGameData['maxPoints'])} remain."
             )
 
         log.info(f"[{self.account_name}] Mini game phase completed.")

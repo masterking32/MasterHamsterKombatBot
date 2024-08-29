@@ -42,7 +42,8 @@ AccountList = [
             "parallel_upgrades_max_price_per_hour": 1000,  # Cards with less than X coins per 1k will be bought
             "show_num_buy_options": 0,  # Number of card buy options to show in the logs, ranked by best value, 0 disables this.
             "max_promo_games_per_round": 3,  # Maximum number of promo games to play in a single round, 0 disables this.
-            "mg_max_tiles_points_percent": 20, # Maximum value for using points in percentages for the mini game Tiles
+            "mg_max_tiles_points": 25, # Maximum points per seconds for spend point generation in random.randint(waitTime * 2, waitTime * mg_max_tiles_points)
+            # does not guarantee that you will receive the full amount possible per day
         },
         # If you have enabled Telegram bot logging,
         # you can add your chat ID below to receive logs in your Telegram account.
