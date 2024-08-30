@@ -155,9 +155,8 @@ def ensure_process_terminated(pid):
             print(f"Process {pid} is confirmed terminated.")
             return
         except psutil.TimeoutExpired:
-            print(f"Process {pid} still running, forcefully killing it again.")
+            print(f"Waiting for process {pid} to terminate...")
         time.sleep(2)
-            proc.kill()
     print(f"Process {pid} could not be terminated.")
 
 def reopen_main():
