@@ -127,7 +127,7 @@ SupportedPromoGames = {
         "x-unity-version": "2022.3.15f1",
         "clientOrigin": "android",
         "clientIdType": "32str",
-        "clientVersion": None,
+        "clientVersion": "1.2.8",
         "eventIdType": "uuid",
         "eventOrigin": "undefined",
         "eventType": "ZoopolisEvent",
