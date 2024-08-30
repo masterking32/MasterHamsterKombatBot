@@ -144,7 +144,20 @@ def ensure_process_terminated(pid):
         print(f"Process {pid} still running, forcefully killing it.")
         proc.kill()
     except psutil.NoSuchProcess:
-        print(f"Process {pid} terminated.")
+        print(f"Process {pid} already terminated.")
+
+    # Double-check the process is terminated by rechecking its status
+    for _ in range(5):  # Retry up to 5 times with a short delay between
+        try:
+            proc = psutil.Process(pid)
+            proc.wait(timeout=1)
+        except psutil.NoSuchProcess:
+            print(f"Process {pid} is confirmed terminated.")
+            return
+        except psutil.TimeoutExpired:
+            print(f"Waiting for process {pid} to terminate...")
+        time.sleep(2)
+    print(f"Process {pid} could not be terminated.")
 
 def reopen_main():
     try:
