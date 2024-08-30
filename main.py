@@ -1426,10 +1426,11 @@ class HamsterKombatAccount:
                 f"\033[1;34m[{self.account_name}] Daily cipher: {DailyCipher} and Morse code: {MorseCode}\033[0m"
             )
 
-        if self.config["auto_finish_mini_game"]:
-            log.info(f"[{self.account_name}] Attempting to finish mini game...")
-            time.sleep(1)
-            self.StartMiniGame(AccountConfigData, AccountBasicData["accountInfo"]["id"])
+        # temporarily disabled
+        # if self.config["auto_finish_mini_game"]:
+        #     log.info(f"[{self.account_name}] Attempting to finish mini game...")
+        #     time.sleep(1)
+        #     self.StartMiniGame(AccountConfigData, AccountBasicData["accountInfo"]["id"])
 
         # Start tapping
         if self.config["auto_tap"]:
