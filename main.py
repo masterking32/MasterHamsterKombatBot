@@ -1043,16 +1043,25 @@ class HamsterKombatAccount:
     def GetPlayGroundGameKey(self, promoData):
         appToken = promoData["appToken"]
         clientId = f"{int(time.time() * 1000)}-{''.join(str(random.randint(0, 9)) for _ in range(19))}"
-        if "clientIdType" in promoData and promoData["clientIdType"] == "16str":
-            clientId = "".join(
-                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16)
-            )
-        if "clientIdType" in promoData and promoData["clientIdType"] == "32str":
-            clientId = "".join(
-                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
-            )
-        if "clientIdType" in promoData and promoData["clientIdType"] == "uuid":
-            clientId = str(uuid.uuid4())
+        if "clientIdType" in promoData:
+            if promoData["clientIdType"] == "16str":
+                clientId = "".join(
+                    random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16)
+                )
+            elif promoData["clientIdType"] == "32str":
+                clientId = "".join(
+                    random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
+                )
+            elif promoData["clientIdType"] == "5+32str":
+                p1 = "".join(
+                    random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=5)
+                    )
+                p2 = "".join(
+                    random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
+                )
+                clientId = f"{p1}_{p2}"
+            elif promoData["clientIdType"] == "uuid":
+                clientId = str(uuid.uuid4())
 
         log.info(f"[{self.account_name}] Getting {promoData['name']} key...")
         url = "https://api.gamepromo.io/promo/login-client"
@@ -1136,6 +1145,9 @@ class HamsterKombatAccount:
                     eventID = str(uuid.uuid4())
                 elif promoData["eventIdType"] == "timestamp":
                     eventID = str(int(datetime.datetime.now().timestamp() * 1000))
+                elif promoData["eventIdType"] == "16x2str":
+                    string = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32))
+                    eventID = f"{string[:16]}-{string[16:]}"
                 else:
                     eventID = promoData["eventIdType"]
 
