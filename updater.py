@@ -144,7 +144,7 @@ def ensure_process_terminated(pid):
         print(f"Process {pid} still running, forcefully killing it.")
         proc.kill()
     except psutil.NoSuchProcess:
-        print(f"Process {pid} already terminated.")
+        print(f"Process {pid} terminated.")
 
 def reopen_main():
     try:
