@@ -1051,6 +1051,14 @@ class HamsterKombatAccount:
             clientId = "".join(
                 random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
             )
+        if "clientIdType" in promoData and promoData["clientIdType"] == "5+32str":
+            p1 = "".join(
+                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=5)
+                )
+            p2 = "".join(
+                random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
+            )
+            clientId = f"{p1}_{p2}"
         if "clientIdType" in promoData and promoData["clientIdType"] == "uuid":
             clientId = str(uuid.uuid4())
 
@@ -1136,6 +1144,9 @@ class HamsterKombatAccount:
                     eventID = str(uuid.uuid4())
                 elif promoData["eventIdType"] == "timestamp":
                     eventID = str(int(datetime.datetime.now().timestamp() * 1000))
+                elif promoData["eventIdType"] == "16x2str":
+                    str = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32))
+                    eventID = f"{str[:16]}-{str[16:]}"
                 else:
                     eventID = promoData["eventIdType"]
 
