@@ -13,7 +13,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 <hr>
 
-✅ Tested and confirmed to work as of `23 August 2024`. ✅
+✅ Tested and confirmed to work as of `30 August 2024`. ✅
 
 <img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/screenshot.png" alt="Screenshot" />
 
@@ -44,6 +44,9 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Playground `Mow and Trim` and `Mud Racing` added. (August 23, 2024)
 - Playground `My Clone Army` removed. (August 27, 2024)
 - Playground `Cafe Dash` added. (August 28, 2024)
+- Playground `Bike Ride 3D` and `Mud Racing` removed. (August 30, 2024)
+- Playground `Gangs Wars` and `Zoopolis` added. (August 30, 2024)
+- Automatically complete Hamster Kombat **Mini-Games** are **temporarily disabled**. (August 30, 2024)
 
 <hr>
 
