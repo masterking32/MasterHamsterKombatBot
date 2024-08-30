@@ -1145,8 +1145,8 @@ class HamsterKombatAccount:
                 elif promoData["eventIdType"] == "timestamp":
                     eventID = str(int(datetime.datetime.now().timestamp() * 1000))
                 elif promoData["eventIdType"] == "16x2str":
-                    str = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32))
-                    eventID = f"{str[:16]}-{str[16:]}"
+                    string = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32))
+                    eventID = f"{string[:16]}-{string[16:]}"
                 else:
                     eventID = promoData["eventIdType"]
 
