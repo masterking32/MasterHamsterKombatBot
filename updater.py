@@ -9,11 +9,16 @@ import asyncio
 import aiohttp
 import tempfile
 import shutil
+import traceback
 from typing import Dict, List, Tuple, Optional
 from dataclasses import dataclass
 
 # Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s',
+                    filename='updater.log', filemode='a')
+console = logging.StreamHandler()
+console.setLevel(logging.INFO)
+logging.getLogger('').addHandler(console)
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -27,6 +32,7 @@ class Config:
     UPDATER_SCRIPT_PATH: str
 
 def load_config() -> Config:
+    logger.debug("Loading configuration...")
     return Config(
         GITHUB_REPO="tboy1337/MasterHamsterKombatBot",
         GITHUB_BRANCH="test",
@@ -38,11 +44,13 @@ def load_config() -> Config:
     )
 
 config = load_config()
+logger.info(f"Configuration loaded: {config}")
 
 class GitHubAPI:
     @staticmethod
     async def get_file_contents(session: aiohttp.ClientSession, url: str) -> Optional[str]:
         try:
+            logger.debug(f"Fetching file from GitHub: {url}")
             async with session.get(url) as response:
                 response.raise_for_status()
                 return await response.text(encoding='utf-8')
@@ -54,6 +62,7 @@ class FileManager:
     @staticmethod
     def get_local_file_contents(file_path: str) -> Optional[str]:
         try:
+            logger.debug(f"Reading local file: {file_path}")
             with open(file_path, 'r', encoding='utf-8') as file:
                 return file.read()
         except FileNotFoundError:
@@ -69,6 +78,7 @@ class FileManager:
     @staticmethod
     def write_file(file_name: str, contents: str) -> bool:
         try:
+            logger.debug(f"Writing to file: {file_name}")
             with open(file_name, 'w', encoding='utf-8') as file:
                 file.write(contents)
             logger.info(f"Successfully updated {file_name}")
@@ -83,6 +93,7 @@ class FileManager:
 class ProcessManager:
     @staticmethod
     def close_main_process():
+        logger.debug("Attempting to close main process...")
         for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
             try:
                 cmdline = proc.cmdline()
@@ -98,6 +109,7 @@ class ProcessManager:
     @staticmethod
     def _terminate_process(proc):
         try:
+            logger.debug(f"Terminating process: {proc.pid}")
             proc.terminate()
             proc.wait(timeout=10)
         except psutil.TimeoutExpired:
@@ -181,6 +193,7 @@ class Updater:
             return False
 
     async def update_check(self):
+        logger.debug("Starting update check...")
         async with aiohttp.ClientSession() as session:
             files_to_check = await self.get_files_to_check(session)
             updates_needed = await self.check_for_updates(session, files_to_check)
@@ -200,6 +213,7 @@ class Updater:
                 logger.info("No updates available.")
 
     async def self_update_check(self):
+        logger.debug("Starting self-update check...")
         async with aiohttp.ClientSession() as session:
             github_url = f"https://raw.githubusercontent.com/{config.GITHUB_REPO}/{config.GITHUB_BRANCH}/updater.py"
             github_contents = await self.github_api.get_file_contents(session, github_url)
@@ -213,10 +227,20 @@ class Updater:
 async def main_loop():
     updater = Updater()
     while True:
-        await updater.self_update_check()
-        await updater.update_check()
-        logger.info(f"Waiting {config.CHECK_DELAY} seconds before next check...")
-        await asyncio.sleep(config.CHECK_DELAY)
+        try:
+            await updater.self_update_check()
+            await updater.update_check()
+            logger.info(f"Waiting {config.CHECK_DELAY} seconds before next check...")
+            await asyncio.sleep(config.CHECK_DELAY)
+        except Exception as e:
+            logger.error(f"An error occurred in the main loop: {e}")
+            logger.error(traceback.format_exc())
+            await asyncio.sleep(config.CHECK_DELAY)
 
 if __name__ == "__main__":
-    asyncio.run(main_loop())
+    try:
+        logger.info("Starting updater script...")
+        asyncio.run(main_loop())
+    except Exception as e:
+        logger.critical(f"Fatal error in updater script: {e}")
+        logger.critical(traceback.format_exc())
