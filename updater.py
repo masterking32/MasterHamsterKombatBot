@@ -45,7 +45,7 @@ class GitHubAPI:
         try:
             async with session.get(url) as response:
                 response.raise_for_status()
-                return await response.text()
+                return await response.text(encoding='utf-8')
         except aiohttp.ClientError as e:
             logger.error(f"Error fetching file from GitHub: {e}")
             return None
@@ -59,6 +59,9 @@ class FileManager:
         except FileNotFoundError:
             logger.info(f"File {file_path} not found. It will be downloaded.")
             return None
+        except UnicodeDecodeError as e:
+            logger.error(f"Encoding error reading local file {file_path}: {e}")
+            return None
         except Exception as e:
             logger.error(f"Error reading local file {file_path}: {e}")
             return None
@@ -70,6 +73,9 @@ class FileManager:
                 file.write(contents)
             logger.info(f"Successfully updated {file_name}")
             return True
+        except UnicodeEncodeError as e:
+            logger.error(f"Encoding error writing to file {file_name}: {e}")
+            return False
         except Exception as e:
             logger.error(f"Error writing to file {file_name}: {e}")
             return False
@@ -154,19 +160,23 @@ class Updater:
         if github_contents is None:
             return False
         
-        # Create a temporary file
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as temp_file:
-            temp_file.write(github_contents)
-            temp_file_path = temp_file.name
-
-        # Move the temporary file to the final location
         try:
+            # Create a temporary file using utf-8 encoding
+            with tempfile.NamedTemporaryFile(mode='w', delete=False, encoding='utf-8') as temp_file:
+                temp_file.write(github_contents)
+                temp_file_path = temp_file.name
+
+            # Move the temporary file to the final location
             shutil.move(temp_file_path, file_name)
             logger.info(f"Successfully updated {file_name}")
             return True
+        except UnicodeEncodeError as e:
+            logger.error(f"Encoding error while writing update for {file_name}: {e}")
+            return False
         except Exception as e:
-            logger.error(f"Error moving updated file {file_name}: {e}")
-            os.unlink(temp_file_path)
+            logger.error(f"Error updating file {file_name}: {e}")
+            if os.path.exists(temp_file_path):
+                os.unlink(temp_file_path)
             return False
 
     async def update_check(self):
