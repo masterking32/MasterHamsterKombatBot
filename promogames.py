@@ -22,7 +22,7 @@ SupportedPromoGames = {
         "x-unity-version": "2022.3.20f1",
         "clientOrigin": "android",
         "clientIdType": "32str",
-        "clientVersion": "2.5.0",
+        "clientVersion": "2.6.4",
         "eventIdType": "uuid",
         "eventOrigin": "undefined",
         "eventType": "hitStatue",
