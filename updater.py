@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 # Constants
 GITHUB_REPO = "tboy1337/MasterHamsterKombatBot"  # Replace with your GitHub repo
-GITHUB_BRANCH = "self-updater"  # Replace with the branch you want to pull from
+GITHUB_BRANCH = "test"  # Replace with the branch you want to pull from
 FILES_TO_CHECK_JSON = "files_to_check.json"  # JSON file in the repo that lists files to check
 CHECK_DELAY = 60  # Delay in seconds between each update check cycle
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # Current directory of the updater script
