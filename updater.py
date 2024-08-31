@@ -84,43 +84,44 @@ class ProcessManager:
     @staticmethod
     def close_main_process():
         for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
-            cmdline = proc.info['cmdline']
-            cwd = proc.info['cwd']
-            if cmdline and (proc.info['name'] in ['py.exe', 'python.exe']) and config.MAIN_SCRIPT_PATH in cmdline and cwd == config.CURRENT_DIR:
-                logger.info(f"Attempting to close process: {proc.info['name']} (PID: {proc.info['pid']}) running {config.MAIN_SCRIPT_PATH}")
-                ProcessManager._terminate_process(proc)
-                break
+            try:
+                cmdline = proc.cmdline()
+                if 'python' in cmdline[0].lower() and config.MAIN_SCRIPT_PATH in cmdline:
+                    logger.info(f"Attempting to close process: {proc.name()} (PID: {proc.pid}) running {config.MAIN_SCRIPT_PATH}")
+                    ProcessManager._terminate_process(proc)
+                    return True
+            except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+                pass
+        logger.info("No main process found to close.")
+        return False
 
     @staticmethod
     def _terminate_process(proc):
         try:
             proc.terminate()
-            proc.wait(timeout=5)
+            proc.wait(timeout=10)
         except psutil.TimeoutExpired:
-            logger.warning(f"Process {proc.info['pid']} did not terminate, forcefully killing it.")
+            logger.warning(f"Process {proc.pid} did not terminate, forcefully killing it.")
             proc.kill()
         finally:
-            ProcessManager._ensure_process_terminated(proc.info['pid'])
+            ProcessManager._ensure_process_terminated(proc.pid)
 
     @staticmethod
     def _ensure_process_terminated(pid):
-        for _ in range(5):
-            try:
-                proc = psutil.Process(pid)
-                proc.wait(timeout=1)
-            except psutil.NoSuchProcess:
-                logger.info(f"Process {pid} is confirmed terminated.")
-                return
-            except psutil.TimeoutExpired:
-                logger.info(f"Waiting for process {pid} to terminate...")
-            time.sleep(2)
-        logger.error(f"Process {pid} could not be terminated.")
+        try:
+            proc = psutil.Process(pid)
+            proc.wait(timeout=5)
+        except psutil.NoSuchProcess:
+            logger.info(f"Process {pid} is confirmed terminated.")
+        except psutil.TimeoutExpired:
+            logger.error(f"Process {pid} could not be terminated.")
 
     @staticmethod
     def reopen_main():
         try:
-            logger.info("Reopening main.py in a new command window...")
-            subprocess.Popen(['cmd', '/c', 'start', 'python', config.MAIN_SCRIPT_PATH], shell=True)
+            logger.info("Reopening main.py in a new process...")
+            subprocess.Popen([sys.executable, config.MAIN_SCRIPT_PATH], 
+                             creationflags=subprocess.CREATE_NEW_CONSOLE)
         except Exception as e:
             logger.error(f"Error reopening main.py: {e}")
 
@@ -184,15 +185,17 @@ class Updater:
             files_to_check = await self.get_files_to_check(session)
             updates_needed = await self.check_for_updates(session, files_to_check)
             if updates_needed:
-                ProcessManager.close_main_process()
-                update_tasks = [self.download_update(session, file_name, github_path) for file_name, github_path in updates_needed]
-                update_results = await asyncio.gather(*update_tasks)
-                if all(update_results):
-                    logger.info("All updates downloaded.")
-                    await asyncio.sleep(2)
-                    ProcessManager.reopen_main()
+                if ProcessManager.close_main_process():
+                    update_tasks = [self.download_update(session, file_name, github_path) for file_name, github_path in updates_needed]
+                    update_results = await asyncio.gather(*update_tasks)
+                    if all(update_results):
+                        logger.info("All updates downloaded.")
+                        await asyncio.sleep(2)
+                        ProcessManager.reopen_main()
+                    else:
+                        logger.error("Some updates failed to download.")
                 else:
-                    logger.error("Some updates failed to download.")
+                    logger.error("Failed to close the main process. Updates not applied.")
             else:
                 logger.info("No updates available.")
 
@@ -205,8 +208,7 @@ class Updater:
                 logger.info("Updater script needs updating.")
                 if await self.download_update(session, config.UPDATER_SCRIPT_PATH, github_url):
                     logger.info("Updater script updated. Restarting...")
-                    subprocess.Popen([sys.executable, config.UPDATER_SCRIPT_PATH])
-                    sys.exit(0)
+                    os.execv(sys.executable, ['python'] + sys.argv)
 
 async def main_loop():
     updater = Updater()
