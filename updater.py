@@ -101,10 +101,12 @@ def download_update(file_name, github_url):
 
 def close_main_process():
     """Attempt to close the main.py process if it's running."""
+    process_found = False
     for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
         cmdline = proc.info['cmdline']
         cwd = proc.info['cwd']
         if cmdline and (proc.info['name'] in ['py.exe', 'python.exe']) and MAIN_SCRIPT_PATH in cmdline and cwd == CURRENT_DIR:
+            process_found = True
             logging.info(f"Attempting to close process: {proc.info['name']} (PID: {proc.info['pid']}) running {MAIN_SCRIPT_PATH}")
             proc.terminate()  # Attempt to gracefully terminate the process
             try:
@@ -115,6 +117,9 @@ def close_main_process():
             finally:
                 ensure_process_terminated(proc.info['pid'])  # Ensure the process is terminated
             break
+
+    if not process_found:
+        logging.info(f"No running process found for {MAIN_SCRIPT_PATH}.")
 
 def ensure_process_terminated(pid):
     """Ensures that the process with the given PID is terminated."""
