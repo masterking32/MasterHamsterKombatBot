@@ -9,6 +9,8 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 from typing import Dict, List, Tuple
 import hashlib
+import tempfile
+import shutil
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -91,15 +93,26 @@ def get_files_to_check() -> Dict[str, str]:
         raise UpdaterError(f"Error decoding JSON: {e}")
 
 def download_update(file_name: str, github_url: str) -> bool:
-    """Download and save the updated file from GitHub."""
+    """Download and save the updated file from GitHub using atomic operations."""
     github_contents = get_github_file_contents(github_url)
     try:
-        with open(file_name, 'w', encoding='utf-8') as file:
-            file.write(github_contents)
+        # Ensure the directory exists
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)
+        
+        # Create a temporary file in the same directory as the target file
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False, 
+                                         dir=os.path.dirname(file_name)) as temp_file:
+            temp_file.write(github_contents)
+        
+        # Atomically replace the old file with the new one
+        shutil.move(temp_file.name, file_name)
+        
         logger.info(f"Successfully updated {file_name}")
         return True
     except Exception as e:
         logger.error(f"Error writing to file {file_name}: {e}")
+        if os.path.exists(temp_file.name):
+            os.unlink(temp_file.name)
         return False
 
 def close_main_process() -> None:
@@ -148,13 +161,20 @@ def self_update_check() -> None:
     if calculate_file_hash(local_contents) != calculate_file_hash(github_contents):
         logger.info("Updater script needs updating.")
         try:
-            with open(UPDATER_SCRIPT_PATH, 'w', encoding='utf-8') as file:
-                file.write(github_contents)
+            # Use atomic update for self-update
+            with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False, 
+                                             dir=os.path.dirname(UPDATER_SCRIPT_PATH)) as temp_file:
+                temp_file.write(github_contents)
+            
+            shutil.move(temp_file.name, UPDATER_SCRIPT_PATH)
+            
             logger.info("Updater script updated. Restarting...")
             subprocess.Popen([sys.executable, UPDATER_SCRIPT_PATH])
             sys.exit(0)
         except Exception as e:
             logger.error(f"Error updating the updater script: {e}")
+            if os.path.exists(temp_file.name):
+                os.unlink(temp_file.name)
 
 def update_check() -> None:
     """Check for updates to the main script and any other files."""
