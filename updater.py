@@ -6,47 +6,50 @@ import psutil
 import subprocess
 import json
 import logging
-from concurrent.futures import ThreadPoolExecutor
-from typing import Dict, List, Tuple
 import hashlib
-import tempfile
-import shutil
-
-# Set up logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from concurrent.futures import ThreadPoolExecutor
+from typing import Dict, List, Tuple, Optional
 
 # Constants
-GITHUB_REPO = "tboy1337/MasterHamsterKombatBot"
-GITHUB_BRANCH = "test"
-FILES_TO_CHECK_JSON = "files_to_check.json"
-CHECK_DELAY = 60
-CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-MAIN_SCRIPT_PATH = os.path.join(CURRENT_DIR, 'main.py')
-UPDATER_SCRIPT_PATH = os.path.join(CURRENT_DIR, 'updater.py')
-MAX_RETRIES = 3
-RETRY_DELAY = 5
+GITHUB_REPO = "tboy1337/MasterHamsterKombatBot"  # Replace with your GitHub repo
+GITHUB_BRANCH = "self-updater"  # Replace with the branch you want to pull from
+FILES_TO_CHECK_JSON = "files_to_check.json"  # JSON file in the repo that lists files to check
+CHECK_DELAY = 60  # Delay in seconds between each update check cycle
+MAX_RETRIES = 3  # Maximum number of retries for GitHub file fetching
+RETRY_DELAY = 2  # Delay in seconds between retries
 
-class UpdaterError(Exception):
-    """Custom exception for updater-related errors."""
-    pass
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))  # Current directory of the updater script
+MAIN_SCRIPT_PATH = os.path.join(CURRENT_DIR, 'main.py')  # Full path to main.py
+UPDATER_SCRIPT_PATH = os.path.join(CURRENT_DIR, 'updater.py')  # Full path to this updater script
 
-def get_github_file_contents(url: str) -> str:
+# Set up logging
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+handler = logging.StreamHandler()
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+def get_sha256_hash(contents: str) -> str:
+    """Calculate and return the SHA256 hash of the given string content."""
+    return hashlib.sha256(contents.encode('utf-8')).hexdigest()
+
+def get_github_file_contents(url: str) -> Optional[str]:
     """Fetch the contents of a file from GitHub with retries."""
-    for attempt in range(MAX_RETRIES):
+    for attempt in range(1, MAX_RETRIES + 1):
         try:
             response = requests.get(url, timeout=10)
-            response.raise_for_status()
-            response.encoding = 'utf-8'
+            response.raise_for_status()  # Raises an error for bad responses
+            response.encoding = 'utf-8'  # Ensure the response is handled as UTF-8
             return response.text
         except requests.exceptions.RequestException as e:
-            logger.warning(f"Attempt {attempt + 1} failed: Error fetching file from GitHub: {url} - {e}")
-            if attempt < MAX_RETRIES - 1:
+            logger.error(f"Error fetching file from GitHub: {url} - Attempt {attempt}/{MAX_RETRIES} - {e}")
+            if attempt < MAX_RETRIES:
+                logger.info(f"Retrying in {RETRY_DELAY} seconds...")
                 time.sleep(RETRY_DELAY)
-            else:
-                raise UpdaterError(f"Failed to fetch file from GitHub after {MAX_RETRIES} attempts: {url}") from e
+    return None
 
-def get_local_file_contents(file_path: str) -> str:
+def get_local_file_contents(file_path: str) -> Optional[str]:
     """Read and return the contents of a local file."""
     try:
         with open(file_path, 'r', encoding='utf-8') as file:
@@ -54,15 +57,15 @@ def get_local_file_contents(file_path: str) -> str:
     except FileNotFoundError:
         logger.warning(f"File {file_path} not found. It will be downloaded.")
         return None
+    except UnicodeDecodeError as e:
+        logger.error(f"Error reading local file {file_path}: {e}")
+        return None
     except Exception as e:
-        raise UpdaterError(f"Error reading local file {file_path}: {e}")
-
-def calculate_file_hash(content: str) -> str:
-    """Calculate SHA256 hash of file content."""
-    return hashlib.sha256(content.encode('utf-8')).hexdigest()
+        logger.error(f"General error reading local file {file_path}: {e}")
+        return None
 
 def check_for_updates(files_to_check: Dict[str, str]) -> List[Tuple[str, str]]:
-    """Check if any files need to be updated by comparing hashes."""
+    """Check if any files need to be updated by comparing local and GitHub SHA256 hashes."""
     updates_needed = []
     with ThreadPoolExecutor(max_workers=5) as executor:
         future_to_file = {executor.submit(get_github_file_contents, github_path): (local_file, github_path) 
@@ -72,68 +75,87 @@ def check_for_updates(files_to_check: Dict[str, str]) -> List[Tuple[str, str]]:
             try:
                 github_contents = future.result()
                 local_contents = get_local_file_contents(local_file)
-                if local_contents is None or calculate_file_hash(local_contents) != calculate_file_hash(github_contents):
+                if github_contents is None or local_contents is None:
                     updates_needed.append((local_file, github_path))
-                    logger.info(f"Update needed for {local_file}")
+                    logger.info(f"Update needed for {local_file} due to missing or corrupt content.")
+                elif get_sha256_hash(local_contents) != get_sha256_hash(github_contents):
+                    updates_needed.append((local_file, github_path))
+                    logger.info(f"Update needed for {local_file} due to hash mismatch.")
                 else:
                     logger.info(f"No update needed for {local_file}")
-            except UpdaterError as e:
+            except Exception as e:
                 logger.error(f"Error processing file {local_file}: {e}")
     return updates_needed
 
 def get_files_to_check() -> Dict[str, str]:
     """Fetch the list of files to check for updates from a JSON file in the GitHub repository."""
+    files = {}
     json_url = f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{FILES_TO_CHECK_JSON}"
     json_content = get_github_file_contents(json_url)
-    try:
-        files_dict = json.loads(json_content)
-        return {local_path: f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{repo_path}"
-                for local_path, repo_path in files_dict.items()}
-    except json.JSONDecodeError as e:
-        raise UpdaterError(f"Error decoding JSON: {e}")
+    if json_content:
+        try:
+            files_dict = json.loads(json_content)
+            for local_path, repo_path in files_dict.items():
+                github_url = f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/{repo_path}"
+                files[local_path] = github_url
+        except json.JSONDecodeError as e:
+            logger.error(f"Error decoding JSON: {e}")
+    return files
 
 def download_update(file_name: str, github_url: str) -> bool:
-    """Download and save the updated file from GitHub using atomic operations."""
+    """Download and save the updated file from GitHub atomically."""
     github_contents = get_github_file_contents(github_url)
+    if github_contents is None:
+        return False
     try:
-        # Ensure the directory exists
-        os.makedirs(os.path.dirname(file_name), exist_ok=True)
-        
-        # Create a temporary file in the same directory as the target file
-        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False, 
-                                         dir=os.path.dirname(file_name)) as temp_file:
+        os.makedirs(os.path.dirname(file_name), exist_ok=True)  # Ensure the directory exists
+        temp_file_name = f"{file_name}.tmp"
+        with open(temp_file_name, 'w', encoding='utf-8') as temp_file:
             temp_file.write(github_contents)
-        
-        # Atomically replace the old file with the new one
-        shutil.move(temp_file.name, file_name)
-        
+        os.replace(temp_file_name, file_name)  # Atomic replace of the original file
         logger.info(f"Successfully updated {file_name}")
         return True
+    except UnicodeEncodeError as e:
+        logger.error(f"Error writing to file {file_name} with UTF-8 encoding: {e}")
+        return False
     except Exception as e:
-        logger.error(f"Error writing to file {file_name}: {e}")
-        if os.path.exists(temp_file.name):
-            os.unlink(temp_file.name)
+        logger.error(f"General error writing to file {file_name}: {e}")
         return False
 
-def close_main_process() -> None:
+def close_main_process():
     """Attempt to close the main.py process if it's running."""
+    process_found = False
     for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
-        if proc.info['name'] in ['py.exe', 'python.exe'] and MAIN_SCRIPT_PATH in proc.info.get('cmdline', []) and proc.info['cwd'] == CURRENT_DIR:
+        cmdline = proc.info['cmdline']
+        cwd = proc.info['cwd']
+        if cmdline and (proc.info['name'] in ['py.exe', 'python.exe']) and MAIN_SCRIPT_PATH in cmdline and cwd == CURRENT_DIR:
+            process_found = True
             logger.info(f"Attempting to close process: {proc.info['name']} (PID: {proc.info['pid']}) running {MAIN_SCRIPT_PATH}")
+            proc.terminate()  # Attempt to gracefully terminate the process
             try:
-                proc.terminate()
-                proc.wait(timeout=5)
+                proc.wait(timeout=5)  # Wait for up to 5 seconds for the process to terminate
             except psutil.TimeoutExpired:
                 logger.warning(f"Process {proc.info['pid']} did not terminate, forcefully killing it.")
-                proc.kill()
+                proc.kill()  # Forcefully terminate the process if it doesn't close
             finally:
-                ensure_process_terminated(proc.info['pid'])
-            return
-    logger.info(f"No running process found for {MAIN_SCRIPT_PATH}.")
+                ensure_process_terminated(proc.info['pid'])  # Ensure the process is terminated
+            break
 
-def ensure_process_terminated(pid: int) -> None:
+    if not process_found:
+        logger.info(f"No running process found for {MAIN_SCRIPT_PATH}.")
+
+def ensure_process_terminated(pid: int):
     """Ensures that the process with the given PID is terminated."""
-    for _ in range(5):
+    try:
+        proc = psutil.Process(pid)
+        proc.wait(timeout=5)
+    except psutil.TimeoutExpired:
+        logger.warning(f"Process {pid} still running, forcefully killing it.")
+        proc.kill()
+    except psutil.NoSuchProcess:
+        logger.info(f"Process {pid} already terminated.")
+
+    for _ in range(5):  # Retry up to 5 times with a short delay between
         try:
             proc = psutil.Process(pid)
             proc.wait(timeout=1)
@@ -145,7 +167,7 @@ def ensure_process_terminated(pid: int) -> None:
         time.sleep(2)
     logger.error(f"Process {pid} could not be terminated.")
 
-def reopen_main() -> None:
+def reopen_main():
     """Reopen the main.py script in a new command window."""
     try:
         logger.info("Reopening main.py in a new command window...")
@@ -153,59 +175,53 @@ def reopen_main() -> None:
     except Exception as e:
         logger.error(f"Error reopening main.py: {e}")
 
-def self_update_check() -> None:
+def self_update_check():
     """Check if the updater script itself needs updating and update if necessary."""
     github_url = f"https://raw.githubusercontent.com/{GITHUB_REPO}/{GITHUB_BRANCH}/updater.py"
     github_contents = get_github_file_contents(github_url)
     local_contents = get_local_file_contents(UPDATER_SCRIPT_PATH)
-    if calculate_file_hash(local_contents) != calculate_file_hash(github_contents):
+    if github_contents and local_contents and get_sha256_hash(local_contents) != get_sha256_hash(github_contents):
         logger.info("Updater script needs updating.")
         try:
-            # Use atomic update for self-update
-            with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', delete=False, 
-                                             dir=os.path.dirname(UPDATER_SCRIPT_PATH)) as temp_file:
+            os.makedirs(os.path.dirname(UPDATER_SCRIPT_PATH), exist_ok=True)  # Ensure directory exists
+            temp_file_name = f"{UPDATER_SCRIPT_PATH}.tmp"
+            with open(temp_file_name, 'w', encoding='utf-8') as temp_file:
                 temp_file.write(github_contents)
-            
-            shutil.move(temp_file.name, UPDATER_SCRIPT_PATH)
-            
+            os.replace(temp_file_name, UPDATER_SCRIPT_PATH)  # Atomic replace of the original file
             logger.info("Updater script updated. Restarting...")
             subprocess.Popen([sys.executable, UPDATER_SCRIPT_PATH])
-            sys.exit(0)
+            sys.exit(0)  # Exit the current script, letting the new one take over
+        except UnicodeEncodeError as e:
+            logger.error(f"Error updating the updater script with UTF-8 encoding: {e}")
         except Exception as e:
-            logger.error(f"Error updating the updater script: {e}")
-            if os.path.exists(temp_file.name):
-                os.unlink(temp_file.name)
+            logger.error(f"General error updating the updater script: {e}")
 
-def update_check() -> None:
+def update_check():
     """Check for updates to the main script and any other files."""
-    try:
-        files_to_check = get_files_to_check()
-        updates_needed = check_for_updates(files_to_check)
-        if updates_needed:
-            close_main_process()
-            all_updates_successful = all(download_update(file_name, github_path) for file_name, github_path in updates_needed)
-            if all_updates_successful:
-                logger.info("All updates downloaded.")
-                time.sleep(2)
-                reopen_main()
-            else:
-                logger.error("Some updates failed to download.")
+    files_to_check = get_files_to_check()
+    updates_needed = check_for_updates(files_to_check)
+    if updates_needed:
+        close_main_process()  # Attempt to close main.py process if it's running
+        all_updates_successful = True
+        for file_name, github_path in updates_needed:
+            if not download_update(file_name, github_path):
+                all_updates_successful = False
+        if all_updates_successful:
+            logger.info("All updates downloaded.")
+            time.sleep(2)  # Add a delay to ensure old process has completely terminated
+            reopen_main()  # Always reopen main.py after updates
         else:
-            logger.info("No updates available.")
-    except UpdaterError as e:
-        logger.error(f"Update check failed: {e}")
+            logger.error("Some updates failed to download.")
+    else:
+        logger.info("No updates available.")
 
-def main_loop() -> None:
+def main_loop():
     """Main loop that continuously checks for updates."""
     while True:
-        try:
-            self_update_check()
-            update_check()
-        except Exception as e:
-            logger.error(f"Unexpected error in main loop: {e}")
-        finally:
-            logger.info(f"Waiting {CHECK_DELAY} seconds before next check...")
-            time.sleep(CHECK_DELAY)
+        self_update_check()  # Check for updates to the updater script
+        update_check()  # Check for updates to the other files
+        logger.info(f"Waiting {CHECK_DELAY} seconds before next check...")
+        time.sleep(CHECK_DELAY)  # Wait before checking again
 
 if __name__ == "__main__":
     main_loop()
