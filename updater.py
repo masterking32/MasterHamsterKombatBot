@@ -12,7 +12,7 @@ from typing import Dict, List, Tuple, Optional
 
 # Constants
 GITHUB_REPO = "tboy1337/MasterHamsterKombatBot"  # Replace with your GitHub repo
-GITHUB_BRANCH = "self-updater"  # Replace with the branch you want to pull from
+GITHUB_BRANCH = "test"  # Replace with the branch you want to pull from
 FILES_TO_CHECK_JSON = "files_to_check.json"  # JSON file in the repo that lists files to check
 CHECK_DELAY = 60  # Delay in seconds between each update check cycle
 MAX_RETRIES = 3  # Maximum number of retries for GitHub file fetching
