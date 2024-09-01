@@ -101,30 +101,25 @@ def download_update(file_name, github_url):
 
 def close_main_process():
     """Attempt to close the main.py process if it's running."""
-    retries = 5
-    for _ in range(retries):
-        process_found = False
-        for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
-            cmdline = proc.info['cmdline']
-            cwd = proc.info['cwd']
-            if cmdline and (proc.info['name'] in ['py.exe', 'python.exe']) and MAIN_SCRIPT_PATH in cmdline and cwd == CURRENT_DIR:
-                process_found = True
-                logging.info(f"Attempting to close process: {proc.info['name']} (PID: {proc.info['pid']}) running {MAIN_SCRIPT_PATH}")
-                proc.terminate()  # Attempt to gracefully terminate the process
-                try:
-                    proc.wait(timeout=5)
-                except psutil.TimeoutExpired:
-                    logging.warning(f"Process {proc.info['pid']} did not terminate, forcefully killing it.")
-                    proc.kill()
-                finally:
-                    ensure_process_terminated(proc.info['pid'])
-                break
-        if process_found:
+    process_found = False
+    for proc in psutil.process_iter(['pid', 'name', 'cmdline', 'cwd']):
+        cmdline = proc.info['cmdline']
+        cwd = proc.info['cwd']
+        if cmdline and (proc.info['name'] in ['py.exe', 'python.exe']) and MAIN_SCRIPT_PATH in cmdline and cwd == CURRENT_DIR:
+            process_found = True
+            logging.info(f"Attempting to close process: {proc.info['name']} (PID: {proc.info['pid']}) running {MAIN_SCRIPT_PATH}")
+            proc.terminate()  # Attempt to gracefully terminate the process
+            try:
+                proc.wait(timeout=5)  # Wait for up to 5 seconds for the process to terminate
+            except psutil.TimeoutExpired:
+                logging.warning(f"Process {proc.info['pid']} did not terminate, forcefully killing it.")
+                proc.kill()  # Forcefully terminate the process if it doesn't close
+            finally:
+                ensure_process_terminated(proc.info['pid'])  # Ensure the process is terminated
             break
-        time.sleep(1)  # Wait for 1 second before retrying
+
     if not process_found:
         logging.info(f"No running process found for {MAIN_SCRIPT_PATH}.")
-
 
 def ensure_process_terminated(pid):
     """Ensures that the process with the given PID is terminated."""
