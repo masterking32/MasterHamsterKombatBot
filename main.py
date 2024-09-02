@@ -50,7 +50,7 @@ log_file_path = os.path.join(log_dir, 'output.log')
 def zip_old_log_file(source_log):
     if os.path.exists(source_log):
         # Create a unique zip filename using date and time
-        zip_filename = f"{source_log}-{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.zip"
+        zip_filename = f"{source_log}-{datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.zip"
         with zipfile.ZipFile(zip_filename, 'w', zipfile.ZIP_DEFLATED) as zipf:
             zipf.write(source_log, os.path.basename(source_log))
         os.remove(source_log)
