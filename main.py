@@ -1009,9 +1009,16 @@ class HamsterKombatAccount:
                     )
                     time.sleep(2)
                     log.info(f"[{self.account_name}] Claiming {promoData['name']}...")
-                    self.ClaimPlayGroundGame(promoCode)
+                    claimResponse = self.ClaimPlayGroundGame(promoCode)
+                    if claimResponse is None:
+                        log.error(f"[{self.account_name}] Unable to claim {promoData['name']} key.")
+                        return
+
+                    rewardType = claimResponse.get("reward").get("type")
+                    rewarmAmount = claimResponse.get("reward").get("amount")
+
                     log.info(
-                        f"[{self.account_name}] {promoData['name']} claimed successfully."
+                        f"[{self.account_name}] {promoData['name']} claimed successfully. Aquired {number_to_string(rewarmAmount)} {rewardType}."
                     )
 
     def ClaimPlayGroundGame(self, promoCode):
@@ -1156,7 +1163,7 @@ class HamsterKombatAccount:
         )
 
         url = "https://api.gamepromo.io/promo/register-event"
-        
+
         if promoData.get("useNewApi"):
             url = "https://api.gamepromo.io/promo/1/register-event"
         
