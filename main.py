@@ -1156,9 +1156,11 @@ class HamsterKombatAccount:
         )
 
         url = "https://api.gamepromo.io/promo/register-event"
+        
         if promoData.get("useNewApi"):
             url = "https://api.gamepromo.io/promo/1/register-event"
-            headers_post["Authorization"] = f"Bearer {clientToken}"
+        
+        headers_post["Authorization"] = f"Bearer {clientToken}"
 
         response = None
 
