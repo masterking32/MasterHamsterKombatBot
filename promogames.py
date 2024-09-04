@@ -135,7 +135,7 @@ SupportedPromoGames = {
         "retry_delay": 45,
     },
     "112887b0-a8af-4eb2-ac63-d82df78283d9": {
-        "newApi": True,
+        "useNewApi": True,
         "name": "Fluff Crusade",
         "appToken": "112887b0-a8af-4eb2-ac63-d82df78283d9",
         "promoId": "112887b0-a8af-4eb2-ac63-d82df78283d9",
