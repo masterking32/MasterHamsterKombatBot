@@ -1015,10 +1015,10 @@ class HamsterKombatAccount:
                         return
 
                     rewardType = claimResponse.get("reward").get("type")
-                    rewarmAmount = claimResponse.get("reward").get("amount")
+                    rewardAmount = claimResponse.get("reward").get("amount")
 
                     log.info(
-                        f"[{self.account_name}] {promoData['name']} claimed successfully. Aquired {number_to_string(rewarmAmount)} {rewardType}."
+                        f"[{self.account_name}] {promoData['name']} claimed successfully. Aquired {number_to_string(rewardAmount)} {rewardType}."
                     )
 
     def ClaimPlayGroundGame(self, promoCode):
