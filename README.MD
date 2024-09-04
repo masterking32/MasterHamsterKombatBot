@@ -46,7 +46,8 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Playground `Cafe Dash` added. (August 28, 2024)
 - Playground `Bike Ride 3D` and `Mud Racing` removed. (August 30, 2024)
 - Playground `Gangs Wars` and `Zoopolis` added. (August 30, 2024)
-- Playground `Fluff Crusade` added. (September 5, 2024)
+- Playground `Cafe Dash` and `Gangs Wars` removed. (September 05, 2024)
+- Playground `Fluff Crusade` added. (September 05, 2024)
 - Automatically complete Hamster Kombat **Mini-Games** are **temporarily disabled**. (August 30, 2024)
 
 <hr>
