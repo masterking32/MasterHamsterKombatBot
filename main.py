@@ -1466,7 +1466,7 @@ class HamsterKombatAccount:
                 day = streak_days["days"]
                 # rewardCoins = streak_days["rewardCoins"]
                 time.sleep(2)
-                self.CheckTaskRequest("streak_days")
+                self.CheckTaskRequest(streak_days["id"])
                 log.info(
                     f"[{self.account_name}] Daily task completed successfully, Day: {day}"#, Reward coins: {number_to_string(rewardCoins)}"
                 )
