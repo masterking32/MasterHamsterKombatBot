@@ -464,9 +464,12 @@ class HamsterKombatAccount:
                 skinsData = self.configData.get("skins", [])
                 rewardSkin = next((item for item in skinsData if item["id"] == streakRewardObject[rewardType]), None)
                 rewardSkinName = rewardSkin.get("name", "")
-            reward = f"{number_to_string(streakRewardObject[rewardType]) if rewardType != "skinId" else rewardSkinName} {rewardType if rewardType != "skinId" else "skin"}" if rewardType else "No reward found for this day."
+            reward = (
+                f"{number_to_string(streakRewardObject[rewardType]) if rewardType != 'skinId' else rewardSkinName} "
+                f"{rewardType if rewardType != 'skinId' else 'skin'}"
+            ) if rewardType else "No reward found for this day."
         else:
-            reward = f"{number_to_string(currentTaskData.get("rewardCoins", 0))} coins"
+            reward = f"{number_to_string(currentTaskData.get('rewardCoins', 0))} coins"
 
         return reward
 
