@@ -1449,7 +1449,7 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Checking for daily task...")
             streak_days = None
             for task in tasksResponse["tasks"]:
-                if task["id"] == "streak_days":
+                if task["id"] == "streak_days_special":
                     streak_days = task
                     break
 
@@ -1464,14 +1464,14 @@ class HamsterKombatAccount:
             else:
                 log.info(f"[{self.account_name}] Attempting to complete daily task...")
                 day = streak_days["days"]
-                rewardCoins = streak_days["rewardCoins"]
+                # rewardCoins = streak_days["rewardCoins"]
                 time.sleep(2)
-                self.CheckTaskRequest("streak_days")
+                self.CheckTaskRequest(streak_days["id"])
                 log.info(
-                    f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}"
+                    f"[{self.account_name}] Daily task completed successfully, Day: {day}"#, Reward coins: {number_to_string(rewardCoins)}"
                 )
                 self.SendTelegramLog(
-                    f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}",
+                    f"[{self.account_name}] Daily task completed successfully, Day: {day}"#, Reward coins: {number_to_string(rewardCoins)}",
                     "daily_task",
                 )
 
@@ -1486,20 +1486,28 @@ class HamsterKombatAccount:
             for task in tasksResponse["tasks"]:
                 TaskType = task.get("type", "")
                 if task["isCompleted"] == False and (
-                    TaskType == "WithLink" or TaskType == "WithLocaleLink"
+                    # TaskType == "WithLink" or TaskType == "WithLocaleLink"
+                    task["id"] not in ["subscribe_hk_facebook",
+                                       "subscribe_hk_instagram",
+                                       "subscribe_telegram_cryptofam",
+                                       "subscribe_telegram_channel",
+                                       "subscribe_x_account", 
+                                       "select_exchange", 
+                                       "invite_friends",
+                                       "streak_days_special"]
                 ):
                     log.info(
                         f"[{self.account_name}] Attempting to complete Youtube Or Twitter task..."
                     )
                     selected_task = task["id"]
-                    rewardCoins = task["rewardCoins"]
+                    # rewardCoins = task["rewardCoins"]
                     time.sleep(2)
                     self.CheckTaskRequest(selected_task)
                     log.info(
-                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward coins: {number_to_string(rewardCoins)}"
+                        f"[{self.account_name}] Task completed - id: {selected_task}"#, Reward coins: {number_to_string(rewardCoins)}"
                     )
                     self.SendTelegramLog(
-                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward coins: {number_to_string(rewardCoins)}",
+                        f"[{self.account_name}] Task completed - id: {selected_task}"#, Reward coins: {number_to_string(rewardCoins)}",
                         "daily_task",
                     )
             if selected_task is None:
