@@ -420,6 +420,32 @@ class HamsterKombatAccount:
 
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200, "{}")
+    
+    def BuySkin(self, skinId):
+        url = "https://api.hamsterkombatgame.io/clicker/buy-skin"
+        headers = {
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": self.Authorization,
+            "Content-Type": "application/json",
+        }
+
+        payload = json.dumps(
+            {
+                "skinId": skinId,
+                "timestamp": int(datetime.datetime.now().timestamp()),
+            }
+        )
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200, payload=payload)
 
     def AccountInfoTelegramRequest(self):
         url = "https://api.hamsterkombatgame.io/auth/account-info"
@@ -1009,9 +1035,16 @@ class HamsterKombatAccount:
                     )
                     time.sleep(2)
                     log.info(f"[{self.account_name}] Claiming {promoData['name']}...")
-                    self.ClaimPlayGroundGame(promoCode)
+                    claimResponse = self.ClaimPlayGroundGame(promoCode)
+                    if claimResponse is None:
+                        log.error(f"[{self.account_name}] Unable to claim {promoData['name']} key.")
+                        return
+
+                    rewardType = claimResponse.get("reward").get("type")
+                    rewardAmount = claimResponse.get("reward").get("amount")
+
                     log.info(
-                        f"[{self.account_name}] {promoData['name']} claimed successfully."
+                        f"[{self.account_name}] {promoData['name']} claimed successfully. Aquired {number_to_string(rewardAmount)} {rewardType}."
                     )
 
     def ClaimPlayGroundGame(self, promoCode):
@@ -1060,11 +1093,16 @@ class HamsterKombatAccount:
                     random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
                 )
                 clientId = f"{p1}_{p2}"
+            elif promoData["clientIdType"] == "7digStr":
+                clientId = "".join(random.choices("0123456789", k=7))
             elif promoData["clientIdType"] == "uuid":
                 clientId = str(uuid.uuid4())
 
         log.info(f"[{self.account_name}] Getting {promoData['name']} key...")
         url = "https://api.gamepromo.io/promo/login-client"
+
+        if promoData.get("useNewApi"):
+            url = "https://api.gamepromo.io/promo/1/login-client"
 
         headers_option = {
             "Host": "api.gamepromo.io",
@@ -1078,8 +1116,10 @@ class HamsterKombatAccount:
             "Host": "api.gamepromo.io",
             "Origin": "",
             "Referer": "",
-            "Content-Type": "application/json; charset=utf-8",
+            "Content-Type": "application/json",
         }
+        if promoData.get("useNewApi"):
+            headers_post["Authorization"] = "Bearer"
 
         if "userAgent" in promoData and promoData["userAgent"] != None:
             headers_post["User-Agent"] = promoData["userAgent"]
@@ -1121,6 +1161,25 @@ class HamsterKombatAccount:
 
         clientToken = response["clientToken"]
 
+        if promoData.get("useNewApi"):
+            url = "https://api.gamepromo.io/promo/1/get-client"
+            headers_post["Authorization"] = f"Bearer {clientToken}"
+
+            payloadData = {
+              "promoId": promoData["promoId"],
+            }
+
+            payload = json.dumps(payloadData)
+            
+            response = self.HttpRequest(url, headers_post, "POST", 200, payload)
+            if response is None:
+                log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
+                self.SendTelegramLog(
+                    f"[{self.account_name}] Unable to get {promoData['name']} key.",
+                    "other_errors",
+                )
+                return None
+
         TimeSleep = promoData["delay"] + random.randint(1, 5)
         log.info(f"[{self.account_name}] Waiting for {TimeSleep} seconds...")
         time.sleep(TimeSleep)
@@ -1131,6 +1190,9 @@ class HamsterKombatAccount:
 
         url = "https://api.gamepromo.io/promo/register-event"
 
+        if promoData.get("useNewApi"):
+            url = "https://api.gamepromo.io/promo/1/register-event"
+        
         headers_post["Authorization"] = f"Bearer {clientToken}"
 
         response = None
@@ -1171,11 +1233,15 @@ class HamsterKombatAccount:
             response = self.HttpRequest(url, headers_post, "POST", 200, payload, True)
 
             if response is None or not isinstance(response, dict):
-                time.sleep(promoData["retry_delay"] + random.randint(1, 5))
+                timeout = promoData["retry_delay"] + random.randint(1, 5)
+                log.warning(f"Event registration for {promoData['name']} failed, retry in {timeout} seconds.")
+                time.sleep(timeout)
                 continue
 
             if not response.get("hasCode", False):
-                time.sleep(promoData["retry_delay"] + random.randint(1, 5))
+                timeout = promoData["retry_delay"] + random.randint(1, 5)
+                log.warning(f"Event registration for {promoData['name']} was successful, but no code was provided, retry in {timeout} seconds.")
+                time.sleep(timeout)
                 continue
 
             break
@@ -1203,6 +1269,8 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Event registered successfully.")
 
         url = "https://api.gamepromo.io/promo/create-code"
+        if promoData.get("useNewApi"):
+            url = "https://api.gamepromo.io/promo/1/create-code"
 
         headers_option["access-control-request-headers"] = "authorization,content-type"
 
@@ -1407,7 +1475,7 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Checking for daily task...")
             streak_days = None
             for task in tasksResponse["tasks"]:
-                if task["id"] == "streak_days":
+                if task["id"] == "streak_days_special":
                     streak_days = task
                     break
 
@@ -1419,17 +1487,34 @@ class HamsterKombatAccount:
                 log.info(
                     f"\033[1;34m[{self.account_name}] Daily task already completed.\033[0m"
                 )
+                availableSkins = self.account_data.get("skins", {}).get("available", [])
+                weeks = streak_days.get("weeks")
+                days = streak_days.get("days")
+                buyResponse = None
+                if days == 7:
+                    if weeks == 1 and not any(item["skinId"] == "skin30" for item in availableSkins):
+                        buyResponse = self.BuySkin("skin30")
+                    elif weeks == 2 and not any(item["skinId"] == "skin31" for item in availableSkins):
+                        buyResponse = self.BuySkin("skin31")
+                    elif weeks == 3 and not any(item["skinId"] == "skin32" for item in availableSkins):
+                        buyResponse = self.BuySkin("skin32")
+
+                    if buyResponse is None:
+                        log.error(f"Unable to obtain weekly reward skin.")
+                    else:
+                        log.info(f"Successfully obtained weekly reward skin")
+
             else:
                 log.info(f"[{self.account_name}] Attempting to complete daily task...")
-                day = streak_days["days"]
-                rewardCoins = streak_days["rewardCoins"]
+                day = streak_days.get("days")
+                week = streak_days.get("weeks")
                 time.sleep(2)
-                self.CheckTaskRequest("streak_days")
+                self.CheckTaskRequest(streak_days["id"])
                 log.info(
-                    f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}"
+                    f"[{self.account_name}] Daily task completed successfully, Week: {week}, Day: {day}"
                 )
                 self.SendTelegramLog(
-                    f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}",
+                    f"[{self.account_name}] Daily task completed successfully, Week: {week}, Day: {day}"
                     "daily_task",
                 )
 
@@ -1444,20 +1529,26 @@ class HamsterKombatAccount:
             for task in tasksResponse["tasks"]:
                 TaskType = task.get("type", "")
                 if task["isCompleted"] == False and (
-                    TaskType == "WithLink" or TaskType == "WithLocaleLink"
+                    task["id"] not in ["subscribe_hk_facebook",
+                                       "subscribe_hk_instagram",
+                                       "subscribe_telegram_cryptofam",
+                                       "subscribe_telegram_channel",
+                                       "subscribe_x_account", 
+                                       "select_exchange", 
+                                       "invite_friends",
+                                       "streak_days_special"]
                 ):
                     log.info(
                         f"[{self.account_name}] Attempting to complete Youtube Or Twitter task..."
                     )
                     selected_task = task["id"]
-                    rewardCoins = task["rewardCoins"]
                     time.sleep(2)
                     self.CheckTaskRequest(selected_task)
                     log.info(
-                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward coins: {number_to_string(rewardCoins)}"
+                        f"[{self.account_name}] Task completed - id: {selected_task}"
                     )
                     self.SendTelegramLog(
-                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward coins: {number_to_string(rewardCoins)}",
+                        f"[{self.account_name}] Task completed - id: {selected_task}"
                         "daily_task",
                     )
             if selected_task is None:
