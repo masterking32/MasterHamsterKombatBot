@@ -1125,6 +1125,10 @@ class HamsterKombatAccount:
                 clientId = f"{p1}_{p2}"
             elif promoData["clientIdType"] == "7digStr":
                 clientId = "".join(random.choices("0123456789", k=7))
+            elif promoData["clientIdType"] == "16UpStr":
+                clientId = "".join(
+                    random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16)
+                    ).upper()
             elif promoData["clientIdType"] == "uuid":
                 clientId = str(uuid.uuid4())
 
@@ -1240,6 +1244,8 @@ class HamsterKombatAccount:
                 elif promoData["eventIdType"] == "16x2str":
                     string = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32))
                     eventID = f"{string[:16]}-{string[16:]}"
+                elif promoData["eventIdType"] == "7dig":
+                    eventID = "".join(random.choices("0123456789", k=7))
                 else:
                     eventID = promoData["eventIdType"]
 
@@ -1270,7 +1276,7 @@ class HamsterKombatAccount:
 
             if not response.get("hasCode", False):
                 timeout = promoData["retry_delay"] + random.randint(1, 5)
-                log.warning(f"Event registration for {promoData['name']} was successful, but no code was provided, retry in {timeout} seconds.")
+                log.info(f"Event registration for {promoData['name']} was successful, but no code was provided, retry in {timeout} seconds.")
                 time.sleep(timeout)
                 continue
 
