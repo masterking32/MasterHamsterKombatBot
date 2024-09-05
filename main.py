@@ -14,6 +14,10 @@ import uuid
 import hashlib
 from utilities import *
 from promogames import *
+import re
+import os
+import zipfile
+from logging.handlers import TimedRotatingFileHandler
 
 try:
     from config import *
