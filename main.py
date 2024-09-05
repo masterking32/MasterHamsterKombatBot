@@ -14,10 +14,6 @@ import uuid
 import hashlib
 from utilities import *
 from promogames import *
-import re
-import os
-import zipfile
-from logging.handlers import TimedRotatingFileHandler
 
 try:
     from config import *
@@ -124,6 +120,7 @@ class HamsterKombatAccount:
         self.totalKeys = 0
         self.balanceKeys = 0
         self.configVersion = ""
+        self.configData = ""
 
     def GetConfig(self, key, default=None):
         if key in self.config:
@@ -476,6 +473,61 @@ class HamsterKombatAccount:
 
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200, "{}")
+    
+    def BuySkin(self, skinId):
+        url = "https://api.hamsterkombatgame.io/clicker/buy-skin"
+        headers = {
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        # Send OPTIONS request
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Accept": "application/json",
+            "Authorization": self.Authorization,
+            "Content-Type": "application/json",
+        }
+
+        payload = json.dumps(
+            {
+                "skinId": skinId,
+                "timestamp": int(datetime.datetime.now().timestamp()),
+            }
+        )
+
+        # Send POST request
+        return self.HttpRequest(url, headers, "POST", 200, payload=payload)
+    
+    def GetTaskReward(self, taskObj):
+        try:
+            tasksData = self.configData.get("tasks", [])
+            reward = ""
+            currentTaskData = next((item for item in tasksData if item["id"] == taskObj["id"]), None)
+            if currentTaskData.get("id") == "streak_days_special":
+                week = taskObj.get("weeks")
+                day = taskObj.get("days")
+                rewardsByWeeksAndDays = currentTaskData.get("rewardsByWeeksAndDays", [])
+                streakTaskRewards = next((item for item in rewardsByWeeksAndDays if item["week"] == week), None)
+                streakTaskDays = streakTaskRewards.get("days")
+                streakRewardObject = next((item for item in streakTaskDays if item["day"] == day), None)
+                rewardType = next((key for key in ["coins", "keys", "skinId"] if key in streakRewardObject), None)
+                if rewardType == "skinId":
+                    skinsData = self.configData.get("skins", [])
+                    rewardSkin = next((item for item in skinsData if item["id"] == streakRewardObject[rewardType]), None)
+                    rewardSkinName = rewardSkin.get("name", "")
+                reward = (
+                    f"{number_to_string(streakRewardObject[rewardType]) if rewardType != 'skinId' else rewardSkinName} "
+                    f"{rewardType if rewardType != 'skinId' else 'skin'}"
+                ) if rewardType else "No reward found for this day."
+            else:
+                reward = f"{number_to_string(currentTaskData.get('rewardCoins', 0))} coins"
+
+            return reward
+        except Exception as e:
+            log.error(f"Failed to recognize the reward for {taskObj.get('id','')}")
+            return ""
 
     def AccountInfoTelegramRequest(self):
         url = "https://api.hamsterkombatgame.io/auth/account-info"
@@ -1409,6 +1461,7 @@ class HamsterKombatAccount:
         AccountConfigVersionData = None
         if self.configVersion != "":
             AccountConfigVersionData = self.GetAccountConfigVersionRequest()
+            self.configData = AccountConfigVersionData.get("config", {})
             log.info(
                 f"[{self.account_name}] Account config version: {self.configVersion}"
             )
@@ -1505,7 +1558,7 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Checking for daily task...")
             streak_days = None
             for task in tasksResponse["tasks"]:
-                if task["id"] == "streak_days":
+                if task["id"] == "streak_days_special":
                     streak_days = task
                     break
 
@@ -1517,17 +1570,36 @@ class HamsterKombatAccount:
                 log.info(
                     f"\033[1;34m[{self.account_name}] Daily task already completed.\033[0m"
                 )
+                availableSkins = self.account_data.get("skins", {}).get("available", [])
+                weeks = streak_days.get("weeks")
+                days = streak_days.get("days")
+                buyResponse = None
+                if days == 7:
+                    if weeks == 1 and not any(item["skinId"] == "skin30" for item in availableSkins):
+                        buyResponse = self.BuySkin("skin30")
+                    elif weeks == 2 and not any(item["skinId"] == "skin31" for item in availableSkins):
+                        buyResponse = self.BuySkin("skin31")
+                    elif weeks == 3 and not any(item["skinId"] == "skin32" for item in availableSkins):
+                        buyResponse = self.BuySkin("skin32")
+
+                    if buyResponse is None:
+                        log.error(f"Unable to obtain weekly reward skin.")
+                    else:
+                        log.info(f"Successfully obtained weekly reward skin")
+
             else:
                 log.info(f"[{self.account_name}] Attempting to complete daily task...")
-                day = streak_days["days"]
-                rewardCoins = streak_days["rewardCoins"]
+                day = streak_days.get("days")
+                week = streak_days.get("weeks")
+                reward = self.GetTaskReward(streak_days)
+
                 time.sleep(2)
-                self.CheckTaskRequest("streak_days")
+                self.CheckTaskRequest(streak_days["id"])
                 log.info(
-                    f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}"
+                    f"[{self.account_name}] Daily task completed successfully, Week: {week}, Day: {day}, Reward: {reward}."
                 )
                 self.SendTelegramLog(
-                    f"[{self.account_name}] Daily task completed successfully, Day: {day}, Reward coins: {number_to_string(rewardCoins)}",
+                    f"[{self.account_name}] Daily task completed successfully, Week: {week}, Day: {day}, Reward: {reward}."
                     "daily_task",
                 )
 
@@ -1542,20 +1614,27 @@ class HamsterKombatAccount:
             for task in tasksResponse["tasks"]:
                 TaskType = task.get("type", "")
                 if task["isCompleted"] == False and (
-                    TaskType == "WithLink" or TaskType == "WithLocaleLink"
+                    task["id"] not in ["subscribe_hk_facebook",
+                                       "subscribe_hk_instagram",
+                                       "subscribe_telegram_cryptofam",
+                                       "subscribe_telegram_channel",
+                                       "subscribe_x_account", 
+                                       "select_exchange", 
+                                       "invite_friends",
+                                       "streak_days_special"]
                 ):
                     log.info(
                         f"[{self.account_name}] Attempting to complete Youtube Or Twitter task..."
                     )
                     selected_task = task["id"]
-                    rewardCoins = task["rewardCoins"]
+                    reward = self.GetTaskReward(task)
                     time.sleep(2)
                     self.CheckTaskRequest(selected_task)
                     log.info(
-                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward coins: {number_to_string(rewardCoins)}"
+                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward: {reward}"
                     )
                     self.SendTelegramLog(
-                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward coins: {number_to_string(rewardCoins)}",
+                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward: {reward}"
                         "daily_task",
                     )
             if selected_task is None:
