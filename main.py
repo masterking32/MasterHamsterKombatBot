@@ -1493,7 +1493,8 @@ class HamsterKombatAccount:
                                        "subscribe_telegram_channel",
                                        "subscribe_x_account", 
                                        "select_exchange", 
-                                       "invite_friends"]
+                                       "invite_friends",
+                                       "streak_days_special"]
                 ):
                     log.info(
                         f"[{self.account_name}] Attempting to complete Youtube Or Twitter task..."
