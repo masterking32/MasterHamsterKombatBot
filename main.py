@@ -449,29 +449,33 @@ class HamsterKombatAccount:
         return self.HttpRequest(url, headers, "POST", 200, payload=payload)
     
     def GetTaskReward(self, taskObj):
-        tasksData = self.configData.get("tasks", [])
-        reward = ""
-        currentTaskData = next((item for item in tasksData if item["id"] == taskObj["id"]), None)
-        if currentTaskData.get("id") == "streak_days_special":
-            week = taskObj.get("weeks")
-            day = taskObj.get("days")
-            rewardsByWeeksAndDays = currentTaskData.get("rewardsByWeeksAndDays", [])
-            streakTaskRewards = next((item for item in rewardsByWeeksAndDays if item["week"] == week), None)
-            streakTaskDays = streakTaskRewards.get("days")
-            streakRewardObject = next((item for item in streakTaskDays if item["day"] == day), None)
-            rewardType = next((key for key in ["coins", "keys", "skinId"] if key in streakRewardObject), None)
-            if rewardType == "skinId":
-                skinsData = self.configData.get("skins", [])
-                rewardSkin = next((item for item in skinsData if item["id"] == streakRewardObject[rewardType]), None)
-                rewardSkinName = rewardSkin.get("name", "")
-            reward = (
-                f"{number_to_string(streakRewardObject[rewardType]) if rewardType != 'skinId' else rewardSkinName} "
-                f"{rewardType if rewardType != 'skinId' else 'skin'}"
-            ) if rewardType else "No reward found for this day."
-        else:
-            reward = f"{number_to_string(currentTaskData.get('rewardCoins', 0))} coins"
+        try:
+            tasksData = self.configData.get("tasks", [])
+            reward = ""
+            currentTaskData = next((item for item in tasksData if item["id"] == taskObj["id"]), None)
+            if currentTaskData.get("id") == "streak_days_special":
+                week = taskObj.get("weeks")
+                day = taskObj.get("days")
+                rewardsByWeeksAndDays = currentTaskData.get("rewardsByWeeksAndDays", [])
+                streakTaskRewards = next((item for item in rewardsByWeeksAndDays if item["week"] == week), None)
+                streakTaskDays = streakTaskRewards.get("days")
+                streakRewardObject = next((item for item in streakTaskDays if item["day"] == day), None)
+                rewardType = next((key for key in ["coins", "keys", "skinId"] if key in streakRewardObject), None)
+                if rewardType == "skinId":
+                    skinsData = self.configData.get("skins", [])
+                    rewardSkin = next((item for item in skinsData if item["id"] == streakRewardObject[rewardType]), None)
+                    rewardSkinName = rewardSkin.get("name", "")
+                reward = (
+                    f"{number_to_string(streakRewardObject[rewardType]) if rewardType != 'skinId' else rewardSkinName} "
+                    f"{rewardType if rewardType != 'skinId' else 'skin'}"
+                ) if rewardType else "No reward found for this day."
+            else:
+                reward = f"{number_to_string(currentTaskData.get('rewardCoins', 0))} coins"
 
-        return reward
+            return reward
+        except Exception as e:
+            log.error(f"Failed to recognize the reward for {taskObj.get('id','')}")
+            return ""
 
     def AccountInfoTelegramRequest(self):
         url = "https://api.hamsterkombatgame.io/auth/account-info"
