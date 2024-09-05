@@ -13,7 +13,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 <hr>
 
-✅ Tested and confirmed to work as of `03 September 2024`. ✅
+✅ Tested and confirmed to work as of `5 September 2024`. ✅
 
 <img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/screenshot.png" alt="Screenshot" />
 
@@ -46,8 +46,9 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Playground `Cafe Dash` added. (August 28, 2024)
 - Playground `Bike Ride 3D` and `Mud Racing` removed. (August 30, 2024)
 - Playground `Gangs Wars` and `Zoopolis` added. (August 30, 2024)
+- Playground `Cafe Dash` and `Gangs Wars` removed. (September 05, 2024)
+- Playground `Fluff Crusade` added. (September 05, 2024)
 - Automatically complete Hamster Kombat **Mini-Games** are **temporarily disabled**. (August 30, 2024)
-- Playground `Cafe Dash` and `Gangs Wars` removed. (September 03, 2024)
 
 <hr>
 
@@ -60,7 +61,7 @@ git clone https://github.com/masterking32/MasterHamsterKombatBot
 3. Install the required packages,
 
 ```bash
-pip install requests colorlog psutil
+pip install requests colorlog
 ```
 
 4. Add your accounts
