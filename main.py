@@ -1270,13 +1270,13 @@ class HamsterKombatAccount:
 
             if response is None or not isinstance(response, dict):
                 timeout = promoData["retry_delay"] + random.randint(1, 5)
-                log.warning(f"Event registration for {promoData['name']} failed, retry in {timeout} seconds.")
+                log.warning(f"[{self.account_name}] Event registration for {promoData['name']} failed, retry in {timeout} seconds.")
                 time.sleep(timeout)
                 continue
 
             if not response.get("hasCode", False):
                 timeout = promoData["retry_delay"] + random.randint(1, 5)
-                log.info(f"Event registration for {promoData['name']} was successful, but no code was provided, retry in {timeout} seconds.")
+                log.info(f"[{self.account_name}] Event registration for {promoData['name']} was successful, but no code was provided, retry in {timeout} seconds.")
                 time.sleep(timeout)
                 continue
 
@@ -1553,7 +1553,7 @@ class HamsterKombatAccount:
                     f"[{self.account_name}] Daily task completed successfully, Week: {week}, Day: {day}, Reward: {reward}."
                 )
                 self.SendTelegramLog(
-                    f"[{self.account_name}] Daily task completed successfully, Week: {week}, Day: {day}, Reward: {reward}."
+                    f"[{self.account_name}] Daily task completed successfully, Week: {week}, Day: {day}, Reward: {reward}.",
                     "daily_task",
                 )
 
@@ -1588,7 +1588,7 @@ class HamsterKombatAccount:
                         f"[{self.account_name}] Task completed - id: {selected_task}, Reward: {reward}"
                     )
                     self.SendTelegramLog(
-                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward: {reward}"
+                        f"[{self.account_name}] Task completed - id: {selected_task}, Reward: {reward}",
                         "daily_task",
                     )
             if selected_task is None:
