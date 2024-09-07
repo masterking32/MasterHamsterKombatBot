@@ -560,6 +560,7 @@ class HamsterKombatAccount:
 
         buyResult = None
         for card in upgradesForBuy:
+            time.sleep(2)
             if card.get("cooldownSeconds", 0) > 0:
                 log.warning(f"[{self.account_name}] The card {card['name']} in cooldown, purchase postponed to next loop.")
                 continue
