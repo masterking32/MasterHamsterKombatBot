@@ -477,6 +477,142 @@ class HamsterKombatAccount:
             log.error(f"Failed to recognize the reward for {taskObj.get('id','')}")
             return ""
 
+    def ClaimDailyCombo(self):
+        if not self.GetConfig("auto_claim_daily_combo", False):
+            log.info(f"[{self.account_name}] Auto claim daily combo are disabled.")
+            return
+
+        log.info(f"[{self.account_name}] Checking for daily combo...")
+
+        upgradesResponse = self.UpgradesForBuyRequest()
+
+        if upgradesResponse is None:
+            log.error(f"[{self.account_name}] Unable to get upgrades for buy.")
+            return
+
+        isClaimed = upgradesResponse.get("dailyCombo", {}).get("isClaimed", False)
+
+        if isClaimed:
+            log.info(f"\033[1;34m[{self.account_name}] Daily combo already claimed.\033[0m")
+            return
+        
+        currentComboLength = len(upgradesResponse.get("dailyCombo", {}).get("upgradeIds", []))
+
+        if (currentComboLength == 3 and not isClaimed):
+            claimResponse = self.ClaimDailyComboRequest()
+            if claimResponse:
+                return
+
+        comboUrl = "https://hamstercombos.com/hamstercombos/public/api/hamster-kombat-card-list"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        try:
+            comboCards = self.HttpRequest(comboUrl, headers, "POST").get("data", {}).get("dailyComboCards", [])
+        except Exception as e:
+            log.error(f"[{self.account_name}] Error fetching combo cards: {e}")
+            return
+
+        if comboCards is None:
+            log.error(f"[{self.account_name}] Combo cards response is incorrect.")
+            return
+        
+        if not comboCards:
+            log.info(f"[{self.account_name}] Combo cards info is empty.")
+
+        comboCardNames = [card['card_name'] for card in comboCards]
+        comboUpgrades = [upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["name"] in comboCardNames]
+        availableUpgrades = [card for card in comboUpgrades if card['isAvailable'] and not card['isExpired']]
+
+        if len(availableUpgrades) < len(comboUpgrades):
+            unavailableUpgrades = [item for item in comboUpgrades if not item['isAvailable'] or item['isExpired']]
+            unavailableUpgradeNames = [item['name'] for item in unavailableUpgrades if not item['isAvailable'] or item['isExpired']]
+            log.error(f"[{self.account_name}] Unable to claim daily combo.")
+            log.error(f"[{self.account_name}] Some cards are not available for purchase: " + ", ".join(unavailableUpgradeNames))
+            for card in unavailableUpgrades:
+                if card.get("condition", {}):
+                    msg = f"[{self.account_name}] To unlock {card['name']} card requires "
+                    conditionType = card.get("condition").get("_type")
+                    if conditionType == "ByUpgrade":
+                        upgradeName = next((upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["id"] == card["condition"]["upgradeId"]), None)
+                        msg += f"{upgradeName} Lvl: {card['condition']['level']}."
+                    elif conditionType == "MoreReferralsCount":
+                        refCount = card["condition"]["moreReferralsCount"]
+                        msg += f"{refCount} more refferals."
+                    elif conditionType == "ReferralCount":
+                        refCount = card["condition"]["referralCount"]
+                        msg += f"{refCount} referrals."  
+                    log.error(msg)          
+            return
+
+        comboPrice = sum(card.get("price", 0) for card in comboUpgrades)
+
+        if comboPrice > self.balanceCoins:
+            log.error(f"[{self.account_name}] Not enough coins to buy a daily combo.")
+            return
+        if comboPrice > self.GetConfig("auto_daily_combo_max_price", 5_000_000):
+            log.error(f"[{self.account_name}] The price of the combo exceeds the set limit: {self.GetConfig('auto_daily_combo_max_price', 5_000_000)}")
+            return
+
+        existsUpgrades = upgradesResponse.get("dailyCombo", {}).get("upgradeIds", [])
+        upgradesForBuy = [card for card in availableUpgrades if card['id'] not in existsUpgrades]
+
+        buyResult = None
+        for card in upgradesForBuy:
+            if card.get("cooldownSeconds", 0) > 0:
+                log.warning(f"[{self.account_name}] The card {card['name']} in cooldown, purchase postponed to next loop.")
+                continue
+            elif card.get("price", 0) > self.balanceCoins:
+                log.warning(f"[{self.account_name}] Not enough coins to buy a card {card['name']}, purchase postponed to next loop.")
+                continue
+
+            buyResult = self.BuyUpgradeRequest(card["id"])
+
+            if buyResult is None:
+                log.error(f"[{self.account_name}] Failed to buy the card {card['name']} for daily combo..")
+                continue
+
+            self.balanceCoins = buyResult.get("clickerUser",{}).get("balanceCoins", 0)
+            log.info(f"[{self.account_name}] The {card['name']} card has been successfully purchased for daily combo.")
+
+
+        isClaimed = buyResult.get("dailyCombo", {}).get("isClaimed", False)
+        currentComboLength = len(buyResult.get("dailyCombo", {}).get("upgradeIds", []))
+
+        if (currentComboLength == 3 and not isClaimed):
+            claimResponse = self.ClaimDailyComboRequest()
+
+    def ClaimDailyComboRequest(self):
+        url = "https://api.hamsterkombatgame.io/clicker/claim-daily-combo"
+        headers = {
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Accept": "*/*",
+            "Authorization": self.Authorization,
+        }
+
+        response = self.HttpRequest(url, headers, "POST", 200)
+
+        if response is None:
+                log.error(f"[{self.account_name}] Unable to claim daily combo.")
+                return False
+
+        if "error_code" in response:
+            if response.get("error_code", "") == "DAILY_COMBO_DOUBLE_CLAIMED":
+                log.error(f"\033[1;34m[{self.account_name}] Daily combo already claimed.\033[0m")
+            elif response.get("error_code", "") == "DAILY_COMBO_NOT_READY":
+                log.error(f"\033[1;34m[{self.account_name}] Daily combo not ready to claim.\033[0m")
+            return False
+        elif "clickerUser" in response:
+            log.info(f"[{self.account_name}] Daily combo successfully claimed.")
+            return True
+
     def AccountInfoTelegramRequest(self):
         url = "https://api.hamsterkombatgame.io/auth/account-info"
         headers = {
@@ -1593,6 +1729,8 @@ class HamsterKombatAccount:
                     )
             if selected_task is None:
                 log.info(f"\033[1;34m[{self.account_name}] Tasks already done\033[0m")
+
+        self.ClaimDailyCombo()
 
         # Start buying free tap boost
         if (
