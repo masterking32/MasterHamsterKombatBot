@@ -520,6 +520,11 @@ class HamsterKombatAccount:
         
         if not comboCards:
             log.info(f"[{self.account_name}] Combo cards info is empty.")
+            return
+        
+        if len(comboCards) < 3:
+            log.info(f"[{self.account_name}] Combo cards info is not full.")
+            return
 
         comboCardNames = [card['card_name'] for card in comboCards]
         comboUpgrades = [upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["name"] in comboCardNames]
@@ -535,8 +540,8 @@ class HamsterKombatAccount:
                     msg = f"[{self.account_name}] To unlock {card['name']} card requires "
                     conditionType = card.get("condition").get("_type")
                     if conditionType == "ByUpgrade":
-                        upgradeName = next((upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["id"] == card["condition"]["upgradeId"]), None)
-                        msg += f"{upgradeName} Lvl: {card['condition']['level']}."
+                        reqUpgrade = next((upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["id"] == card["condition"]["upgradeId"]), None)
+                        msg += f"{reqUpgrade['name']} Lvl: {card['condition']['level']}."
                     elif conditionType == "MoreReferralsCount":
                         refCount = card["condition"]["moreReferralsCount"]
                         msg += f"{refCount} more refferals."
@@ -552,7 +557,7 @@ class HamsterKombatAccount:
             log.error(f"[{self.account_name}] Not enough coins to buy a daily combo.")
             return
         if comboPrice > self.GetConfig("auto_daily_combo_max_price", 5_000_000):
-            log.error(f"[{self.account_name}] The price of the combo exceeds the set limit: {self.GetConfig('auto_daily_combo_max_price', 5_000_000)}")
+            log.error(f"[{self.account_name}] The price of the combo {number_to_string(comboPrice)} exceeds the set limit: {number_to_string(self.GetConfig('auto_daily_combo_max_price', 5_000_000))}")
             return
 
         existsUpgrades = upgradesResponse.get("dailyCombo", {}).get("upgradeIds", [])
