@@ -1705,12 +1705,7 @@ class HamsterKombatAccount:
             for task in tasksResponse["tasks"]:
                 TaskType = task.get("type", "")
                 if task["isCompleted"] == False and (
-                    task["id"] not in ["subscribe_hk_facebook",
-                                       "subscribe_hk_instagram",
-                                       "subscribe_telegram_cryptofam",
-                                       "subscribe_telegram_channel",
-                                       "subscribe_x_account", 
-                                       "select_exchange", 
+                    task["id"] not in ["select_exchange", 
                                        "invite_friends",
                                        "streak_days_special"]
                 ):
