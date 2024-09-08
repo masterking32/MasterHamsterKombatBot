@@ -520,6 +520,7 @@ class HamsterKombatAccount:
         
         if not comboCards:
             log.info(f"[{self.account_name}] Combo cards info is empty.")
+            return
 
         comboCardNames = [card['card_name'] for card in comboCards]
         comboUpgrades = [upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["name"] in comboCardNames]
