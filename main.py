@@ -535,8 +535,8 @@ class HamsterKombatAccount:
                     msg = f"[{self.account_name}] To unlock {card['name']} card requires "
                     conditionType = card.get("condition").get("_type")
                     if conditionType == "ByUpgrade":
-                        upgradeName = next((upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["id"] == card["condition"]["upgradeId"]), None)
-                        msg += f"{upgradeName} Lvl: {card['condition']['level']}."
+                        reqUpgrade = next((upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["id"] == card["condition"]["upgradeId"]), None)
+                        msg += f"{reqUpgrade["name"]} Lvl: {card['condition']['level']}."
                     elif conditionType == "MoreReferralsCount":
                         refCount = card["condition"]["moreReferralsCount"]
                         msg += f"{refCount} more refferals."
