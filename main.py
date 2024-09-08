@@ -536,7 +536,7 @@ class HamsterKombatAccount:
                     conditionType = card.get("condition").get("_type")
                     if conditionType == "ByUpgrade":
                         reqUpgrade = next((upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["id"] == card["condition"]["upgradeId"]), None)
-                        msg += f"{reqUpgrade["name"]} Lvl: {card['condition']['level']}."
+                        msg += f"{reqUpgrade['name']} Lvl: {card['condition']['level']}."
                     elif conditionType == "MoreReferralsCount":
                         refCount = card["condition"]["moreReferralsCount"]
                         msg += f"{refCount} more refferals."
