@@ -557,7 +557,7 @@ class HamsterKombatAccount:
             log.error(f"[{self.account_name}] Not enough coins to buy a daily combo.")
             return
         if comboPrice > self.GetConfig("auto_daily_combo_max_price", 5_000_000):
-            log.error(f"[{self.account_name}] The price of the combo exceeds the set limit: {self.GetConfig('auto_daily_combo_max_price', 5_000_000)}")
+            log.error(f"[{self.account_name}] The price of the combo {number_to_string(comboPrice)} exceeds the set limit: {number_to_string(self.GetConfig('auto_daily_combo_max_price', 5_000_000))}")
             return
 
         existsUpgrades = upgradesResponse.get("dailyCombo", {}).get("upgradeIds", [])
