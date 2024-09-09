@@ -555,12 +555,6 @@ class HamsterKombatAccount:
             return ""
 
     def ClaimDailyCombo(self):
-        if not self.GetConfig("auto_claim_daily_combo", False):
-            log.info(
-                f"{w.rs}{w.g}[{self.account_name}]{w.rs}: 🛑 Auto claim daily combo are disabled."
-            )
-            return
-
         log.info(
             f"{w.rs}{w.g}[{self.account_name}]{w.rs}: {w.y} 🔎 Checking for daily combo..."
         )
