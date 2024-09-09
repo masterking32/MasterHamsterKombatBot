@@ -14,6 +14,10 @@ import uuid
 import hashlib
 from utilities import *
 from promogames import *
+import os
+import sys
+from banner import show_banner
+import warna as w
 import re
 import os
 import zipfile
@@ -77,7 +81,7 @@ class RemoveEscapeCodesFilter(logging.Filter):
 LOG_LEVEL = logging.DEBUG  # logging configuration
 
 # format for console with colors
-LOGFORMAT_CONSOLE = "%(log_color)s[Master HamsterKombat Bot]%(reset)s[%(log_color)s%(levelname)s%(reset)s] %(asctime)s %(log_color)s%(message)s%(reset)s"
+LOGFORMAT_CONSOLE = "{w.cb}[MasterHamsterKombatBot]{w.rs} {w.bt}[%(asctime)s]{w.bt} %(log_color)s[%(levelname)s]%(reset)s %(log_color)s%(message)s%(reset)s"
 # format for file without colors
 LOGFORMAT_FILE = "[Master HamsterKombat Bot][%(levelname)s] %(asctime)s %(message)s"
 
