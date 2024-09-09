@@ -526,7 +526,7 @@ class HamsterKombatAccount:
             log.info(f"[{self.account_name}] Combo cards info is not full.")
             return
 
-        comboCardNames = [card['card_name'] for card in comboCards]
+        comboCardNames = [card['card_name'].strip() for card in comboCards]
         comboUpgrades = [upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["name"] in comboCardNames]
         availableUpgrades = [card for card in comboUpgrades if card['isAvailable'] and not card['isExpired']]
 
