@@ -52,7 +52,7 @@ if "ConfigFileVersion" not in locals() or ConfigFileVersion != 1:
 # Logging configuration
 LOG_LEVEL = logging.DEBUG
 # Include date and time in the log format
-LOGFORMAT = f"{w.cb}[MasterHamsterKombatBot]{w.rs} {w.bt}[%(asctime)s]{w.bt} %(log_color)s%(levelname)s%(reset)s %(log_color)s%(message)s%(reset)s"
+LOGFORMAT = f"{w.cb}[MasterHamsterKombatBot]{w.rs} {w.bt}[%(asctime)s]{w.bt} %(log_color)s[%(levelname)s]%(reset)s %(log_color)s%(message)s%(reset)s"
 
 logging.root.setLevel(LOG_LEVEL)
 formatter = ColoredFormatter(
@@ -2076,7 +2076,12 @@ class HamsterKombatAccount:
                 )
 
         try:
-            self.ClaimDailyCombo()
+            if self.GetConfig("auto_daily_combo_enable", False):
+                self.ClaimDailyCombo()
+            else:
+                log.info(
+                    f"{w.rs}{w.g}[{self.account_name}]{w.rs}: 🎁 Daily combo is disabled."
+                )
         except Exception as e:
             log.error(
                 f"{w.rs}{w.g}[{self.account_name}]{w.rs}:{w.r} Something went wrong while claming daily combo."
@@ -2259,7 +2264,6 @@ class HamsterKombatAccount:
 
 
 def RunAccounts():
-
     accounts = []
     for account in AccountList:
         accounts.append(HamsterKombatAccount(account))
@@ -2288,7 +2292,7 @@ def RunAccounts():
 
         if AccountsRecheckTime > 0:
             log.warning(
-                f" 📝 Rechecking all accounts in {AccountsRecheckTime} seconds."
+                f" 💤 Rechecking all accounts in {AccountsRecheckTime} seconds."
             )
             time.sleep(AccountsRecheckTime)
 
