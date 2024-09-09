@@ -21,7 +21,7 @@ import warna as w
 try:
     from config import *
 except ImportError:
-    ClearScreen()
+    clear_screen()
     print(
         f"""
     ==============================================================================
@@ -34,7 +34,7 @@ except ImportError:
     exit()
 
 if "ConfigFileVersion" not in locals() or ConfigFileVersion != 1:
-    ClearScreen()
+    clear_screen()
     print(
         f"""
     ==============================================================================
@@ -2308,10 +2308,10 @@ def loading_bar2(duration):
 
 
 def main():
-    ClearScreen()
+    clear_screen()
     show_banner()
     loading_bar2(5)
-    ClearScreen()
+    clear_screen()
 
     try:
         asyncio.run(RunAccounts())
