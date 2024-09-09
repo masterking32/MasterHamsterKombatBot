@@ -579,12 +579,12 @@ class HamsterKombatAccount:
                 log.error(f"[{self.account_name}] Failed to buy the card {card['name']} for daily combo..")
                 continue
 
-            self.balanceCoins = buyResult.get("clickerUser",{}).get("balanceCoins", 0)
+            self.balanceCoins = buyResult.get("clickerUser",{}).get("balanceCoins", 0) if buyResult.get("clickerUser",{}) else 0
             log.info(f"[{self.account_name}] The {card['name']} card has been successfully purchased for daily combo.")
 
 
-        isClaimed = buyResult.get("dailyCombo", {}).get("isClaimed", False)
-        currentComboLength = len(buyResult.get("dailyCombo", {}).get("upgradeIds", []))
+        isClaimed = buyResult.get("dailyCombo", {}).get("isClaimed", False) if buyResult else False
+        currentComboLength = len(buyResult.get("dailyCombo", {}).get("upgradeIds", [])) if buyResult else 0
 
         if (currentComboLength == 3 and not isClaimed):
             claimResponse = self.ClaimDailyComboRequest()
