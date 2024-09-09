@@ -14,7 +14,6 @@ import uuid
 import hashlib
 from utilities import *
 from promogames import *
-import os
 import sys
 from banner import show_banner
 import warna as w
@@ -22,7 +21,7 @@ import warna as w
 try:
     from config import *
 except ImportError:
-    os.system("cls")
+    ClearScreen()
     print(
         f"""
     ==============================================================================
@@ -35,7 +34,7 @@ except ImportError:
     exit()
 
 if "ConfigFileVersion" not in locals() or ConfigFileVersion != 1:
-    os.system("cls")
+    ClearScreen()
     print(
         f"""
     ==============================================================================
@@ -2309,10 +2308,10 @@ def loading_bar2(duration):
 
 
 def main():
-    os.system("cls")
+    ClearScreen()
     show_banner()
     loading_bar2(5)
-    os.system("cls")
+    ClearScreen()
 
     try:
         asyncio.run(RunAccounts())
