@@ -19,7 +19,6 @@ import sys
 from banner import show_banner
 import warna as w
 import re
-import os
 import zipfile
 from logging.handlers import TimedRotatingFileHandler
 
