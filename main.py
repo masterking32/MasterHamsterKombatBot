@@ -1734,7 +1734,10 @@ class HamsterKombatAccount:
             if selected_task is None:
                 log.info(f"\033[1;34m[{self.account_name}] Tasks already done\033[0m")
 
-        self.ClaimDailyCombo()
+        try:
+            self.ClaimDailyCombo()
+        except Exception as e:
+            log.error(f"[{self.account_name}] Something went wrong while claming daily combo.")
 
         # Start buying free tap boost
         if (
