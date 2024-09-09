@@ -1215,6 +1215,9 @@ class HamsterKombatAccount:
                     rewardType = claimResponse.get("reward").get("type")
                     rewardAmount = claimResponse.get("reward").get("amount")
 
+                    if rewardType == "coins":
+                        self.balanceCoins += rewardAmount
+
                     log.info(
                         f"[{self.account_name}] {promoData['name']} claimed successfully. Aquired {number_to_string(rewardAmount)} {rewardType}."
                     )
