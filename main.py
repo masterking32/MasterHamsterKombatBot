@@ -2279,7 +2279,7 @@ def RunAccounts():
 
         if MaxRandomDelay > 0:
             randomDelay = random.randint(1, MaxRandomDelay)
-            log.error(
+            log.warning(
                 f" 😴 Sleeping for {randomDelay} seconds because of random delay."
             )
             time.sleep(randomDelay)
