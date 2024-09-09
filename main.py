@@ -484,25 +484,6 @@ class HamsterKombatAccount:
 
         log.info(f"[{self.account_name}] Checking for daily combo...")
 
-        upgradesResponse = self.UpgradesForBuyRequest()
-
-        if upgradesResponse is None:
-            log.error(f"[{self.account_name}] Unable to get upgrades for buy.")
-            return
-
-        isClaimed = upgradesResponse.get("dailyCombo", {}).get("isClaimed", False)
-
-        if isClaimed:
-            log.info(f"\033[1;34m[{self.account_name}] Daily combo already claimed.\033[0m")
-            return
-        
-        currentComboLength = len(upgradesResponse.get("dailyCombo", {}).get("upgradeIds", []))
-
-        if (currentComboLength == 3 and not isClaimed):
-            claimResponse = self.ClaimDailyComboRequest()
-            if claimResponse:
-                return
-
         comboUrl = "https://hamstercombos.com/hamstercombos/public/api/hamster-kombat-card-list"
         headers = {
             "Accept": "application/json",
@@ -525,6 +506,25 @@ class HamsterKombatAccount:
         if len(comboCards) < 3:
             log.info(f"[{self.account_name}] Combo cards info is not full.")
             return
+
+        upgradesResponse = self.UpgradesForBuyRequest()
+
+        if upgradesResponse is None:
+            log.error(f"[{self.account_name}] Unable to get upgrades for buy.")
+            return
+
+        isClaimed = upgradesResponse.get("dailyCombo", {}).get("isClaimed", False)
+
+        if isClaimed:
+            log.info(f"\033[1;34m[{self.account_name}] Daily combo already claimed.\033[0m")
+            return
+        
+        currentComboLength = len(upgradesResponse.get("dailyCombo", {}).get("upgradeIds", []))
+
+        if (currentComboLength == 3 and not isClaimed):
+            claimResponse = self.ClaimDailyComboRequest()
+            if claimResponse:
+                return
 
         comboCardNames = [card['card_name'].strip() for card in comboCards]
         comboUpgrades = [upgrade for upgrade in upgradesResponse.get("upgradesForBuy", []) if upgrade["name"] in comboCardNames]
