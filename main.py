@@ -421,7 +421,7 @@ class HamsterKombatAccount:
 
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200, "{}")
-    
+
     def BuySkin(self, skinId):
         url = "https://api.hamsterkombatgame.io/clicker/buy-skin"
         headers = {
@@ -447,35 +447,272 @@ class HamsterKombatAccount:
 
         # Send POST request
         return self.HttpRequest(url, headers, "POST", 200, payload=payload)
-    
+
     def GetTaskReward(self, taskObj):
         try:
             tasksData = self.configData.get("tasks", [])
             reward = ""
-            currentTaskData = next((item for item in tasksData if item["id"] == taskObj["id"]), None)
+            currentTaskData = next(
+                (item for item in tasksData if item["id"] == taskObj["id"]), None
+            )
             if currentTaskData.get("id") == "streak_days_special":
                 week = taskObj.get("weeks")
                 day = taskObj.get("days")
                 rewardsByWeeksAndDays = currentTaskData.get("rewardsByWeeksAndDays", [])
-                streakTaskRewards = next((item for item in rewardsByWeeksAndDays if item["week"] == week), None)
+                streakTaskRewards = next(
+                    (item for item in rewardsByWeeksAndDays if item["week"] == week),
+                    None,
+                )
                 streakTaskDays = streakTaskRewards.get("days")
-                streakRewardObject = next((item for item in streakTaskDays if item["day"] == day), None)
-                rewardType = next((key for key in ["coins", "keys", "skinId"] if key in streakRewardObject), None)
+                streakRewardObject = next(
+                    (item for item in streakTaskDays if item["day"] == day), None
+                )
+                rewardType = next(
+                    (
+                        key
+                        for key in ["coins", "keys", "skinId"]
+                        if key in streakRewardObject
+                    ),
+                    None,
+                )
                 if rewardType == "skinId":
                     skinsData = self.configData.get("skins", [])
-                    rewardSkin = next((item for item in skinsData if item["id"] == streakRewardObject[rewardType]), None)
+                    rewardSkin = next(
+                        (
+                            item
+                            for item in skinsData
+                            if item["id"] == streakRewardObject[rewardType]
+                        ),
+                        None,
+                    )
                     rewardSkinName = rewardSkin.get("name", "")
                 reward = (
-                    f"{number_to_string(streakRewardObject[rewardType]) if rewardType != 'skinId' else rewardSkinName} "
-                    f"{rewardType if rewardType != 'skinId' else 'skin'}"
-                ) if rewardType else "No reward found for this day."
+                    (
+                        f"{number_to_string(streakRewardObject[rewardType]) if rewardType != 'skinId' else rewardSkinName} "
+                        f"{rewardType if rewardType != 'skinId' else 'skin'}"
+                    )
+                    if rewardType
+                    else "No reward found for this day."
+                )
             else:
-                reward = f"{number_to_string(currentTaskData.get('rewardCoins', 0))} coins"
+                reward = (
+                    f"{number_to_string(currentTaskData.get('rewardCoins', 0))} coins"
+                )
 
             return reward
         except Exception as e:
             log.error(f"Failed to recognize the reward for {taskObj.get('id','')}")
             return ""
+
+    def ClaimDailyCombo(self):
+        if not self.GetConfig("auto_claim_daily_combo", False):
+            log.info(f"[{self.account_name}] Auto claim daily combo are disabled.")
+            return
+
+        log.info(f"[{self.account_name}] Checking for daily combo...")
+
+        comboUrl = "https://hamstercombos.com/hamstercombos/public/api/hamster-kombat-card-list"
+        headers = {
+            "Accept": "application/json",
+            "Content-Type": "application/json",
+        }
+        try:
+            comboCards = (
+                self.HttpRequest(comboUrl, headers, "POST")
+                .get("data", {})
+                .get("dailyComboCards", [])
+            )
+        except Exception as e:
+            log.error(f"[{self.account_name}] Error fetching combo cards: {e}")
+            return
+
+        if comboCards is None:
+            log.error(f"[{self.account_name}] Combo cards response is incorrect.")
+            return
+
+        if not comboCards:
+            log.info(f"[{self.account_name}] Combo cards info is empty.")
+            return
+
+        if len(comboCards) < 3:
+            log.info(f"[{self.account_name}] Combo cards info is not full.")
+            return
+
+        upgradesResponse = self.UpgradesForBuyRequest()
+
+        if upgradesResponse is None:
+            log.error(f"[{self.account_name}] Unable to get upgrades for buy.")
+            return
+
+        isClaimed = upgradesResponse.get("dailyCombo", {}).get("isClaimed", False)
+
+        if isClaimed:
+            log.info(
+                f"\033[1;34m[{self.account_name}] Daily combo already claimed.\033[0m"
+            )
+            return
+
+        currentComboLength = len(
+            upgradesResponse.get("dailyCombo", {}).get("upgradeIds", [])
+        )
+
+        if currentComboLength == 3 and not isClaimed:
+            claimResponse = self.ClaimDailyComboRequest()
+            if claimResponse:
+                return
+
+        comboCardNames = [card["card_name"].strip() for card in comboCards]
+        comboUpgrades = [
+            upgrade
+            for upgrade in upgradesResponse.get("upgradesForBuy", [])
+            if upgrade["name"] in comboCardNames
+        ]
+        availableUpgrades = [
+            card
+            for card in comboUpgrades
+            if card["isAvailable"] and not card["isExpired"]
+        ]
+
+        if len(availableUpgrades) < len(comboUpgrades):
+            unavailableUpgrades = [
+                item
+                for item in comboUpgrades
+                if not item["isAvailable"] or item["isExpired"]
+            ]
+            unavailableUpgradeNames = [
+                item["name"]
+                for item in unavailableUpgrades
+                if not item["isAvailable"] or item["isExpired"]
+            ]
+            log.error(f"[{self.account_name}] Unable to claim daily combo.")
+            log.error(
+                f"[{self.account_name}] Some cards are not available for purchase: "
+                + ", ".join(unavailableUpgradeNames)
+            )
+            for card in unavailableUpgrades:
+                if card.get("condition", {}):
+                    msg = (
+                        f"[{self.account_name}] To unlock {card['name']} card requires "
+                    )
+                    conditionType = card.get("condition").get("_type")
+                    if conditionType == "ByUpgrade":
+                        reqUpgrade = next(
+                            (
+                                upgrade
+                                for upgrade in upgradesResponse.get(
+                                    "upgradesForBuy", []
+                                )
+                                if upgrade["id"] == card["condition"]["upgradeId"]
+                            ),
+                            None,
+                        )
+                        msg += (
+                            f"{reqUpgrade['name']} Lvl: {card['condition']['level']}."
+                        )
+                    elif conditionType == "MoreReferralsCount":
+                        refCount = card["condition"]["moreReferralsCount"]
+                        msg += f"{refCount} more refferals."
+                    elif conditionType == "ReferralCount":
+                        refCount = card["condition"]["referralCount"]
+                        msg += f"{refCount} referrals."
+                    log.error(msg)
+            return
+
+        comboPrice = sum(card.get("price", 0) for card in comboUpgrades)
+
+        if comboPrice > self.balanceCoins:
+            log.error(f"[{self.account_name}] Not enough coins to buy a daily combo.")
+            return
+
+        if comboPrice > self.GetConfig("auto_daily_combo_max_price", 5_000_000):
+            log.error(
+                f"[{self.account_name}] The price of the combo {number_to_string(comboPrice)} exceeds the set limit: {number_to_string(self.GetConfig('auto_daily_combo_max_price', 5_000_000))}"
+            )
+            return
+
+        existsUpgrades = upgradesResponse.get("dailyCombo", {}).get("upgradeIds", [])
+        upgradesForBuy = [
+            card for card in availableUpgrades if card["id"] not in existsUpgrades
+        ]
+
+        buyResult = None
+        for card in upgradesForBuy:
+            time.sleep(2)
+            if card.get("cooldownSeconds", 0) > 0:
+                log.warning(
+                    f"[{self.account_name}] The card {card['name']} in cooldown, purchase postponed to next loop."
+                )
+                continue
+            elif card.get("price", 0) > self.balanceCoins:
+                log.warning(
+                    f"[{self.account_name}] Not enough coins to buy a card {card['name']}, purchase postponed to next loop."
+                )
+                continue
+
+            buyResult = self.BuyUpgradeRequest(card["id"])
+
+            if buyResult is None:
+                log.error(
+                    f"[{self.account_name}] Failed to buy the card {card['name']} for daily combo.."
+                )
+                continue
+
+            self.balanceCoins = (
+                buyResult.get("clickerUser", {}).get("balanceCoins", 0)
+                if buyResult.get("clickerUser", {})
+                else 0
+            )
+            log.info(
+                f"[{self.account_name}] The {card['name']} card has been successfully purchased for daily combo."
+            )
+
+        isClaimed = (
+            buyResult.get("dailyCombo", {}).get("isClaimed", False)
+            if buyResult
+            else False
+        )
+        currentComboLength = (
+            len(buyResult.get("dailyCombo", {}).get("upgradeIds", []))
+            if buyResult
+            else 0
+        )
+
+        if currentComboLength == 3 and not isClaimed:
+            claimResponse = self.ClaimDailyComboRequest()
+
+    def ClaimDailyComboRequest(self):
+        url = "https://api.hamsterkombatgame.io/clicker/claim-daily-combo"
+        headers = {
+            "Access-Control-Request-Headers": "authorization,content-type",
+            "Access-Control-Request-Method": "POST",
+        }
+
+        self.HttpRequest(url, headers, "OPTIONS", 204)
+
+        headers = {
+            "Accept": "*/*",
+            "Authorization": self.Authorization,
+        }
+
+        response = self.HttpRequest(url, headers, "POST", 200)
+
+        if response is None:
+            log.error(f"[{self.account_name}] Unable to claim daily combo.")
+            return False
+
+        if "error_code" in response:
+            if response.get("error_code", "") == "DAILY_COMBO_DOUBLE_CLAIMED":
+                log.error(
+                    f"\033[1;34m[{self.account_name}] Daily combo already claimed.\033[0m"
+                )
+            elif response.get("error_code", "") == "DAILY_COMBO_NOT_READY":
+                log.error(
+                    f"\033[1;34m[{self.account_name}] Daily combo not ready to claim.\033[0m"
+                )
+            return False
+        elif "clickerUser" in response:
+            log.info(f"[{self.account_name}] Daily combo successfully claimed.")
+            return True
 
     def AccountInfoTelegramRequest(self):
         url = "https://api.hamsterkombatgame.io/auth/account-info"
@@ -786,14 +1023,16 @@ class HamsterKombatAccount:
                 "other_errors",
             )
             return
-        
-                
+
         response = self.GetPromos()
 
         if response is None:
-            log.error(f"[{self.account_name}] Unable to get promo games befor starting minigames.")
+            log.error(
+                f"[{self.account_name}] Unable to get promo games befor starting minigames."
+            )
             self.SendTelegramLog(
-                f"[{self.account_name}] Unable to get promo games befor starting minigames.", "other_errors"
+                f"[{self.account_name}] Unable to get promo games befor starting minigames.",
+                "other_errors",
             )
             return
 
@@ -923,7 +1162,9 @@ class HamsterKombatAccount:
             responseGameData = response["dailyKeysMiniGames"]
             startDate = responseGameData["startDate"]
             remainPoints = responseGameData["remainPoints"]
-            maxMultiplier = min(self.GetConfig('mg_max_tiles_points_percent', 20), 100) / 100
+            maxMultiplier = (
+                min(self.GetConfig("mg_max_tiles_points_percent", 20), 100) / 100
+            )
             number = int(
                 datetime.datetime.fromisoformat(
                     startDate.replace("Z", "+00:00")
@@ -935,7 +1176,9 @@ class HamsterKombatAccount:
             score_per_game = {
                 "Candles": 0,
                 "Tiles": (
-                    random.randint(int(remainPoints * 0.01), int(remainPoints * maxMultiplier))
+                    random.randint(
+                        int(remainPoints * 0.01), int(remainPoints * maxMultiplier)
+                    )
                     if remainPoints > 300
                     else remainPoints
                 ),
@@ -1067,11 +1310,16 @@ class HamsterKombatAccount:
                     log.info(f"[{self.account_name}] Claiming {promoData['name']}...")
                     claimResponse = self.ClaimPlayGroundGame(promoCode)
                     if claimResponse is None:
-                        log.error(f"[{self.account_name}] Unable to claim {promoData['name']} key.")
+                        log.error(
+                            f"[{self.account_name}] Unable to claim {promoData['name']} key."
+                        )
                         return
 
                     rewardType = claimResponse.get("reward").get("type")
                     rewardAmount = claimResponse.get("reward").get("amount")
+
+                    if rewardType == "coins":
+                        self.balanceCoins += rewardAmount
 
                     log.info(
                         f"[{self.account_name}] {promoData['name']} claimed successfully. Aquired {number_to_string(rewardAmount)} {rewardType}."
@@ -1118,7 +1366,7 @@ class HamsterKombatAccount:
             elif promoData["clientIdType"] == "5+32str":
                 p1 = "".join(
                     random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=5)
-                    )
+                )
                 p2 = "".join(
                     random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
                 )
@@ -1128,7 +1376,7 @@ class HamsterKombatAccount:
             elif promoData["clientIdType"] == "16UpStr":
                 clientId = "".join(
                     random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16)
-                    ).upper()
+                ).upper()
             elif promoData["clientIdType"] == "uuid":
                 clientId = str(uuid.uuid4())
 
@@ -1200,14 +1448,16 @@ class HamsterKombatAccount:
             headers_post["Authorization"] = f"Bearer {clientToken}"
 
             payloadData = {
-              "promoId": promoData["promoId"],
+                "promoId": promoData["promoId"],
             }
 
             payload = json.dumps(payloadData)
-            
+
             response = self.HttpRequest(url, headers_post, "POST", 200, payload)
             if response is None:
-                log.error(f"[{self.account_name}] Unable to get {promoData['name']} key.")
+                log.error(
+                    f"[{self.account_name}] Unable to get {promoData['name']} key."
+                )
                 self.SendTelegramLog(
                     f"[{self.account_name}] Unable to get {promoData['name']} key.",
                     "other_errors",
@@ -1226,7 +1476,7 @@ class HamsterKombatAccount:
 
         if promoData.get("useNewApi"):
             url = "https://api.gamepromo.io/promo/1/register-event"
-        
+
         headers_post["Authorization"] = f"Bearer {clientToken}"
 
         response = None
@@ -1242,7 +1492,9 @@ class HamsterKombatAccount:
                 elif promoData["eventIdType"] == "timestamp":
                     eventID = str(int(datetime.datetime.now().timestamp() * 1000))
                 elif promoData["eventIdType"] == "16x2str":
-                    string = "".join(random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32))
+                    string = "".join(
+                        random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=32)
+                    )
                     eventID = f"{string[:16]}-{string[16:]}"
                 elif promoData["eventIdType"] == "7dig":
                     eventID = "".join(random.choices("0123456789", k=7))
@@ -1270,13 +1522,17 @@ class HamsterKombatAccount:
 
             if response is None or not isinstance(response, dict):
                 timeout = promoData["retry_delay"] + random.randint(1, 5)
-                log.warning(f"[{self.account_name}] Event registration for {promoData['name']} failed, retry in {timeout} seconds.")
+                log.warning(
+                    f"[{self.account_name}] Event registration for {promoData['name']} failed, retry in {timeout} seconds."
+                )
                 time.sleep(timeout)
                 continue
 
             if not response.get("hasCode", False):
                 timeout = promoData["retry_delay"] + random.randint(1, 5)
-                log.info(f"[{self.account_name}] Event registration for {promoData['name']} was successful, but no code was provided, retry in {timeout} seconds.")
+                log.info(
+                    f"[{self.account_name}] Event registration for {promoData['name']} was successful, but no code was provided, retry in {timeout} seconds."
+                )
                 time.sleep(timeout)
                 continue
 
@@ -1373,7 +1629,7 @@ class HamsterKombatAccount:
                 f"[{self.account_name}] Failed to get IP.", "other_errors"
             )
             return
-        
+
         log.info(
             f"[{self.account_name}] IP: {ipResponse['ip']} Company: {ipResponse['asn_org']} Country: {ipResponse['country_code']}"
         )
@@ -1428,7 +1684,7 @@ class HamsterKombatAccount:
                 "other_errors",
             )
             return
-        
+
         log.info(f"[{self.account_name}] Getting account upgrades...")
         upgradesResponse = self.UpgradesForBuyRequest()
 
@@ -1438,7 +1694,7 @@ class HamsterKombatAccount:
                 f"[{self.account_name}] Failed to get upgrades list.", "other_errors"
             )
             return
-        
+
         log.info(f"[{self.account_name}] Getting account tasks...")
         tasksResponse = self.ListTasksRequest()
 
@@ -1529,11 +1785,17 @@ class HamsterKombatAccount:
                 days = streak_days.get("days")
                 buyResponse = None
                 if days == 7:
-                    if weeks == 1 and not any(item["skinId"] == "skin30" for item in availableSkins):
+                    if weeks == 1 and not any(
+                        item["skinId"] == "skin30" for item in availableSkins
+                    ):
                         buyResponse = self.BuySkin("skin30")
-                    elif weeks == 2 and not any(item["skinId"] == "skin31" for item in availableSkins):
+                    elif weeks == 2 and not any(
+                        item["skinId"] == "skin31" for item in availableSkins
+                    ):
                         buyResponse = self.BuySkin("skin31")
-                    elif weeks == 3 and not any(item["skinId"] == "skin32" for item in availableSkins):
+                    elif weeks == 3 and not any(
+                        item["skinId"] == "skin32" for item in availableSkins
+                    ):
                         buyResponse = self.BuySkin("skin32")
 
                     if buyResponse is None:
@@ -1568,14 +1830,8 @@ class HamsterKombatAccount:
             for task in tasksResponse["tasks"]:
                 TaskType = task.get("type", "")
                 if task["isCompleted"] == False and (
-                    task["id"] not in ["subscribe_hk_facebook",
-                                       "subscribe_hk_instagram",
-                                       "subscribe_telegram_cryptofam",
-                                       "subscribe_telegram_channel",
-                                       "subscribe_x_account", 
-                                       "select_exchange", 
-                                       "invite_friends",
-                                       "streak_days_special"]
+                    task["id"]
+                    not in ["select_exchange", "invite_friends", "streak_days_special"]
                 ):
                     log.info(
                         f"[{self.account_name}] Attempting to complete Youtube Or Twitter task..."
@@ -1593,6 +1849,11 @@ class HamsterKombatAccount:
                     )
             if selected_task is None:
                 log.info(f"\033[1;34m[{self.account_name}] Tasks already done\033[0m")
+
+        try:
+            self.ClaimDailyCombo()
+        except Exception as e:
+            log.error(f"[{self.account_name}] Something went wrong while claming daily combo.")
 
         # Start buying free tap boost
         if (
