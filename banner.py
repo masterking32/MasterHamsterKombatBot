@@ -7,7 +7,7 @@ def show_banner():
     {w.g}| |_| |/ _` | '_ ` _ \/ __| __/ _ \ '__{w.m}| ' // _ \| '_ ` _ \| '_ \ / _` | __|{w.rs} 
     {w.g}|  _  | (_| | | | | | \__ \ ||  __/ |  {w.m}| . \ (_) | | | | | | |_) | (_| | |_ {w.rs} 
     {w.g}|_| |_|\__,_|_| |_| |_|___/\__\___|_|  {w.m}|_|\_\___/|_| |_| |_|_.__/ \__,_|\__|{w.rs} 
-    {w.yb}Version: 2.3{w.rs} ==================================== Developed by: {w.cb}MasterkinG32{w.rs}
+    {w.yb}Version: 2.4{w.rs} ==================================== Developed by: {w.cb}MasterkinG32{w.rs}
     
     Project Github: {w.m}https://github.com/masterking32/MasterHamsterKombatBot{w.rs}
                             ⛔⛔ {w.rb}CTRL + C to STOP THE BOT !! {w.rs}⛔⛔
