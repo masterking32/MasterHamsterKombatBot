@@ -616,11 +616,11 @@ class HamsterKombatAccount:
             if claimResponse:
                 return
 
-        comboCardNames = [card["card_name"].strip() for card in comboCards]
+        comboCardNames = [card["card_name"].strip().lower() for card in comboCards]
         comboUpgrades = [
             upgrade
             for upgrade in upgradesResponse.get("upgradesForBuy", [])
-            if upgrade["name"] in comboCardNames
+            if upgrade["name"].lower() in comboCardNames
         ]
         availableUpgrades = [
             card
@@ -2276,7 +2276,7 @@ def RunAccounts():
 
         if MaxRandomDelay > 0:
             randomDelay = random.randint(1, MaxRandomDelay)
-            log.error(
+            log.warning(
                 f" 😴 Sleeping for {randomDelay} seconds because of random delay."
             )
             time.sleep(randomDelay)
