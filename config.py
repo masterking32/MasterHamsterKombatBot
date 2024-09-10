@@ -13,7 +13,7 @@ MaxRandomDelay = 120
 AccountList = [
     {
         "account_name": "Account 1",  # A custom name for the account (not important, just for logs)
-        "Authorization": "Bearer TOKEN_HERE",  # To get the token, refer to the README.md file
+        "Authorization": "Bearer 1725403492962hVNCKwtsWFuC5Oe9v0AMrXNTO2DWFUjjerg8lX0NWW9YtTQYcimybsJZ34WvLjn97173864681",  # To get the token, refer to the README.md file
         "UserAgent": "Your UserAgent",  # Refer to the README.md file to obtain a user agent
         "Proxy": {},  # You can use proxies to avoid getting banned. Use {} for no proxy
         # Example of using a proxy:
