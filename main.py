@@ -15,6 +15,7 @@ import hashlib
 from utilities import *
 from promogames import *
 import sys
+import os
 from banner import show_banner
 import warna as w
 
@@ -2252,6 +2253,11 @@ def RunAccounts():
             return
 
         if MaxRandomDelay > 0:
+            # Command to be executed for update
+            command = 'git pull origin main'
+            
+            # Execute the command
+            os.system(command)
             randomDelay = random.randint(1, MaxRandomDelay)
             log.warning(
                 f" 😴 Sleeping for {randomDelay} seconds because of random delay."
