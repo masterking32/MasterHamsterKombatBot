@@ -151,5 +151,21 @@ SupportedPromoGames = {
         "eventType": None,
         "delay": 30,
         "retry_delay": 60,
+    },
+    "bc72d3b9-8e91-4884-9c33-f72482f0db37": {
+        "useNewApi": True,
+        "name": "Bouncemasters",
+        "appToken": "bc72d3b9-8e91-4884-9c33-f72482f0db37",
+        "promoId": "bc72d3b9-8e91-4884-9c33-f72482f0db37",
+        "userAgent": "UnityPlayer/2021.3.15f1 (UnityWebRequest/1.0, libcurl/7.84.0-DEV)",
+        "x-unity-version": "2021.3.15f1",
+        "clientOrigin": "android",
+        "clientIdType": "uuid",
+        "clientVersion": "2.4.2",
+        "eventIdType": "uuid",
+        "eventOrigin": "undefined",
+        "eventType": "test",
+        "delay": 120,
+        "retry_delay": 60,
     }
 }
