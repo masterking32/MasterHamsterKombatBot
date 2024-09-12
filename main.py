@@ -16,6 +16,9 @@ from utilities import *
 from promogames import *
 import sys
 import os
+import git
+import subprocess
+import sys
 from banner import show_banner
 import warna as w
 
@@ -2253,11 +2256,6 @@ def RunAccounts():
             return
 
         if MaxRandomDelay > 0:
-            # Command to be executed for update
-            command = 'git pull origin main'
-            
-            # Execute the command
-            os.system(command)
             randomDelay = random.randint(1, MaxRandomDelay)
             log.warning(
                 f" 😴 Sleeping for {randomDelay} seconds because of random delay."
@@ -2269,6 +2267,26 @@ def RunAccounts():
                 f" 💤 Rechecking all accounts in {AccountsRecheckTime} seconds."
             )
             time.sleep(AccountsRecheckTime)
+
+
+
+def update_if_git_repo(repo_path):
+    if os.path.isdir(repo_path):
+        git_dir = os.path.join(repo_path, '.git')
+        if os.path.isdir(git_dir):
+            try:
+                repo = git.Repo(repo_path)
+                # Execute git pull
+                subprocess.run(["git", "pull", "origin", "main"], cwd=repo_path)
+                # Restart the script
+                print("Restarting script...")
+                os.execv(sys.executable, ['python'] + sys.argv)
+            except git.exc.InvalidGitRepositoryError:
+                pass
+
+# Example usage
+repo_path = 'https://github.com/masterking32/MasterHamsterKombatBot.git'
+update_if_git_repo(repo_path)
 
 
 def loading_bar2(duration):
