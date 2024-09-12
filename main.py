@@ -18,7 +18,6 @@ import sys
 import os
 import git
 import subprocess
-import sys
 from banner import show_banner
 import warna as w
 
