@@ -154,13 +154,17 @@ class HamsterKombatAccount:
 
         try:
             if method == "GET":
-                response = requests.get(url, headers=defaultHeaders, proxies=self.Proxy)
+                response = requests.get(
+                    url, headers=defaultHeaders, proxies=self.Proxy, timeout=30
+                )
             elif method == "POST":
                 response = requests.post(
-                    url, headers=headers, data=payload, proxies=self.Proxy
+                    url, headers=headers, data=payload, proxies=self.Proxy, timeout=30
                 )
             elif method == "OPTIONS":
-                response = requests.options(url, headers=headers, proxies=self.Proxy)
+                response = requests.options(
+                    url, headers=headers, proxies=self.Proxy, timeout=30
+                )
             else:
                 log.error(
                     f"{w.rs}{w.g}[{self.account_name}]{w.rs}: ✖ Invalid method: {w.r}{method}"
@@ -1515,7 +1519,10 @@ class HamsterKombatAccount:
             "Referer": "",
             "Content-Type": "application/json; charset=utf-8",
         }
-        if promoData.get("useNewApi") and promoData["promoId"] == "e68b39d2-4880-4a31-b3aa-0393e7df10c7":
+        if (
+            promoData.get("useNewApi")
+            and promoData["promoId"] == "e68b39d2-4880-4a31-b3aa-0393e7df10c7"
+        ):
             headers_post["Authorization"] = "Bearer"
 
         if "userAgent" in promoData and promoData["userAgent"] != None:
