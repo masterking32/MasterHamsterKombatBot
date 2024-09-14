@@ -167,5 +167,21 @@ SupportedPromoGames = {
         "eventType": "test",
         "delay": 120,
         "retry_delay": 60,
+    },
+    "4bf4966c-4d22-439b-8ff2-dc5ebca1a600": {
+        "useNewApi": True,
+        "name": "Hide Ball",
+        "appToken": "4bf4966c-4d22-439b-8ff2-dc5ebca1a600",
+        "promoId": "4bf4966c-4d22-439b-8ff2-dc5ebca1a600",
+        "userAgent": "UnityPlayer/2022.3.38f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)",
+        "x-unity-version": "2022.3.38f1",
+        "clientOrigin": "android",
+        "clientIdType": "32str",
+        "clientVersion": "1.2.4",
+        "eventIdType": "uuid",
+        "eventOrigin": "undefined",
+        "eventType": "undefined",
+        "delay": 30,
+        "retry_delay": 30,
     }
 }

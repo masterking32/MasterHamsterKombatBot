@@ -1395,14 +1395,16 @@ class HamsterKombatAccount:
         promo_count = 0
         shuffled_promos = response["promos"][:]
         random.shuffle(shuffled_promos)
-        for promo in shuffled_promos:
 
+        for promo in shuffled_promos:
             if promo["promoId"] not in SupportedPromoGames:
                 log.warning(
                     f"{w.rs}{w.g}[{self.account_name}]{w.rs}: 🤖 {w.y}Detected unknown playground game: {w.r}{promo['title']['en']}. {w.y}Check project github for updates."
                 )
-                continue
 
+        for promo in shuffled_promos:
+            if promo["promoId"] not in SupportedPromoGames:
+                continue
             if self.CheckPlayGroundGameState(promo, response):
                 promoData = SupportedPromoGames[promo["promoId"]]
 
