@@ -1403,6 +1403,8 @@ class HamsterKombatAccount:
                 )
 
         for promo in shuffled_promos:
+            if promo["promoId"] not in SupportedPromoGames:
+                continue
             if self.CheckPlayGroundGameState(promo, response):
                 promoData = SupportedPromoGames[promo["promoId"]]
 
