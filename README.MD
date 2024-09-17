@@ -15,7 +15,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 ✅ Tested and confirmed to work as of `17 September 2024`. ✅
 
-<img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/screenshot.png" alt="Screenshot" />
+<img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/Updated%20Screenshot.png" alt="Screenshot" />
 
 #### ⭐ If you find this project useful, please consider giving it a star! ⭐
 
