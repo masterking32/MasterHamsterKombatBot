@@ -498,6 +498,8 @@ class HamsterKombatAccount:
         return self.HttpRequest(url, headers, "POST", 200, payload=payload)
 
     def GetTaskReward(self, taskObj):
+        if not self.configData:
+            return "Unable to get reward data"
         try:
             tasksData = self.configData.get("tasks", [])
             reward = ""
@@ -1836,7 +1838,8 @@ class HamsterKombatAccount:
         AccountConfigVersionData = None
         if self.configVersion != "":
             AccountConfigVersionData = self.GetAccountConfigVersionRequest()
-            self.configData = AccountConfigVersionData.get("config", {})
+            if AccountConfigVersionData.get("config", {}):
+                self.configData = AccountConfigVersionData.get("config", {})
             log.info(
                 f"{w.rs}{w.g}[{self.account_name}]{w.rs}: └─ Account config version: {w.b}{self.configVersion}"
             )
