@@ -498,6 +498,8 @@ class HamsterKombatAccount:
         return self.HttpRequest(url, headers, "POST", 200, payload=payload)
 
     def GetTaskReward(self, taskObj):
+        if not self.configData:
+            return "Unable to get reward data"
         try:
             tasksData = self.configData.get("tasks", [])
             reward = ""
@@ -1836,7 +1838,8 @@ class HamsterKombatAccount:
         AccountConfigVersionData = None
         if self.configVersion != "":
             AccountConfigVersionData = self.GetAccountConfigVersionRequest()
-            self.configData = AccountConfigVersionData.get("config", {})
+            if AccountConfigVersionData.get("config", {}):
+                self.configData = AccountConfigVersionData.get("config", {})
             log.info(
                 f"{w.rs}{w.g}[{self.account_name}]{w.rs}: └─ Account config version: {w.b}{self.configVersion}"
             )
@@ -2006,11 +2009,12 @@ class HamsterKombatAccount:
                 day = streak_days.get("days")
                 week = streak_days.get("weeks")
                 reward = self.GetTaskReward(streak_days)
+                reward = f"{w.g}{reward}" if "Unable" not in reward else f"{w.y}{reward}"
 
                 time.sleep(2)
                 self.CheckTaskRequest(streak_days["id"])
                 log.info(
-                    f"{w.rs}{w.g}[{self.account_name}]{w.rs}: └─  Daily task completed successfully, Week: {w.g}{week}{w.rs}, Day: {w.g}{day}{w.rs}, Reward: {w.g}{reward}{w.rs}."
+                    f"{w.rs}{w.g}[{self.account_name}]{w.rs}: └─  Daily task completed successfully, Week: {w.g}{week}{w.rs}, Day: {w.g}{day}{w.rs}, Reward: {reward}."
                 )
                 self.SendTelegramLog(
                     f"[{self.account_name}]: ✅ Daily task completed successfully, Week: {week}, Day: {day}, Reward: {reward}.",
@@ -2038,10 +2042,11 @@ class HamsterKombatAccount:
                     )
                     selected_task = task["id"]
                     reward = self.GetTaskReward(task)
+                    reward = f"{w.g}{reward}" if "Unable" not in reward else f"{w.y}{reward}"
                     time.sleep(2)
                     self.CheckTaskRequest(selected_task)
                     log.info(
-                        f"{w.rs}{w.g}[{self.account_name}]{w.rs}: └─  Task completed - id: {w.r}{selected_task}{w.rs}, Reward: {w.y}{reward}"
+                        f"{w.rs}{w.g}[{self.account_name}]{w.rs}: └─  Task completed - id: {w.r}{selected_task}{w.rs}, Reward: {reward}"
                     )
                     self.SendTelegramLog(
                         f"[{self.account_name}]: ✅ Task completed - id: {selected_task}, Reward: {reward}",
