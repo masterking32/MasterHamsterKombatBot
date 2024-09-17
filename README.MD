@@ -13,9 +13,9 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 <hr>
 
-✅ Tested and confirmed to work as of `10 September 2024`. ✅
+✅ Tested and confirmed to work as of `17 September 2024`. ✅
 
-<img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/screenshot.png" alt="Screenshot" />
+<img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/Updated%20Screenshot.png" alt="Screenshot" />
 
 #### ⭐ If you find this project useful, please consider giving it a star! ⭐
 
@@ -51,8 +51,8 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Playground `Stone Age` added. (September 06, 2024)
 - Playground `Bouncemasters` added. (September 12, 2024)
 - Playground `Hide Ball` added. (September 14, 2024)
-- Automatically complete Hamster Kombat **Mini-Games** are **temporarily disabled**. (August 30, 2024)
 - Automatically buy daily combo with an API. (September 07, 2024)
+- Automatically complete Hamster Kombat **Mini-Games** are **temporarily disabled**. (August 30, 2024)
 
 <hr>
 
