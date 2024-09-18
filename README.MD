@@ -68,6 +68,7 @@ git clone https://github.com/masterking32/MasterHamsterKombatBot
 ```
 2. Install Python 3.
 3. Install the required packages:
+
 Windows
 ```bat
 pip install requests colorlog
@@ -80,6 +81,7 @@ pip3 install requests colorlog
 4. Add your accounts
 
 - Copy the config.py.example file to config.py:
+
 Windows
 ```bat
 copy config.py.example config.py
@@ -94,6 +96,7 @@ cp config.py.example config.py
 - Configure accounts
 
 5. Execute the command:
+
 Windows
 ```bat
 py main.py
