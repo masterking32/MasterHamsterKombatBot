@@ -80,7 +80,7 @@ pip3 install requests colorlog
 
 4. Add your accounts
 
-- Copy the `config.py.example` file to `config.py`:
+- Copy the `config.py.example` file and rename it to `config.py`:
 
 Windows
 ```bat
