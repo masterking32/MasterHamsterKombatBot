@@ -102,7 +102,7 @@ Windows
 py main.py
 ```
 Linux & Mac
-```bat
+```bash
 python3 main.py
 ```
 6. Have fun!
