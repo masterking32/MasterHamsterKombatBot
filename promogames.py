@@ -183,5 +183,21 @@ SupportedPromoGames = {
         "eventType": "undefined",
         "delay": 30,
         "retry_delay": 30,
+    },
+    "d2378baf-d617-417a-9d99-d685824335f0": {
+        "useNewApi": True,
+        "name": "Pin Out Master",
+        "appToken": "d2378baf-d617-417a-9d99-d685824335f0",
+        "promoId": "d2378baf-d617-417a-9d99-d685824335f0",
+        "userAgent": "UnityPlayer/2022.3.41f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)",
+        "x-unity-version": "2022.3.41f1",
+        "clientOrigin": "android",
+        "clientIdType": "32str",
+        "clientVersion": "1.2.6",
+        "eventIdType": "uuid",
+        "eventOrigin": "undefined",
+        "eventType": "undefined",
+        "delay": 30,
+        "retry_delay": 30,
     }
 }
