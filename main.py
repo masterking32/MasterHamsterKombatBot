@@ -2277,11 +2277,11 @@ def RunAccounts():
             time.sleep(randomDelay)
 
         if AccountsRecheckTime > 0:
-            log.warning(
-                f" 💤 Rechecking all accounts in {AccountsRecheckTime} seconds."
-            )
+            if len(AccountList) > 1:
+                log.warning(f" 💤 Rechecking all accounts in {AccountsRecheckTime} seconds.")
+            else:
+                log.warning(f" 💤 Rechecking the account in {AccountsRecheckTime} seconds.")
             time.sleep(AccountsRecheckTime)
-
 
 def loading_bar2(duration):
     total_steps = 20
