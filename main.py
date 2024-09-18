@@ -1498,6 +1498,10 @@ class HamsterKombatAccount:
                 clientId = "".join(
                     random.choices("abcdefghijklmnopqrstuvwxyz0123456789", k=16)
                 ).upper()
+            elif promoData["clientIdType"] == "ts+19dig":
+                ts = str(int(datetime.datetime.now().timestamp() * 1000))
+                nums = "".join(random.choices("0123456789", k=19))
+                clientId = f"{ts}-{nums}"
             elif promoData["clientIdType"] == "uuid":
                 clientId = str(uuid.uuid4())
 

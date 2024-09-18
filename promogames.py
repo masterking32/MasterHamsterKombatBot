@@ -198,6 +198,22 @@ SupportedPromoGames = {
         "eventOrigin": "undefined",
         "eventType": "undefined",
         "delay": 30,
-        "retry_delay": 30,
+        "retry_delay": 50,
+    },
+    "4bdc17da-2601-449b-948e-f8c7bd376553": {
+        "useNewApi": True,
+        "name": "Count Masters",
+        "appToken": "4bdc17da-2601-449b-948e-f8c7bd376553",
+        "promoId": "4bdc17da-2601-449b-948e-f8c7bd376553",
+        "userAgent": "UnityPlayer/2022.3.30f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)",
+        "x-unity-version": "2022.3.30f1",
+        "clientOrigin": "android",
+        "clientIdType": "ts+19dig",
+        "clientVersion": "1.83.10",
+        "eventIdType": "StartLevel",
+        "eventOrigin": "undefined",
+        "eventType": None,
+        "delay": 30,
+        "retry_delay": 62,
     }
 }
