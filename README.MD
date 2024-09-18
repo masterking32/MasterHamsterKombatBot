@@ -5,6 +5,10 @@
 
 <hr>
 
+## 🔴 Follow the [MasterCryptoFarmBot](https://github.com/masterking32/MasterCryptoFarmBot) on GitHub and join our [Telegram Channel](https://t.me/MasterCryptoFarmBot) to stay updated on new releases about upcoming bots. The MasterCryptoFarmBot is an all-in-one app with a user-friendly interface, allowing anyone to easily run Telegram farming bots! 🔴
+
+<hr>
+
 Master Hamster Kombat Bot is a Python-based automation tool specifically designed for the game Hamster Kombat. This bot can perform all in-game tasks, such as auto-tapping, cipher tasks, and purchasing the best cards on your behalf. It's a free and fully automated farming bot that enhances your Hamster Kombat gaming experience. Additionally, it supports multi-accounts and is 100% open-source and free. If you find it useful, you can consider donating to support us.
 
 ❌ This project is intended for testing purposes only. Please refrain from abusing it. ❌
@@ -13,9 +17,9 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 
 <hr>
 
-✅ Tested and confirmed to work as of `10 September 2024`. ✅
+✅ Tested and confirmed to work as of `17 September 2024`. ✅
 
-<img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/screenshot.png" alt="Screenshot" />
+<img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/Updated%20Screenshot.png" alt="Screenshot" />
 
 #### ⭐ If you find this project useful, please consider giving it a star! ⭐
 
@@ -51,8 +55,8 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Playground `Stone Age` added. (September 06, 2024)
 - Playground `Bouncemasters` added. (September 12, 2024)
 - Playground `Hide Ball` added. (September 14, 2024)
-- Automatically complete Hamster Kombat **Mini-Games** are **temporarily disabled**. (August 30, 2024)
 - Automatically buy daily combo with an API. (September 07, 2024)
+- Automatically complete Hamster Kombat **Mini-Games** are **temporarily disabled**. (August 30, 2024)
 
 <hr>
 
