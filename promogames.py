@@ -247,5 +247,21 @@ SupportedPromoGames = {
         "eventType": None,
         "delay": 120,
         "retry_delay": 180,
+    },
+    "d02fc404-8985-4305-87d8-32bd4e66bb16": {
+        "useNewApi": True,
+        "name": "Factory World",
+        "appToken": "d02fc404-8985-4305-87d8-32bd4e66bb16",
+        "promoId": "d02fc404-8985-4305-87d8-32bd4e66bb16",
+        "userAgent": "UnityPlayer/2022.3.46f1 (UnityWebRequest/1.0, libcurl/8.5.0-DEV)",
+        "x-unity-version": "2022.3.46f1",
+        "clientOrigin": "android",
+        "clientIdType": "uuid",
+        "clientVersion": "1.43.18",
+        "eventIdType": "uuid",
+        "eventOrigin": "undefined",
+        "eventType": "HamsterGathred",
+        "delay": 120,
+        "retry_delay": 180,
     }
 }
