@@ -58,7 +58,7 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Playground `Bouncemasters` added. (September 12, 2024)
 - Playground `Hide Ball` added. (September 14, 2024)
 - Playground `Pin Out Master: Tap Away` and `Count Masters` added. (September 18, 2024)
-- Playground `Infected Frontier` and `Among Water` added. (September 19, 2024)
+- Playground `Infected Frontier`, `Among Water` and `Factory World` added. (September 19, 2024)
 
 <hr>
 
