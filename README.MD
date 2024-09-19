@@ -50,14 +50,15 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 - Playground `Cafe Dash` added. (August 28, 2024)
 - Playground `Bike Ride 3D` and `Mud Racing` removed. (August 30, 2024)
 - Playground `Gangs Wars` and `Zoopolis` added. (August 30, 2024)
+- Automatically complete Hamster Kombat **Mini-Games** are **disabled**. (August 30, 2024)
 - Playground `Cafe Dash` and `Gangs Wars` removed. (September 05, 2024)
 - Playground `Fluff Crusade` added. (September 05, 2024)
 - Playground `Stone Age` added. (September 06, 2024)
+- Automatically buy daily combo with an API. (September 07, 2024)
 - Playground `Bouncemasters` added. (September 12, 2024)
 - Playground `Hide Ball` added. (September 14, 2024)
 - Playground `Pin Out Master: Tap Away` and `Count Masters` added. (September 18, 2024)
-- Automatically buy daily combo with an API. (September 07, 2024)
-- Automatically complete Hamster Kombat **Mini-Games** are **temporarily disabled**. (August 30, 2024)
+- Playground `Infected Frontier` and `Among Water` added. (September 19, 2024)
 
 <hr>
 
