@@ -5,7 +5,7 @@
 
 <hr>
 
-## 🔴 Follow the [MasterCryptoFarmBot](https://github.com/masterking32/MasterCryptoFarmBot) on GitHub and join our [Telegram Channel](https://t.me/MasterCryptoFarmBot) to stay updated on new releases about upcoming bots. The MasterCryptoFarmBot is an all-in-one app with a user-friendly interface, allowing anyone to easily run Telegram farming bots! 🔴
+## ✅🔴 Follow the [MasterCryptoFarmBot](https://github.com/masterking32/MasterCryptoFarmBot) on GitHub and join our [Telegram Channel](https://t.me/MasterCryptoFarmBot) to stay updated on new releases about upcoming bots. The MasterCryptoFarmBot is an all-in-one app with a user-friendly interface, allowing anyone to easily run Telegram farming bots! 🔴✅
 
 <hr>
 
