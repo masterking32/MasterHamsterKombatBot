@@ -159,11 +159,11 @@ class HamsterKombatAccount:
                 )
             elif method == "POST":
                 response = requests.post(
-                    url, headers=headers, data=payload, proxies=self.Proxy, timeout=30
+                    url, headers=defaultHeaders, data=payload, proxies=self.Proxy, timeout=30
                 )
             elif method == "OPTIONS":
                 response = requests.options(
-                    url, headers=headers, proxies=self.Proxy, timeout=30
+                    url, headers=defaultHeaders, proxies=self.Proxy, timeout=30
                 )
             else:
                 log.error(
