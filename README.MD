@@ -73,18 +73,29 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 git clone https://github.com/masterking32/MasterHamsterKombatBot
 ```
 2. Install Python 3.
-3. Install the required packages:
+3. Update pip:
 
 Windows
 ```bat
-pip install requests colorlog
+py -m pip install --upgrade pip
+```
+Linux & Mac
+```bash
+python3 -m pip install --upgrade pip
+```
+
+4. Install the required packages:
+
+Windows
+```bat
+py -m pip install requests colorlog
 ```
 Linux & Mac
 ```bash
 pip3 install requests colorlog
 ```
 
-4. Add your accounts
+5. Add your accounts
 
 - Copy the `config.py.example` file and rename the copy to `config.py`:
 
@@ -101,7 +112,7 @@ cp config.py.example config.py
 - [Find your device's UserAgent](https://github.com/masterking32/MasterHamsterKombatBot/blob/main/useful_files/user-agents.md) and place it in the `config.py` file.
 - Configure accounts
 
-5. Execute the command:
+6. Execute the command:
 
 Windows
 ```bat
@@ -111,7 +122,7 @@ Linux & Mac
 ```bash
 python3 main.py
 ```
-6. Have fun!
+7. Have fun!
 
 <hr>
 
