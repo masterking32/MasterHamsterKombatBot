@@ -9,6 +9,11 @@
 
 <hr>
 
+## 🤖 Hamster Kombat S1 has been finished!
+🥂 Future updates for next seasons and other bots will be available in MasterCryptoFarmBot](https://github.com/masterking32/MasterCryptoFarmBot), join our [Telegram Channel](https://t.me/MasterCryptoFarmBot) to stay tuned.
+
+<hr>
+
 Master Hamster Kombat Bot is a Python-based automation tool specifically designed for the game Hamster Kombat. This bot can perform all in-game tasks, such as auto-tapping, cipher tasks, and purchasing the best cards on your behalf. It's a free and fully automated farming bot that enhances your Hamster Kombat gaming experience. Additionally, it supports multi-accounts and is 100% open-source and free. If you find it useful, you can consider donating to support us.
 
 ❌ This project is intended for testing purposes only. Please refrain from abusing it. ❌
