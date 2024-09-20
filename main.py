@@ -130,7 +130,7 @@ class HamsterKombatAccount:
         defaultHeaders = {
             "Accept": "*/*",
             "Connection": "keep-alive",
-            "Host": "api.hamsterkombatgame.io",
+            # "Host": "api.hamsterkombatgame.io",
             "Origin": "https://hamsterkombatgame.io",
             "Referer": "https://hamsterkombatgame.io/",
             "Sec-Fetch-Dest": "empty",
