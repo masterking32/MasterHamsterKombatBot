@@ -68,26 +68,49 @@ Master Hamster Kombat Bot is a Python-based automation tool specifically designe
 <hr>
 
 ## 💻 Installation
-1. Install Git & Download the Project.
+1. Install Git & Download the Project:
 ```bash
 git clone https://github.com/masterking32/MasterHamsterKombatBot
 ```
 2. Install Python 3.
-3. Install the required packages,
+3. Install the required packages:
 
-```bash
+Windows
+```bat
 pip install requests colorlog
+```
+Linux & Mac
+```bash
+pip3 install requests colorlog
 ```
 
 4. Add your accounts
 
-- Copy the `config.py.example` file to `config.py`. (`cp config.py.example config.py`)
+- Copy the `config.py.example` file and rename the copy to `config.py`:
+
+Windows
+```bat
+copy config.py.example config.py
+```
+Linux & Mac
+```bash
+cp config.py.example config.py
+```
 
 - Locate your `Authorization Bearer token` and place it in the `config.py` file. [How to Obtain a Token and Set Up the Bot?](https://www.youtube.com/watch?v=cjWE7DmMFgw)
 - [Find your device's UserAgent](https://github.com/masterking32/MasterHamsterKombatBot/blob/main/useful_files/user-agents.md) and place it in the `config.py` file.
 - Configure accounts
 
-5. Execute the command `py main.py`.
+5. Execute the command:
+
+Windows
+```bat
+py main.py
+```
+Linux & Mac
+```bash
+python3 main.py
+```
 6. Have fun!
 
 <hr>
