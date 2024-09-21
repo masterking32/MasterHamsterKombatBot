@@ -14,6 +14,21 @@
 
 ---
 
+## 📦 Project Archived (as of September 21, 2024)
+
+We have officially archived this project and are excited to announce that we've moved on to a brand-new venture to provide you with an even more incredible experience through **Air-Drop Farming**! 🚀
+
+### 🌟 Join Our New Project!
+We're working hard to create something amazing, and we'd love for you to be part of it. Stay updated and be the first to know about our progress:
+
+- **Join our Telegram Channel**: [MasterCryptoFarmBot Channel](https://t.me/MasterCryptoFarmBot)
+- **Join our Telegram Group**: [MasterCryptoFarmBot Group](https://t.me/MasterCryptoFarmBotGroup)
+- **Check out the new project**: [MasterCryptoFarmBot on GitHub](https://github.com/masterking32/MasterCryptoFarmBot)
+
+Thank you for your continued support, and we look forward to seeing you on this exciting journey! 🎉
+
+<hr>
+
 Developed By [MasterkinG32](https://github.com/masterking32)
 
 🙏 A Heartfelt Thanks to Our Amazing Contributors
