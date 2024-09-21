@@ -1765,7 +1765,7 @@ class HamsterKombatAccount:
             return
 
         log.info(
-            f"{w.rs}{w.g}[{self.account_name}]{w.rs}: 💰 Account Balance Coins: {w.y}{number_to_string(float("{:.2f}".format(float("{:.2f}".format(self.balanceCoins)))))}"
+            f"{w.rs}{w.g}[{self.account_name}]{w.rs}: 💰 Account Balance Coins: {w.y}{number_to_string(float("{:.2f}".format(self.balanceCoins)))}"
         )
 
         AccountConfigData = self.GetAccountConfigRequest()
