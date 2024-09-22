@@ -55,3 +55,10 @@ We truly appreciate your hard work and commitment! 🎉
 
 For a full list of our amazing contributors, please check out our [Contributors Page](https://github.com/masterking32/MasterHamsterKombatBot/graphs/contributors).
 <hr>
+
+## 📽️ Tutorial and Test
+<a href="https://www.youtube.com/watch?v=cjWE7DmMFgw"  target="_blank">
+  <img align="center" src="https://raw.githubusercontent.com/masterking32/MasterHamsterKombatBot/main/thumbnail.png" alt="Youtube Video" />
+</a>
+---
+
